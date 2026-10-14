@@ -99,6 +99,16 @@ class DriverPairsTest {
     }
 
     @Test
+    fun tegraIsDetectedAndWarnsInsteadOfBlocking() {
+        assertTrue(GpuInfo.isTegra(platform = "tegra", hardware = "foster"))
+        assertTrue(GpuInfo.isTegra(platform = "", hardware = "darcy"))
+        assertFalse(GpuInfo.isTegra(platform = "taro", hardware = "qcom"))
+        val tegra = GpuInfo("Tegra X1 (Maxwell)", 0, Family.TEGRA, "Nvidia Tegra X1 family", false)
+        assertEquals(GpuInfo.Support.UNTESTED, tegra.support)
+        assertNull(DriverPairs.recommendedKey(tegra, emptyList()))
+    }
+
+    @Test
     fun adreno840GetsTheNewestOfficialDdTurnip() {
         fun bundle(tag: String) = TurnipReleases.Asset("DroidDeck", tag, "$tag.zip", "https://example/$tag", 6_000_000,
             false, "Android + Linux", "0".repeat(64), DriverPairs.ddTurnip(tag), bundle = true)

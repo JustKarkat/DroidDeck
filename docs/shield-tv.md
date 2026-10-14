@@ -29,6 +29,20 @@ DroidDeck assumes Adreno + Turnip + Zink:
 - `main` tracks `upstream/main` (DroidDeck). Never commit here.
 - `shield-tv` is the port. Rebase onto upstream when it moves: `git fetch upstream && git rebase upstream/main`.
 
-## Next step
+## Status (no-ADB pass, untested on hardware)
 
-Run `tools/shield-probe.sh` against the Shield over adb and paste the output into an issue. Everything after that depends on what the box reports (`/dev/dri` present or not, Vulkan driver name, `ro.board.platform`).
+`shield-tv` now boots past every Adreno gate without a device in hand:
+
+- Tegra detected as `Family.TEGRA` → `UNTESTED` (warns, never blocks install/launch).
+- Compositor uses the system Nvidia Vulkan driver (no Turnip unpack on Tegra).
+- Guest ICD prefers NVK → lavapipe/swrast → freedreno, so stock kernels land on software rendering instead of a dead freedreno ICD.
+- NVK sandbox binds wired for custom kernels exposing `/dev/dri`.
+- Leanback launcher + optional touchscreen so one APK covers phones and TV.
+- New test in `DriverPairsTest.tegraIsDetectedAndWarnsInsteadOfBlocking`.
+
+Expect on stock Shield: Steam boots under Zink-on-lavapipe (slow), games mostly unplayable until NVK + `/dev/dri` exists. A57 has no TSO/LSE — use a FEX STABILITY preset.
+
+## Still needs a device
+
+- `sh tools/shield-probe.sh` (still valid) to confirm `/dev/dri`, Vulkan driver, `ro.board.platform`.
+- Real boot log, then D-pad/TV focus pass over the Compose UI.

@@ -16,6 +16,7 @@ object SocNames {
         "msmnile" to "Snapdragon 855/860", "kona" to "Snapdragon 865/870", "lahaina" to "Snapdragon 888",
         "taro" to "Snapdragon 8 Gen 1", "cape" to "Snapdragon 8+ Gen 1", "kalama" to "Snapdragon 8 Gen 2",
         "pineapple" to "Snapdragon 8 Gen 3", "sun" to "Snapdragon 8 Elite",
+        "tegra" to "Nvidia Tegra X1 family",
     )
 
     fun model(prop: (String) -> String = GpuInfo::systemProperty): String {

@@ -21,6 +21,7 @@ data class GpuInfo(
         A7XX("Adreno 7xx"),
         A6XX("Adreno 6xx"),
         ADRENO_UNKNOWN("Adreno"),
+        TEGRA("Nvidia Tegra"),
         NOT_ADRENO("Not an Adreno GPU");
 
         fun label(context: Context): String = if (this == NOT_ADRENO) context.getString(R.string.gpuinfo_not_adreno) else label
@@ -30,6 +31,7 @@ data class GpuInfo(
 
     val support: Support
         get() = when {
+            family == Family.TEGRA -> Support.UNTESTED
             family == Family.NOT_ADRENO -> Support.UNSUPPORTED
             family == Family.A6XX && model == 650 -> Support.TESTED
             family == Family.A8XX -> Support.TESTED
@@ -40,14 +42,15 @@ data class GpuInfo(
     val supportText: String
         get() = when (support) {
             Support.TESTED -> "Supported"
-            Support.UNTESTED -> if (family == Family.A7XX_LOW) "Experimental: its drivers are test builds"
+            Support.UNTESTED -> if (family == Family.TEGRA) "Experimental: Tegra via NVK/software rendering"
+                else if (family == Family.A7XX_LOW) "Experimental: its drivers are test builds"
                 else "Outside tested hardware (Adreno 650, 725 and newer): it may not run"
             Support.UNSUPPORTED -> "Not supported: DroidDeck needs an Adreno (Snapdragon) GPU"
         }
 
     fun supportText(context: Context): String = context.getString(when (support) {
         Support.TESTED -> R.string.gpuinfo_supported
-        Support.UNTESTED -> if (family == Family.A7XX_LOW) R.string.gpuinfo_experimental else R.string.gpuinfo_below_tested
+        Support.UNTESTED -> if (family == Family.A7XX_LOW || family == Family.TEGRA) R.string.gpuinfo_experimental else R.string.gpuinfo_below_tested
         Support.UNSUPPORTED -> R.string.gpuinfo_unsupported
     })
 
@@ -58,6 +61,12 @@ data class GpuInfo(
 
         fun detect(): GpuInfo {
             val adreno = File("/sys/class/kgsl/kgsl-3d0").exists() || File("/vendor/lib64/hw/vulkan.adreno.so").exists()
+            if (!adreno && isTegra()) {
+                return GpuInfo(
+                    name = tegraName(), model = 0, family = Family.TEGRA, soc = SocNames.label(),
+                    oneUi8Gen2 = false, kgslName = "", modelSource = "platform",
+                )
+            }
             val raw = listOf("/sys/class/kgsl/kgsl-3d0/gpu_model", "/sys/class/kgsl/kgsl-3d0/gpu_chipid")
                 .firstNotNullOfOrNull { FileUtils.readString(File(it))?.trim()?.takeIf(String::isNotEmpty) }
             val soc = if (adreno) SocNames.label() else ""
@@ -105,6 +114,22 @@ data class GpuInfo(
             model >= 700 -> Family.A7XX
             model >= 600 -> Family.A6XX
             else -> Family.ADRENO_UNKNOWN
+        }
+
+        // ponytail: sysfs/blob heuristics, no new API; Shield reports tegra platform + foster/darcy/sif hardware.
+        fun isTegra(
+            platform: String = systemProperty("ro.board.platform"),
+            hardware: String = android.os.Build.HARDWARE,
+        ): Boolean {
+            if (platform.equals("tegra", ignoreCase = true)) return true
+            if (hardware.lowercase() in listOf("foster", "darcy", "sif", "loki", "foster_e", "darcy_e")) return true
+            return File("/dev/nvhost-ctrl").exists() || File("/dev/nvmap").exists() ||
+                File("/vendor/lib64/hw/vulkan.tegra.so").exists()
+        }
+
+        private fun tegraName(hardware: String = android.os.Build.HARDWARE): String = when (hardware.lowercase()) {
+            "darcy", "sif" -> "Tegra X1+ (Maxwell)"
+            else -> "Tegra X1 (Maxwell)"
         }
     }
 }

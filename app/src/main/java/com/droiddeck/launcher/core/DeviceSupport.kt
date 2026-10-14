@@ -9,6 +9,10 @@ object DeviceSupport {
     fun adreno(): Boolean =
         File("/sys/class/kgsl/kgsl-3d0").exists() || File("/vendor/lib64/hw/vulkan.adreno.so").exists()
 
+    fun tegra(): Boolean = com.droiddeck.launcher.gpu.GpuInfo.isTegra()
+
+    fun supportedGpu(): Boolean = adreno() || tegra()
+
     fun gpuName(context: Context): String {
         val soc = if (Build.VERSION.SDK_INT >= 31) Build.SOC_MODEL.takeIf { it.isNotBlank() && it != Build.UNKNOWN } else null
         return soc?.let { "$it (${Build.HARDWARE})" } ?: Build.HARDWARE.ifBlank { context.getString(R.string.gpu_this_gpu) }

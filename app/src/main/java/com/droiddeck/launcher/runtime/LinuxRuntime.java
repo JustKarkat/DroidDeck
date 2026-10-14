@@ -80,11 +80,14 @@ public final class LinuxRuntime {
     public static File vulkanIcd(Context context) {
         File icdDir = new File(rootDir(context), "usr/share/vulkan/icd.d");
         File[] manifests = icdDir.listFiles((dir, name) -> name.endsWith(".json"));
-        if (manifests == null) return null;
-        for (File manifest : manifests) {
-            if (manifest.getName().contains("freedreno")) return manifest;
+        if (manifests == null || manifests.length == 0) return null;
+        // ponytail: freedreno-first broke Tegra (no kgsl); prefer whatever can actually open: NVK, then software, then freedreno.
+        for (String want : new String[]{"nouveau", "lvp", "swrast", "freedreno"}) {
+            for (File manifest : manifests) {
+                if (manifest.getName().contains(want)) return manifest;
+            }
         }
-        return manifests.length > 0 ? manifests[0] : null;
+        return manifests[0];
     }
 
     public static List<String> command(Context context, File sessionRoot, File runtimeDir,

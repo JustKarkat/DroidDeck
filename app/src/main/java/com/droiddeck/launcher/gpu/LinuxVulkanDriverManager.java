@@ -108,7 +108,14 @@ public class LinuxVulkanDriverManager {
                     String base = new File(entry.getName()).getName();
                     if (base.isEmpty()) continue;
                     if (base.startsWith("libvulkan_freedreno") && base.endsWith(".so")) {
-                        if (soName != null) Log.w(TAG, "zip has several libvulkan_freedreno*.so; using the first (" + soName + ")");
+                        if (soName != null) Log.w(TAG, "zip has several libvulkan_*.so; using the first (" + soName + ")");
+                        else {
+                            Files.copy(zis, new File(tmpDir, LIB_NAME).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            soName = base;
+                        }
+                    } else if ((base.startsWith("libvulkan_nouveau") || base.startsWith("libvulkan_lvp")) && base.endsWith(".so")) {
+                        // ponytail: Tegra NVK / software fallback import under the same freedreno slot; ICD is rewritten on adopt anyway.
+                        if (soName != null) Log.w(TAG, "zip has several libvulkan_*.so; using the first (" + soName + ")");
                         else {
                             Files.copy(zis, new File(tmpDir, LIB_NAME).toPath(), StandardCopyOption.REPLACE_EXISTING);
                             soName = base;

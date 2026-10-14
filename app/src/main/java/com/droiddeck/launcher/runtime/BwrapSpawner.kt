@@ -189,21 +189,30 @@ object BwrapSpawner {
 
     private fun gpu(rootfs: String, root: File, env: MutableMap<String, String>): List<Bind>? {
         val lib = File(rootfs, "usr/lib")
-        val driver = File(lib, "libvulkan_freedreno.so")
-        if (!driver.isFile || !File("/dev/kgsl-3d0").exists()) return null
         if (env.containsKey("VK_ICD_FILENAMES") || env.containsKey("VK_DRIVER_FILES")) return null
         if (env["BL_DESKTOP"] == "1" && env["GAMESCOPE_WAYLAND_DISPLAY"] == null) return null
+        // ponytail: freedreno path unchanged; Tegra NVK second; otherwise CPU fallback (no binds).
+        if (File(lib, "libvulkan_freedreno.so").isFile && File("/dev/kgsl-3d0").exists()) {
+            return gpuBinds(lib, root, env, "libvulkan_freedreno.so", "freedreno_icd.json")
+        }
+        if (File(lib, "libvulkan_nouveau.so").isFile && File("/dev/dri").exists()) {
+            return gpuBinds(lib, root, env, "libvulkan_nouveau.so", "nouveau_icd.json")
+        }
+        return null
+    }
+
+    private fun gpuBinds(lib: File, root: File, env: MutableMap<String, String>, driver: String, icdName: String): List<Bind>? {
         val binds = ArrayList<Bind>()
-        for (name in listOf("libvulkan_freedreno.so", "libdisplay-info.so.3", "libSPIRV-Tools.so", "libSPIRV-Tools-opt.so")) {
+        for (name in listOf(driver, "libdisplay-info.so.3", "libSPIRV-Tools.so", "libSPIRV-Tools-opt.so")) {
             val f = File(lib, name)
             if (!f.exists()) { Log.w(TAG, "gpu: the runtime has no $name; apps draw on the CPU"); return null }
             binds.add(Bind(f.canonicalPath, "$GPU_DIR/$name"))
         }
-        val icd = File(root.parentFile, "freedreno_icd.json")
-        icd.writeText("{\"file_format_version\": \"1.0.0\", \"ICD\": {\"library_path\": \"$GPU_DIR/libvulkan_freedreno.so\", \"api_version\": \"1.4.0\"}}\n")
-        binds.add(Bind(icd.path, "$GPU_DIR/freedreno_icd.json"))
-        env["VK_DRIVER_FILES"] = "$GPU_DIR/freedreno_icd.json"
-        env["VK_ICD_FILENAMES"] = "$GPU_DIR/freedreno_icd.json"
+        val icd = File(root.parentFile, icdName)
+        icd.writeText("{\"file_format_version\": \"1.0.0\", \"ICD\": {\"library_path\": \"$GPU_DIR/$driver\", \"api_version\": \"1.4.0\"}}\n")
+        binds.add(Bind(icd.path, "$GPU_DIR/$icdName"))
+        env["VK_DRIVER_FILES"] = "$GPU_DIR/$icdName"
+        env["VK_ICD_FILENAMES"] = "$GPU_DIR/$icdName"
         if (!env.containsKey("MESA_LOADER_DRIVER_OVERRIDE") && !env.containsKey("GALLIUM_DRIVER")) {
             env["MESA_LOADER_DRIVER_OVERRIDE"] = "zink"
             env["GALLIUM_DRIVER"] = "zink"
