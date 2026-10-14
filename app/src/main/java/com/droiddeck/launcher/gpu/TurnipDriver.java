@@ -272,7 +272,7 @@ public final class TurnipDriver {
 
     private String chooseByDevice() {
         // ponytail: Turnip never loads on Tegra; null = system Vulkan driver for the compositor.
-        if (com.droiddeck.launcher.core.DeviceSupport.tegra()) {
+        if (com.droiddeck.launcher.core.DeviceSupport.INSTANCE.tegra()) {
             Log.i(TAG, "tegra device: using the system driver");
             return null;
         }
