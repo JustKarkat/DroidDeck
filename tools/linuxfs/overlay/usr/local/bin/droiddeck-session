@@ -223,7 +223,22 @@ if [ -z "${BL_INSIDE:-}" ]; then
     echo "== gamescope: mangoapp on ($(command -v mangoapp), config $MANGOHUD_CONFIGFILE)"
   fi
   export BL_INSIDE=1
-  exec gamescope "${args[@]}" -- "$0" "$mode" "$@"
+  # ponytail: temporary diagnostics, revert after the Tegra spike
+  echo "== probe-early: begin"
+  echo "== probe-early: /proc/self/limits"; cat /proc/self/limits 2>&1
+  echo "== probe-early: ulimit -a"; ulimit -a 2>&1
+  echo "== probe-early: meminfo"; head -6 /proc/meminfo 2>&1
+  echo "== probe-early: vulkaninfo"; if command -v vulkaninfo >/dev/null 2>&1; then timeout 30 vulkaninfo --summary 2>&1 | head -40; else echo "(no vulkaninfo)"; fi
+  echo "== probe-early: end"
+  # 0118-diag: source optional diag env overrides before launching gamescope (temporary bisect aid, revert)
+  [ -f /tmp/droiddeck-diag.env ] && . /tmp/droiddeck-diag.env && echo "== 0118-diag: diad env: $(tr '\n' ' ' < /tmp/droiddeck-diag.env)"
+  gamescope "${args[@]}" -- "$0" "$mode" "$@"; bl_rc=$?
+  if [ "$bl_rc" = 0 ]; then exit 0; fi
+  echo "== gamescope exited rc=$bl_rc; session kept alive for probing"
+  start_agent --no-focus
+  sleep 900
+  # ponytail: terminal keep-alive — don't fall through to steam bootstrap mid-probe
+  exit $bl_rc
 fi
 
 bl_displays() {

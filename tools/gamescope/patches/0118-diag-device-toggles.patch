@@ -1,0 +1,135 @@
+From 1c8e04fbeeff0102030405060708090a0b0c0d0f Mon Sep 17 00:00:00 2001
+From: JustKarkat <justkarkat@users.noreply.github.com>
+Date: Thu, 23 Oct 2026 00:00:00 +0000
+Subject: [PATCH] 0118-diag: env-toggleable device create pruning
+
+temporary diagnostic for the Shield TV lavapipe alloc failure: gamescope_diag_skip
+allows dropping device extensions/feature flags independently so the bisect can
+isolate which one makes vkAllocateMemory return -2 in the gamescope device context.
+---
+diff --git a0118/src/rendervulkan.cpp b0118/src/rendervulkan.cpp
+index de57e51..5c1c790 100644
+--- a0118/src/rendervulkan.cpp
++++ b0118/src/rendervulkan.cpp
+@@ -10,6 +10,8 @@
+ #include <array>
+ #include <bitset>
+ #include <deque>
++#include <set>
++#include <sstream>
+ #include <dlfcn.h>
+ #include "vulkan_include.h"
+ #include "Utils/Algorithm.h"
+@@ -579,7 +581,23 @@ bool CVulkanDevice::createDevice()
+ 
+ 	std::vector< const char * > enabledExtensions;
+ 
+-	if ( GetBackend()->UsesVulkanSwapchain() )
++	// 0118-diag: env-toggled device-create pruning for the Shield TV lvp alloc bisect
++	// gamescope_diag_skip=comma list of: ext-swapchain, ext-modifiers, ext-memfd,
++	// ext-semfd, ext-robustness2, ext-backend, ft-vk12, ft-ycbcr, ft-rob2, ft-pid,
++	// ft-pwait, ft-dynrender, ft-sh16
++	auto diagSkip = getenv( "gamescope_diag_skip" );
++	std::set< std::string > diagSkipped;
++	if ( diagSkip )
++	{
++		std::stringstream ss( diagSkip );
++		std::string tok;
++		while ( std::getline( ss, tok, ',' ) )
++			if ( !tok.empty() ) diagSkipped.insert( tok );
++	}
++	auto sk = [&diagSkipped]( const char *cat ) { return diagSkipped.count( cat ) != 0; };
++	vk_log.infof( "0118-diag: gamescope_diag_skip=%s", diagSkip ? diagSkip : "" );
++
++	if ( GetBackend()->UsesVulkanSwapchain() && !sk( "ext-swapchain" ) )
+ 	{
+ 		enabledExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+ 		enabledExtensions.push_back( VK_KHR_SWAPCHAIN_MUTABLE_FORMAT_EXTENSION_NAME );
+@@ -591,22 +609,28 @@ bool CVulkanDevice::createDevice()
+ 			enabledExtensions.push_back( VK_EXT_HDR_METADATA_EXTENSION_NAME );
+ 	}
+ 
+-	if ( m_bSupportsModifiers )
++	if ( m_bSupportsModifiers && !sk( "ext-modifiers" ) )
+ 	{
+ 		enabledExtensions.push_back( VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME );
+ 		enabledExtensions.push_back( VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME );
+ 	}
+ 
++	if ( !sk( "ext-memfd" ) )
++	{
+ 	enabledExtensions.push_back( VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME );
+ 	enabledExtensions.push_back( VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME );
++	}
+ 
++	if ( !sk( "ext-semfd" ) )
+ 	enabledExtensions.push_back( VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME );
+ 
++	if ( !sk( "ext-robustness2" ) )
+ 	enabledExtensions.push_back( VK_EXT_ROBUSTNESS_2_EXTENSION_NAME );
+ #if 0
+ 	enabledExtensions.push_back( VK_KHR_MAINTENANCE_5_EXTENSION_NAME );
+ #endif
+ 
++	if ( !sk( "ext-backend" ) )
+ 	for ( auto& extension : GetBackend()->GetDeviceExtensions( physDev() ) )
+ 		enabledExtensions.push_back( extension );
+ 
+@@ -643,26 +667,26 @@ bool CVulkanDevice::createDevice()
+ #if 0
+ 		.pNext = &maintenance5,
+ #endif
+-		.dynamicRendering = VK_TRUE,
++		.dynamicRendering = sk( "ft-dynrender" ) ? VK_FALSE : VK_TRUE,
+ 	};
+ 
+ 	VkPhysicalDevicePresentWaitFeaturesKHR presentWaitFeatures = {
+ 		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR,
+ 		.pNext = &features13,
+-		.presentWait = VK_TRUE,
++		.presentWait = sk( "ft-pwait" ) ? VK_FALSE : VK_TRUE,
+ 	};
+ 
+ 	VkPhysicalDevicePresentIdFeaturesKHR presentIdFeatures = {
+ 		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR,
+ 		.pNext = &presentWaitFeatures,
+-		.presentId = VK_TRUE,
++		.presentId = sk( "ft-pid" ) ? VK_FALSE : VK_TRUE,
+ 	};
+ 
+ 	VkPhysicalDeviceFeatures2 features2 = {
+ 		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+ 		.pNext = &presentIdFeatures,
+ 		.features = {
+-			.shaderInt16 = m_bSupportsFp16,
++			.shaderInt16 = ( m_bSupportsFp16 && !sk( "ft-sh16" ) ) ? VK_TRUE : VK_FALSE,
+ 		},
+ 	};
+ 
+@@ -678,21 +702,21 @@ bool CVulkanDevice::createDevice()
+ 	VkPhysicalDeviceVulkan12Features vulkan12Features = {
+ 		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+ 		.pNext = std::exchange(features2.pNext, &vulkan12Features),
+-		.shaderFloat16 = m_bSupportsFp16,
+-		.scalarBlockLayout = VK_TRUE,
+-		.timelineSemaphore = VK_TRUE,
++		.shaderFloat16 = ( m_bSupportsFp16 && !sk( "ft-vk12" ) ) ? VK_TRUE : VK_FALSE,
++		.scalarBlockLayout = sk( "ft-vk12" ) ? VK_FALSE : VK_TRUE,
++		.timelineSemaphore = sk( "ft-vk12" ) ? VK_FALSE : VK_TRUE,
+ 	};
+ 
+ 	VkPhysicalDeviceSamplerYcbcrConversionFeatures ycbcrFeatures = {
+ 		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES,
+ 		.pNext = std::exchange(features2.pNext, &ycbcrFeatures),
+-		.samplerYcbcrConversion = VK_TRUE,
++		.samplerYcbcrConversion = sk( "ft-ycbcr" ) ? VK_FALSE : VK_TRUE,
+ 	};
+ 
+ 	VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features = {
+ 		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT,
+ 		.pNext = std::exchange(features2.pNext, &robustness2Features),
+-		.nullDescriptor = VK_TRUE,
++		.nullDescriptor = sk( "ft-rob2" ) ? VK_FALSE : VK_TRUE,
+ 	};
+ 
+ 	VkResult res = vk.CreateDevice(physDev(), &deviceCreateInfo, nullptr, &m_device);
