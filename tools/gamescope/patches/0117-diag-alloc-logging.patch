@@ -1,0 +1,48 @@
+From 0abcfedbeeff0102030405060708090a0b0c0d0e Mon Sep 17 00:00:00 2001
+From: JustKarkat <justkarkat@users.noreply.github.com>
+Date: Thu, 23 Oct 2026 00:00:00 +0000
+Subject: [PATCH] 0117-diag: log lvp memoryTypes and failing alloc parameters
+
+temporary diagnostic for the Shield TV lavapipe allocate failure:
+prints the physical-device memory type/heap table at device init and
+properties/typeBits/memTypeIndex/size/align on vkAllocateMemory failure
+the device::createDevice context shows the memory table the patched
+gamescope observes.
+---
+diff --git a/src/rendervulkan.cpp b/src/rendervulkan.cpp
+index c913ad0..de57e51 100644
+--- a/src/rendervulkan.cpp
++++ b/src/rendervulkan.cpp
+@@ -447,7 +447,20 @@ bool CVulkanDevice::createDevice()
+ 
+ 	vk.GetPhysicalDeviceMemoryProperties( physDev(), &m_memoryProperties );
+ 
+-	
++	{
++		// 0117-diag: memory type table for the Shield TV lvp alloc failure investigation
++		vk_log.infof( "memoryTypes=%u memoryHeaps=%u", (uint32_t)m_memoryProperties.memoryTypeCount, (uint32_t)m_memoryProperties.memoryHeapCount );
++		for ( uint32_t i = 0; i < m_memoryProperties.memoryTypeCount; i++ )
++		{
++			const auto &t = m_memoryProperties.memoryTypes[ i ];
++			vk_log.infof( "  memoryType[%u] propertyFlags=0x%x heapIndex=%u", i, (uint32_t)t.propertyFlags, (uint32_t)t.heapIndex );
++		}
++		for ( uint32_t i = 0; i < m_memoryProperties.memoryHeapCount; i++ )
++		{
++			vk_log.infof( "  memoryHeap[%u] size=%llu flags=0x%x", i, (unsigned long long)m_memoryProperties.memoryHeaps[ i ].size, (uint32_t)m_memoryProperties.memoryHeaps[ i ].flags );
++		}
++	}
++
+ 	bool hasDrmProps = vulkan_has_drm_props();
+ 	bool supportsForeignQueue = false;
+ 	bool supportsHDRMetadata = false;
+@@ -2403,7 +2416,9 @@ bool CVulkanTexture::BInit( uint32_t width, uint32_t height, uint32_t depth, uin
+ 		res = g_device.vk.AllocateMemory( g_device.device(), &allocInfo, nullptr, &memoryHandle );
+ 		if ( res != VK_SUCCESS )
+ 		{
+-			vk_errorf( res, "vkAllocateMemory failed" );
++			vk_errorf( res, "vkAllocateMemory failed: properties=0x%x typeBits=0x%x memTypeIndex=0x%x allocSize=%llu align=%llu",
++				(uint32_t)properties, (uint32_t)memRequirements.memoryTypeBits, (uint32_t)allocInfo.memoryTypeIndex,
++				(unsigned long long)allocInfo.allocationSize, (unsigned long long)memRequirements.alignment );
+ 			if ( pDMA != nullptr )
+ 			{
+ 				// When import doesn't succeed, the driver hasn't taken ownership of the FD
