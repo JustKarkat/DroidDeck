@@ -1,0 +1,52 @@
+From 8d3ff6b7a94f46cf5cb94265a63a5183e2c3c901 Mon Sep 17 00:00:00 2001
+From: JustKarkat <justkarkat@users.noreply.github.com>
+Date: Thu, 23 Oct 2026 00:00:00 +0000
+Subject: [PATCH] vulkan: don't crash on findMemoryType failure under lavapipe
+
+CVulkanTexture::BInit cast findMemoryType()'s int32_t return directly to
+uint32_t, so a failed lookup produced memoryTypeIndex 0xFFFFFFFF and
+vkAllocateMemory returned VK_ERROR_OUT_OF_DEVICE_MEMORY; the assert on
+BInit() in vulkan_create_flat_texture then aborted gamescope ~1.4s into
+startup (observed on Shield TV under lavapipe, memTypeBits=0x1). Check
+for ~0u at the one unguarded call site (the other two already do), and
+turn the flat-texture assert into a graceful nullptr return -
+steamcompmgr already null-checks its result.
+---
+ src/rendervulkan.cpp | 17 ++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+diff --git a/src/rendervulkan.cpp b/src/rendervulkan.cpp
+index 54e4efc..28a86d0 100644
+--- a/src/rendervulkan.cpp
++++ b/src/rendervulkan.cpp
+@@ -2324,10 +2324,17 @@ bool CVulkanTexture::BInit( uint32_t width, uint32_t height, uint32_t depth, uin
+ 	VkMemoryRequirements memRequirements;
+ 	g_device.vk.GetImageMemoryRequirements(g_device.device(), m_vkImage, &memRequirements);
+ 
++	uint32_t memTypeIndex = g_device.findMemoryType(properties, memRequirements.memoryTypeBits);
++	if (memTypeIndex == ~0u)
++	{
++		vk_log.errorf("findMemoryType failed for texture: properties=0x%x typeBits=0x%x", properties, memRequirements.memoryTypeBits);
++		return false;
++	}
++
+ 	VkMemoryAllocateInfo allocInfo = {
+ 		.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+ 		.allocationSize = memRequirements.size,
+-		.memoryTypeIndex = uint32_t(g_device.findMemoryType(properties, memRequirements.memoryTypeBits)),
++		.memoryTypeIndex = memTypeIndex,
+ 	};
+ 
+ 	m_size = allocInfo.allocationSize;
+@@ -3166,8 +3173,10 @@ gamescope::OwningRc<CVulkanTexture> vulkan_create_flat_texture( uint32_t width,
+ 	flags.bTransferDst = true;
+ 
+ 	gamescope::OwningRc<CVulkanTexture> texture = new CVulkanTexture();
+-	bool bRes = texture->BInit( width, height, 1u, VulkanFormatToDRM( VK_FORMAT_B8G8R8A8_UNORM ), flags );
+-	assert( bRes );
++	if ( !texture->BInit( width, height, 1u, VulkanFormatToDRM( VK_FORMAT_B8G8R8A8_UNORM ), flags ) )
++	{
++		return nullptr;
++	}
+ 
+ 	auto [_dst, offset] = g_device.uploadBufferData( width * height * 4 );
+ 	uint8_t *dst = (uint8_t *)_dst;
