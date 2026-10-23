@@ -1,0 +1,70 @@
+From 0a19diagbeeff0102030405060708090a0b0c0d0e Mon Sep 17 00:00:00 2001
+From: JustKarkat <justkarkat@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 00:00:00 +0000
+Subject: [PATCH] 0119-diag: in-process bare-alloc probes bracketing the failure
+
+temporary diagnostic for the Shield TV lavapipe allocate failure:
+- bare test allocations immediately after device creation (post-createDevice)
+- result logging for the previously unchecked upload-buffer allocation
+- bare probe allocation immediately before the real texture allocation
+---
+diff --git w/src/rendervulkan.cpp b/src/rendervulkan.cpp
+index 1a2b3c4..5d6e7f8 100644
+--- a/src/rendervulkan.cpp
++++ b/src/rendervulkan.cpp
+@@ -751,6 +751,28 @@
+ 	else
+ 		vk.GetDeviceQueue(device(), m_generalQueueFamily, 0, &m_generalQueue);
+ 
++	// 0119-diag: earliest in-process bare alloc probes + thread count
++	{
++		for ( uint64_t sz : { 2304ull, 3686400ull } )
++		{
++			VkMemoryAllocateInfo ai = { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = sz, .memoryTypeIndex = 0 };
++			VkDeviceMemory m = VK_NULL_HANDLE;
++			VkResult r = vk.AllocateMemory( device(), &ai, nullptr, &m );
++			vk_log.infof( "0119-diag: post-createDevice bare alloc size=%llu -> %d", (unsigned long long)sz, (int)r );
++			if ( r == VK_SUCCESS && m != VK_NULL_HANDLE )
++				vk.FreeMemory( device(), m, nullptr );
++		}
++		int nThreads = 0;
++		if ( FILE *f = popen( "ls /proc/self/task | wc -l", "r" ) )
++		{
++			char buf[32] = {};
++			if ( fgets( buf, sizeof(buf), f ) )
++				sscanf( buf, "%d", &nThreads );
++			pclose( f );
++		}
++		vk_log.infof( "0119-diag: threads=%d post-createDevice", nThreads );
++	}
++
+ 	return true;
+ }
+ 
+@@ -1093,7 +1115,8 @@
+ 		.memoryTypeIndex = memTypeIndex,
+ 	};
+ 	
+-	vk.AllocateMemory( device(), &allocInfo, nullptr, &m_uploadBufferMemory);
++	VkResult upRes = vk.AllocateMemory( device(), &allocInfo, nullptr, &m_uploadBufferMemory);
++	vk_log.infof( "0119-diag: upload buffer alloc size=%llu -> %d", (unsigned long long)memRequirements.size, (int)upRes );
+ 	
+ 	vk.BindBufferMemory( device(), m_uploadBuffer, m_uploadBufferMemory, 0 );
+ 
+@@ -2437,6 +2460,16 @@
+ 			};
+ 		}
+ 		
++		// 0119-diag: bare probe immediately before the real texture allocation
++		{
++			VkMemoryAllocateInfo probeAI = { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = 2304, .memoryTypeIndex = 0 };
++			VkDeviceMemory probeM = VK_NULL_HANDLE;
++			VkResult probeR = g_device.vk.AllocateMemory( g_device.device(), &probeAI, nullptr, &probeM );
++			vk_log.infof( "0119-diag: pre-texture bare 2304 -> %d (about to alloc size=%llu)", (int)probeR, (unsigned long long)allocInfo.allocationSize );
++			if ( probeR == VK_SUCCESS && probeM != VK_NULL_HANDLE )
++				g_device.vk.FreeMemory( g_device.device(), probeM, nullptr );
++		}
++
+ 		res = g_device.vk.AllocateMemory( g_device.device(), &allocInfo, nullptr, &memoryHandle );
+ 		if ( res != VK_SUCCESS )
+ 		{
