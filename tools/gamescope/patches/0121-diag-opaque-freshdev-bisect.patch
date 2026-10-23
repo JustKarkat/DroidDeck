@@ -1,0 +1,85 @@
+From 0a21diagbeeff0102030405060708090a0b0c0d0e Mon Sep 17 00:00:00 2001
+From: JustKarkat <justkarkat@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 00:00:00 +0000
+Subject: [PATCH] 0121-diag: opaque/fresh-device/instance alloc bisect
+
+Second probe switch gamescope_diag_alloc_probe2 at the pre-texture site:
+opaque (OPAQUE_FD export), freshdev (fresh VkDevice, DMA_BUF export),
+freshinst (fresh VkInstance+device, DMA_BUF export). Pure diagnostics.
+---
+--- a/src/rendervulkan.cpp
++++ b/src/rendervulkan.cpp
+@@ -2504,6 +2504,73 @@
+ 				g_device.vk.FreeMemory( g_device.device(), cM, nullptr );
+ 		}
+ 
++		// 0121-diag: opaque / fresh-device / fresh-instance bisect
++		static const char *s_diag2 = getenv("gamescope_diag_alloc_probe2");
++		if ( s_diag2 && *s_diag2 && !strcmp(s_diag2, "opaque") )
++		{
++			VkMemoryAllocateInfo a6 = { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = 2304, .memoryTypeIndex = 0 };
++			VkExportMemoryAllocateInfo e6 = { .sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO, .handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT };
++			a6.pNext = &e6;
++			VkDeviceMemory m6 = VK_NULL_HANDLE;
++			VkResult r6 = g_device.vk.AllocateMemory( g_device.device(), &a6, nullptr, &m6 );
++			vk_log.infof( "0121-diag: opaque-exp 2304 -> %d", (int)r6 );
++			if ( r6 == VK_SUCCESS && m6 != VK_NULL_HANDLE )
++				g_device.vk.FreeMemory( g_device.device(), m6, nullptr );
++		}
++		else if ( s_diag2 && *s_diag2 && ( !strcmp(s_diag2, "freshdev") || !strcmp(s_diag2, "freshinst") ) )
++		{
++			VkInstance inst8 = VK_NULL_HANDLE;
++			if ( !strcmp(s_diag2, "freshinst") && g_pfn_vkCreateInstance )
++			{
++				VkInstanceCreateInfo ici8 = { .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
++				VkResult r8i = g_pfn_vkCreateInstance( &ici8, nullptr, &inst8 );
++				vk_log.infof( "0121-diag: fresh instance create -> %d", (int)r8i );
++			}
++			PFN_vkGetInstanceProcAddr gp8 = g_pfn_vkGetInstanceProcAddr;
++			VkPhysicalDevice pd8 = g_device.physDev();
++			VkDevice dev8 = VK_NULL_HANDLE;
++			VkResult r8c = VK_ERROR_INITIALIZATION_FAILED;
++			VkDeviceCreateInfo dci8 = { .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
++			if ( inst8 )
++			{
++				auto EnumPDs8 = (PFN_vkEnumeratePhysicalDevices)gp8( inst8, "vkEnumeratePhysicalDevices" );
++				uint32_t n8 = 4;
++				VkPhysicalDevice arr8[4] = {};
++				VkResult r8e = EnumPDs8 ? EnumPDs8( inst8, &n8, arr8 ) : VK_ERROR_INITIALIZATION_FAILED;
++				vk_log.infof( "0121-diag: fresh instance pdevices -> %d n=%u", (int)r8e, r8e == VK_SUCCESS ? n8 : 0u );
++				if ( r8e == VK_SUCCESS && n8 ) pd8 = arr8[0];
++				auto CreateDev8 = (PFN_vkCreateDevice)gp8( inst8, "vkCreateDevice" );
++				r8c = CreateDev8 ? CreateDev8( pd8, &dci8, nullptr, &dev8 ) : VK_ERROR_INITIALIZATION_FAILED;
++			}
++			else if ( !strcmp(s_diag2, "freshdev") )
++				r8c = g_device.vk.CreateDevice( pd8, &dci8, nullptr, &dev8 );
++			vk_log.infof( "0121-diag: fresh device create -> %d", (int)r8c );
++			VkResult r8a = VK_ERROR_INITIALIZATION_FAILED;
++			VkDeviceMemory m8 = VK_NULL_HANDLE;
++			if ( dev8 != VK_NULL_HANDLE )
++			{
++				auto GetPA8 = (PFN_vkGetDeviceProcAddr)gp8( inst8 ? inst8 : g_device.instance(), "vkGetDeviceProcAddr" );
++				auto alloc8 = GetPA8 ? (PFN_vkAllocateMemory)GetPA8( dev8, "vkAllocateMemory" ) : nullptr;
++				VkMemoryAllocateInfo a8 = { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = 2304, .memoryTypeIndex = 0 };
++				VkExportMemoryAllocateInfo e8 = { .sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO, .handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT };
++				a8.pNext = &e8;
++				r8a = alloc8 ? alloc8( dev8, &a8, nullptr, &m8 ) : VK_ERROR_INITIALIZATION_FAILED;
++				vk_log.infof( "0121-diag: %s exp-dmabuf 2304 -> %d", s_diag2, (int)r8a );
++				if ( r8a == VK_SUCCESS && m8 != VK_NULL_HANDLE && GetPA8 )
++					( (PFN_vkFreeMemory)GetPA8( dev8, "vkFreeMemory" ) )( dev8, m8, nullptr );
++				if ( GetPA8 )
++				{
++					auto DestroyDev8 = (PFN_vkDestroyDevice)GetPA8( dev8, "vkDestroyDevice" );
++					if ( DestroyDev8 ) DestroyDev8( dev8, nullptr );
++				}
++			}
++			if ( inst8 && gp8 )
++			{
++				auto DestroyInst8 = (PFN_vkDestroyInstance)gp8( inst8, "vkDestroyInstance" );
++				if ( DestroyInst8 ) DestroyInst8( inst8, nullptr );
++			}
++		}
++
+ 		res = g_device.vk.AllocateMemory( g_device.device(), &allocInfo, nullptr, &memoryHandle );
+ 		if ( res != VK_SUCCESS )
+ 		{
