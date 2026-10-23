@@ -517,6 +517,7 @@ class SessionService : Service() {
         guest.add("WAYLAND_DISPLAY=wayland-0")
         guest.add("BL_ANDROID_CLIPBOARD=" + File(filesDir, "session/android-clipboard").path)
         guest.add("GAMESCOPE_FORCE_GENERAL_QUEUE=1")
+        guest.add("LIBDECOR_PLUGIN_DIR=/tmp/libdecor-plugins")
         guest.add("MESA_LOADER_DRIVER_OVERRIDE=zink")
         guest.add("GALLIUM_DRIVER=zink")
         guest.add("LIBGL_KOPPER_DRI2=true")
@@ -532,7 +533,7 @@ class SessionService : Service() {
         if (SessionPrefs.glThread(this)) guest.add("mesa_glthread=true")
         if (SessionPrefs.noGlError(this)) guest.add("MESA_NO_ERROR=1")
         guest.add("MESA_DISK_CACHE_DATABASE=1")
-        guest.add("GLIBC_TUNABLES=glibc.pthread.rseq=0:glibc.malloc.top_pad=16777216")
+        guest.add("GLIBC_TUNABLES=glibc.pthread.rseq=0:glibc.malloc.top_pad=16777216:glibc.cpu.hwcaps=-atomics")
         if (SessionState.mode == MODE_STEAM) guest.add("BL_MANGOAPP=" + (if (SessionPrefs.mangoapp(this)) "1" else "0"))
         if (SessionState.mode == MODE_STEAM) {
             guest.add("BL_GAMESCOPE_STRETCH_16X9=" + (if (SessionPrefs.stretch16x9(this)) "1" else "0"))

@@ -232,6 +232,7 @@ if [ -z "${BL_INSIDE:-}" ]; then
   echo "== probe-early: end"
   # 0118-diag: source optional diag env overrides before launching gamescope (temporary bisect aid, revert)
   [ -f /tmp/droiddeck-diag.env ] && . /tmp/droiddeck-diag.env && echo "== 0118-diag: diad env: $(tr '\n' ' ' < /tmp/droiddeck-diag.env)"
+  mkdir -p /tmp/libdecor-plugins && ln -sf /usr/lib/libdecor/plugins-1/libdecor-cairo.so /tmp/libdecor-plugins/libdecor-cairo.so
   gamescope "${args[@]}" -- "$0" "$mode" "$@"; bl_rc=$?
   if [ "$bl_rc" = 0 ]; then exit 0; fi
   echo "== gamescope exited rc=$bl_rc; session kept alive for probing"
