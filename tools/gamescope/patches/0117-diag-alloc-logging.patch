@@ -9,15 +9,14 @@ properties/typeBits/memTypeIndex/size/align on vkAllocateMemory failure
 the device::createDevice context shows the memory table the patched
 gamescope observes.
 ---
-diff --git a/src/rendervulkan.cpp b/src/rendervulkan.cpp
-index c913ad0..de57e51 100644
---- a/src/rendervulkan.cpp
+diff --git w/src/rendervulkan.cpp b/src/rendervulkan.cpp
+index 28a86d0..de57e51 100644
+--- w/src/rendervulkan.cpp
 +++ b/src/rendervulkan.cpp
-@@ -447,7 +447,20 @@ bool CVulkanDevice::createDevice()
+@@ -447,6 +447,20 @@ bool CVulkanDevice::createDevice()
  
  	vk.GetPhysicalDeviceMemoryProperties( physDev(), &m_memoryProperties );
  
--	
 +	{
 +		// 0117-diag: memory type table for the Shield TV lvp alloc failure investigation
 +		vk_log.infof( "memoryTypes=%u memoryHeaps=%u", (uint32_t)m_memoryProperties.memoryTypeCount, (uint32_t)m_memoryProperties.memoryHeapCount );
@@ -35,7 +34,7 @@ index c913ad0..de57e51 100644
  	bool hasDrmProps = vulkan_has_drm_props();
  	bool supportsForeignQueue = false;
  	bool supportsHDRMetadata = false;
-@@ -2403,7 +2416,9 @@ bool CVulkanTexture::BInit( uint32_t width, uint32_t height, uint32_t depth, uin
+@@ -2402,7 +2416,9 @@ bool CVulkanTexture::BInit( uint32_t width, uint32_t height, uint32_t depth, uin
  		res = g_device.vk.AllocateMemory( g_device.device(), &allocInfo, nullptr, &memoryHandle );
  		if ( res != VK_SUCCESS )
  		{
