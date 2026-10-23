@@ -1,0 +1,55 @@
+From 0a20diagbeeff0102030405060708090a0b0c0d0e Mon Sep 17 00:00:00 2001
+From: JustKarkat <justkarkat@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 00:00:00 +0000
+Subject: [PATCH] 0120-diag: chained-alloc probe with env-switchable pNext variants
+
+temporary diagnostic for the Shield TV lavapipe allocate failure:
+at the pre-texture allocation point, runs a 2304-byte allocation with a
+gamescope_diag_alloc_probe-switchable pNext chain (none|wsi|ded|exp|full)
+on the real image so the failing context identifies the trigger struct.
+---
+diff --git w/src/rendervulkan.cpp b/src/rendervulkan.cpp
+index 5d6e7f8..6e7f8a9 100644
+--- a/src/rendervulkan.cpp
++++ b/src/rendervulkan.cpp
+@@ -2470,6 +2470,40 @@
+ 				g_device.vk.FreeMemory( g_device.device(), probeM, nullptr );
+ 		}
+ 
++		// 0120-diag: chained-alloc probe on the real image, env-switchable pNext variant
++		{
++			static int s_diagVariant = []() -> int {
++				const char *v = getenv("gamescope_diag_alloc_probe");
++				if (!v || !*v) return 5; /* full */
++				if (!strcmp(v, "none")) return 0;
++				if (!strcmp(v, "wsi"))  return 1;
++				if (!strcmp(v, "ded"))  return 2;
++				if (!strcmp(v, "exp"))  return 3;
++				return 5;
++			}();
++			VkMemoryAllocateInfo cAI = { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = 2304, .memoryTypeIndex = 0 };
++			VkMemoryDedicatedAllocateInfo cDed = { .sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO, .image = m_vkImage };
++			VkExportMemoryAllocateInfo cExp = { .sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO, .handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT };
++			struct wsi_memory_allocate_info cWsi = { .sType = VK_STRUCTURE_TYPE_WSI_MEMORY_ALLOCATE_INFO_MESA };
++			const void *cPNext = nullptr;
++			if ( s_diagVariant == 1 ) { cWsi.pNext = nullptr; cPNext = &cWsi; }
++			else if ( s_diagVariant == 2 ) { cDed.pNext = nullptr; cPNext = &cDed; }
++			else if ( s_diagVariant == 3 ) { cExp.pNext = nullptr; cPNext = &cExp; }
++			else if ( s_diagVariant == 5 )
++			{
++				cWsi.pNext = nullptr;
++				cDed.pNext = &cWsi;
++				cExp.pNext = &cDed;
++				cPNext = &cExp;
++			}
++			cAI.pNext = cPNext;
++			VkDeviceMemory cM = VK_NULL_HANDLE;
++			VkResult cR = g_device.vk.AllocateMemory( g_device.device(), &cAI, nullptr, &cM );
++			vk_log.infof( "0120-diag: chained probe variant=%d size=2304 -> %d", s_diagVariant, (int)cR );
++			if ( cR == VK_SUCCESS && cM != VK_NULL_HANDLE )
++				g_device.vk.FreeMemory( g_device.device(), cM, nullptr );
++		}
++
+ 		res = g_device.vk.AllocateMemory( g_device.device(), &allocInfo, nullptr, &memoryHandle );
+ 		if ( res != VK_SUCCESS )
+ 		{
