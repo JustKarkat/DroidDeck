@@ -1,0 +1,60 @@
+--- a/src/rendervulkan.cpp	2026-10-23 13:59:48.859424459 -0500
++++ b/src/rendervulkan.cpp	2026-10-23 15:44:27.323353258 -0500
+@@ -99,6 +99,10 @@
+ PFN_vkGetInstanceProcAddr g_pfn_vkGetInstanceProcAddr;
+ PFN_vkCreateInstance g_pfn_vkCreateInstance;
+ 
++// 0122-fix: whether the ICD can actually export a DMA_BUF (lavapipe on this
++// device has no /dev/udmabuf, so caps.dmabuf is not full -> OPAQUE/memfd path).
++bool g_bDmaBufExportSupported = false;
++
+ static VkResult vulkan_load_module()
+ {
+ 	static VkResult s_result = []()
+@@ -449,6 +453,24 @@
+ 
+ 	vk.GetPhysicalDeviceMemoryProperties( physDev(), &m_memoryProperties );
+ 
++	// 0122-fix: probe whether DMA_BUF export is actually supported by this ICD.
++	// lavapipe reports externalMemoryProperties.exportableTypes=0 for DMA_BUF on
++	// this device (no /dev/udmabuf), so flippable textures must not request a
++	// DMA_BUF export or vkAllocateMemory returns VK_ERROR_OUT_OF_DEVICE_MEMORY.
++	{
++		PFN_vkGetPhysicalDeviceExternalBufferProperties _gpebep =
++			(PFN_vkGetPhysicalDeviceExternalBufferProperties)g_pfn_vkGetInstanceProcAddr(m_instance, "vkGetPhysicalDeviceExternalBufferProperties");
++		if ( _gpebep )
++		{
++			VkPhysicalDeviceExternalBufferInfo _ebi = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO };
++			_ebi.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT;
++			VkExternalBufferProperties _ebp = { VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES };
++			_gpebep( physDev(), &_ebi, &_ebp );
++			g_bDmaBufExportSupported = (_ebp.externalMemoryProperties.externalMemoryFeatures & VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT) != 0;
++			vk_log.infof( "0122-fix: dma-buf export supported=%d (features=%u)", (int)g_bDmaBufExportSupported, (uint32_t)_ebp.externalMemoryProperties.externalMemoryFeatures );
++		}
++	}
++
+ 	{
+ 		// 0117-diag: memory type table for the Shield TV lvp alloc failure investigation
+ 		vk_log.infof( "memoryTypes=%u memoryHeaps=%u", (uint32_t)m_memoryProperties.memoryTypeCount, (uint32_t)m_memoryProperties.memoryHeapCount );
+@@ -2168,7 +2190,11 @@
+ 
+ 	if ( flags.bFlippable == true )
+ 	{
+-		flags.bExportable = true;
++		// 0122-fix: only request DMA_BUF export when the ICD can actually do it.
++		if ( g_bDmaBufExportSupported )
++			flags.bExportable = true;
++		else
++			flags.bExportable = false;
+ 	}
+ 
+ 	if ( flags.bTransferSrc == true )
+@@ -3859,7 +3885,7 @@
+ 			textureFlags.bTransferDst = true;
+ 			textureFlags.bStorage = true;
+ 			textureFlags.bSampled = true; // required for RGB-to-NV12 shader to sample this texture
+-			if (exportable || drmFormat == DRM_FORMAT_NV12) {
++			if ((exportable || drmFormat == DRM_FORMAT_NV12) && g_bDmaBufExportSupported) {
+ 				textureFlags.bExportable = true;
+ 				textureFlags.bLinear = true; // TODO: support multi-planar DMA-BUF export via PipeWire
+ 			}
