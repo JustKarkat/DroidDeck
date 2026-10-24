@@ -1,0 +1,303 @@
+--- a/src/backend.h	2026-10-24 12:20:34.518681479 -0500
++++ b/src/backend.h	2026-10-24 12:20:34.524547680 -0500
+@@ -25,10 +25,13 @@
+ 
+ extern bool steamMode;
+ 
++class CVulkanTexture;
++
+ namespace gamescope
+ {
+     struct VBlankScheduleTime;
+     class BackendBlob;
++
+     class INestedHints;
+ 
+     extern ConVar<std::string> cv_backend;
+@@ -345,6 +348,11 @@
+         // Rc manages acquire/release of buffer to/from client while imported.
+         virtual OwningRc<IBackendFb> ImportDmabufToBackend( wlr_dmabuf_attributes *pDmaBuf ) = 0;
+ 
++        // 0123-shm: publish a CPU-visible texture through wl_shm when the ICD
++        // cannot export DMA_BUF. Default: unsupported (returns nullptr).
++        virtual OwningRc<IBackendFb> ImportShmTextureToBackend( ::CVulkanTexture *pTexture ) { return nullptr; }
++        virtual bool UsesShmPresentation() const { return false; }
++
+         virtual bool UsesModifiers() const = 0;
+         virtual std::span<const uint64_t> GetSupportedModifiers( uint32_t uDrmFormat ) const = 0;
+ 		inline bool SupportsFormat( uint32_t uDrmFormat ) const
+--- a/src/Backends/WaylandBackend.cpp	2026-10-24 12:20:34.518249317 -0500
++++ b/src/Backends/WaylandBackend.cpp	2026-10-24 12:20:34.522516990 -0500
+@@ -499,6 +499,10 @@
+         wl_buffer *GetHostBuffer() const { return m_pHostBuffer; }
+         wlr_buffer *GetClientBuffer() const { return m_pClientBuffer; }
+ 
++        // 0123-shm
++        bool IsShm() const { return m_pShmData != nullptr; }
++        void FlushShm( ::CVulkanTexture *pTexture );
++
+         void Wayland_Buffer_Release( wl_buffer *pBuffer );
+         static const wl_buffer_listener s_BufferListener;
+ 
+@@ -507,6 +511,15 @@
+         wl_buffer *m_pHostBuffer = nullptr;
+         wlr_buffer *m_pClientBuffer = nullptr;
+         bool m_bCompositorAcquired = false;
++
++    public:
++        // 0123-shm
++        static gamescope::OwningRc<CWaylandFb> CreateShmFb( CWaylandBackend *pBackend, ::CVulkanTexture *pTexture );
++
++        wl_shm_pool *m_pPool = nullptr;
++        uint8_t *m_pShmData = nullptr;
++        size_t m_uShmSize = 0;
++        size_t m_uShmStride = 0;
+     };
+     const wl_buffer_listener CWaylandFb::s_BufferListener =
+     {
+@@ -687,6 +700,9 @@
+         virtual std::shared_ptr<BackendBlob> CreateBackendBlob( const std::type_info &type, std::span<const uint8_t> data ) override;
+ 
+         virtual OwningRc<IBackendFb> ImportDmabufToBackend( wlr_dmabuf_attributes *pDmaBuf ) override;
++
++        virtual bool UsesShmPresentation() const override;
++        virtual OwningRc<IBackendFb> ImportShmTextureToBackend( ::CVulkanTexture *pTexture ) override;
+         virtual bool UsesModifiers() const override;
+         virtual std::span<const uint64_t> GetSupportedModifiers( uint32_t uDrmFormat ) const override;
+ 
+@@ -965,6 +981,88 @@
+         // I own the pHostBuffer.
+         wl_buffer_destroy( m_pHostBuffer );
+         m_pHostBuffer = nullptr;
++
++        // 0123-shm
++        if ( m_pPool != nullptr )
++        {
++            wl_shm_pool_destroy( m_pPool );
++            m_pPool = nullptr;
++        }
++        if ( m_pShmData != nullptr )
++            munmap( m_pShmData, m_uShmSize );
++        m_pShmData = nullptr;
++    }
++
++    // 0123-shm: make a fb whose wl_buffer is a plain CPU-side wl_shm buffer,
++    // refreshed by copying the (possibly CPU-only) texture on every use. Used
++    // when the ICD cannot export DMA_BUF (lavapipe on the Shield TV), where
++    // ImportDmabufToBackend has nothing to import.
++    OwningRc<CWaylandFb> CWaylandFb::CreateShmFb( CWaylandBackend *pBackend, ::CVulkanTexture *pTexture )
++    {
++        uint32_t nRowPitch = pTexture->rowPitch();
++        uint32_t uHeight = pTexture->height();
++        size_t uStride = nRowPitch;
++        size_t uSize = uStride * uHeight;
++
++        int32_t nFd = CreateShmBuffer( uSize, nullptr );
++        if ( nFd < 0 )
++        {
++            xdg_log.errorf( "0123-shm: failed to create memfd" );
++            return nullptr;
++        }
++
++        void *pMappedData = mmap( nullptr, uSize, PROT_READ | PROT_WRITE, MAP_SHARED, nFd, 0 );
++        if ( pMappedData == MAP_FAILED )
++        {
++            xdg_log.errorf( "0123-shm: failed to map memfd" );
++            close( nFd );
++            return nullptr;
++        }
++
++        wl_shm *pShm = pBackend->GetShm();
++        wl_shm_pool *pPool = wl_shm_create_pool( pShm, nFd, uSize );
++        close( nFd );
++        if ( pPool == nullptr )
++        {
++            xdg_log.errorf( "0123-shm: failed to create wl_shm_pool" );
++            munmap( pMappedData, uSize );
++            return nullptr;
++        }
++
++        wl_buffer *pBuffer = wl_shm_pool_create_buffer( pPool, 0, pTexture->width(), pTexture->height(), uStride, WL_SHM_FORMAT_XRGB8888 );
++        if ( pBuffer == nullptr )
++        {
++            xdg_log.errorf( "0123-shm: failed to create wl_buffer" );
++            wl_shm_pool_destroy( pPool );
++            munmap( pMappedData, uSize );
++            return nullptr;
++        }
++
++        OwningRc<CWaylandFb> pFb = new CWaylandFb( pBackend, pBuffer );
++        pFb->m_pPool = pPool;
++        pFb->m_pShmData = (uint8_t *)pMappedData;
++        pFb->m_uShmSize = uSize;
++        pFb->m_uShmStride = uStride;
++        xdg_log.infof( "0123-shm: shm fb %ux%u stride %zu", pTexture->width(), pTexture->height(), uStride );
++        return pFb;
++    }
++
++    // Copy the texture's current content into the shm buffer.
++    void CWaylandFb::FlushShm( ::CVulkanTexture *pTexture )
++    {
++        if ( m_pShmData == nullptr )
++            return;
++
++        // CPU-visible mapping: when the ICD cannot export DMA_BUF, textures this
++        // fb wraps were created with bMappable (vulkan_make_output sets it), so
++        // mappedData/rowPitch are valid. Sizes are identical (rowPitch == stride).
++        if ( !pTexture->mappedData() )
++        {
++            xdg_log.errorf( "0123-shm: texture has no CPU mapping; cannot flush" );
++            return;
++        }
++
++        memcpy( m_pShmData, pTexture->mappedData(), m_uShmSize );
+     }
+ 
+     void CWaylandFb::OnCompositorAcquire()
+@@ -1101,6 +1199,9 @@
+             bNeedsFullComposite |= pFrameInfo->blurLayer0;
+             bNeedsFullComposite |= bNeedsCompositeFromFilter;
+             bNeedsFullComposite |= g_bColorSliderInUse;
++            // 0123-shm: with wl_shm output we only fence plane 0 (the composite
++            // result); force the full-composite path.
++            bNeedsFullComposite |= m_pBackend->UsesShmPresentation();
+             bNeedsFullComposite |= pFrameInfo->bFadingOut;
+             bNeedsFullComposite |= !g_reshade_effect.empty();
+ 
+@@ -1669,6 +1770,10 @@
+         CWaylandFb *pWaylandFb = pLayer && pLayer->tex != nullptr ? static_cast<CWaylandFb*>( pLayer->tex->GetBackendFb()->EnsureImported() ) : nullptr;
+         wl_buffer *pBuffer = pWaylandFb ? pWaylandFb->GetHostBuffer() : nullptr;
+ 
++        // 0123-shm: refresh the shm copy right before this buffer is attached.
++        if ( pWaylandFb && pWaylandFb->IsShm() && pLayer && pLayer->tex != nullptr )
++            pWaylandFb->FlushShm( pLayer->tex.get() );
++
+         if ( pBuffer )
+         {
+             pWaylandFb->OnCompositorAcquire();
+@@ -2169,6 +2274,19 @@
+         return VK_IMAGE_LAYOUT_GENERAL;
+     }
+ 
++    // 0123-shm
++    bool CWaylandBackend::UsesShmPresentation() const
++    {
++        return !vulkan_dma_buf_export_supported() && m_pShm != nullptr;
++    }
++
++    OwningRc<IBackendFb> CWaylandBackend::ImportShmTextureToBackend( ::CVulkanTexture *pTexture )
++    {
++        if ( m_pShm == nullptr )
++            return nullptr;
++        return CWaylandFb::CreateShmFb( this, pTexture );
++    }
++
+     void CWaylandBackend::GetPreferredOutputFormat( uint32_t *pPrimaryPlaneFormat, uint32_t *pOverlayPlaneFormat ) const
+     {
+         // Prefer opaque for composition on the Wayland backend.
+--- a/src/rendervulkan.cpp	2026-10-24 12:20:34.520062157 -0500
++++ b/src/rendervulkan.cpp	2026-10-24 12:20:34.524563180 -0500
+@@ -103,6 +103,12 @@
+ // device has no /dev/udmabuf, so caps.dmabuf is not full -> OPAQUE/memfd path).
+ bool g_bDmaBufExportSupported = false;
+ 
++// 0123-shm: accessor for the wayland backend's wl_shm output fallback.
++bool vulkan_dma_buf_export_supported(void)
++{
++	return g_bDmaBufExportSupported;
++}
++
+ static VkResult vulkan_load_module()
+ {
+ 	static VkResult s_result = []()
+@@ -1971,6 +1977,30 @@
+ 	m_textureRefs.emplace_back(std::move(dst));
+ }
+ 
++// 0123-shm: mirror of copyBufferToImage. Used for the wl_shm output fallback;
++// assumes the source is already in GENERAL layout (present layout on nested
++// wayland is GENERAL) and that the caller waits on the returned sequence.
++void CVulkanCmdBuffer::copyImageToBuffer(VkBuffer buffer, VkDeviceSize offset, uint32_t stride, gamescope::Rc<CVulkanTexture> src)
++{
++	VkBufferImageCopy region = {
++		.bufferOffset = offset,
++		.bufferRowLength = stride,
++		.imageSubresource = {
++			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
++			.layerCount = 1,
++		},
++		.imageExtent = {
++			.width = src->width(),
++			.height = src->height(),
++			.depth = 1,
++		},
++	};
++
++	m_device->vk.CmdCopyImageToBuffer(m_cmdBuffer, src->vkImage(), VK_IMAGE_LAYOUT_GENERAL, buffer, 1, &region);
++
++	m_textureRefs.emplace_back(std::move(src));
++}
++
+ void CVulkanCmdBuffer::copyBufferToImage(VkBuffer buffer, VkDeviceSize offset, uint32_t stride, gamescope::Rc<CVulkanTexture> dst)
+ {
+ 	prepareDestImage(dst.get());
+@@ -2765,7 +2795,18 @@
+ 
+ 	if ( flags.bFlippable == true )
+ 	{
+-		m_pBackendFb = GetBackend()->ImportDmabufToBackend( &m_dmabuf );
++		// 0123-shm: with the 0122-fix gate the ICD cannot export a DMA_BUF, so
++		// m_dmabuf was never populated. Publish this texture through the
++		// backend's wl_shm path instead: the host compositor (DroidDeck
++		// waylandcomp) takes wl_shm surfaces, so the image still lands on screen.
++		if ( g_bDmaBufExportSupported )
++		{
++			m_pBackendFb = GetBackend()->ImportDmabufToBackend( &m_dmabuf );
++		}
++		else
++		{
++			m_pBackendFb = GetBackend()->ImportShmTextureToBackend( this );
++		}
+ 	}
+ 
+ 	bool bHasAlpha = pDMA ? DRMFormatHasAlpha( pDMA->format ) : true;
+@@ -3562,6 +3603,10 @@
+ {
+ 	CVulkanTexture::createFlags outputImageflags;
+ 	outputImageflags.bFlippable = true;
++	// 0123-shm: without DMA_BUF export the output image is published through a
++	// mapped wl_shm buffer; it needs a CPU mapping (and pitch) for that.
++	if ( !g_bDmaBufExportSupported )
++		outputImageflags.bMappable = true;
+ 	outputImageflags.bStorage = true;
+ 	outputImageflags.bTransferSrc = true; // for screenshots
+ 	outputImageflags.bSampled = true; // for pipewire blits
+--- a/src/rendervulkan.hpp	2026-10-24 12:20:34.519145662 -0500
++++ b/src/rendervulkan.hpp	2026-10-24 12:20:34.524619721 -0500
+@@ -455,6 +455,8 @@
+ };
+ 
+ VkInstance vulkan_get_instance(void);
++// 0123-shm: whether the ICD can export DMA_BUF (see probe in rendervulkan).
++bool vulkan_dma_buf_export_supported(void);
+ bool vulkan_init(VkInstance instance, VkSurfaceKHR surface);
+ bool vulkan_init_formats(void);
+ bool vulkan_make_output();
+@@ -743,6 +745,7 @@
+ 	VK_FUNC(CmdClearColorImage) \
+ 	VK_FUNC(CmdCopyBufferToImage) \
+ 	VK_FUNC(CmdCopyImage) \
++	VK_FUNC(CmdCopyImageToBuffer) \
+ 	VK_FUNC(CmdDispatch) \
+ 	VK_FUNC(CmdDraw) \
+ 	VK_FUNC(CmdEndRendering) \
+@@ -1008,6 +1011,9 @@
+ 	void dispatch(uint32_t x, uint32_t y = 1, uint32_t z = 1);
+ 	void copyImage(gamescope::Rc<CVulkanTexture> src, gamescope::Rc<CVulkanTexture> dst);
+ 	void copyBufferToImage(VkBuffer buffer, VkDeviceSize offset, uint32_t stride, gamescope::Rc<CVulkanTexture> dst);
++	// 0123-shm: image -> host buffer copy for wl_shm presentation on ICDs that
++	// cannot export DMA_BUF (lavapipe on the Shield TV).
++	void copyImageToBuffer(VkBuffer buffer, VkDeviceSize offset, uint32_t stride, gamescope::Rc<CVulkanTexture> src);
+ 
+ 
+ 	void prepareSrcImage(CVulkanTexture *image);

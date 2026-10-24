@@ -57,5 +57,18 @@ library list, before anything is published.
   time, as the VRR branch already did: its next frame goes out on the first refresh a capped interval
   after its last one, with half a refresh of tolerance so an on-time window keeps every Nth refresh.
 
+- `0123-shm-output-fallback.patch` - this app (Shield TV, CPU rendering): on an ICD that cannot
+  export DMA_BUF (lavapipe on this device: no `/dev/udmabuf`, kernel 4.9 has no dma_heap/ION node),
+  0122's gate stopped the export attempt, which left flippable textures with no backend fb - flippable
+  fbs kept being recreated each frame, so every plane present attached nothing and the app compositor
+  never saw a frame (`0 windows open`, presentation stall forever). This patch adds a wl_shm output
+  path for exactly that case: `IBackend::ImportShmTextureToBackend` (default null, overridden by
+  CWaylandBackend), a `CWaylandFb` backed by a memfd `wl_shm` buffer, and a per-use `FlushShm` memcpy
+  from the texture's CPU mapping (output images get `bMappable` when the fallback is on). Full
+  composite is forced in that mode so only the composite result is published. The app compositor
+  already imports wl_shm (`waylandcomp/compositor.c take_shm`). Skipped: a 2-buffer shm ring (one
+  buffer can, in a released-slow frame, show a one-frame dupe); per-frame `vkCmdCopyImageToBuffer`
+  for OPTIMAL-tiling sources. Upgrade when real scanout throughput matters.
+
 Sixteen more of Armada's patches are DRM/lease/HDR-on-KMS work for a native display, which this
 app's Wayland-hosted gamescope never reaches, or need a newer gamescope than the runtime has.
