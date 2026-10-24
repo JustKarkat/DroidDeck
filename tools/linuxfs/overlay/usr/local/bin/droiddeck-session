@@ -660,7 +660,9 @@ BUSCONF
     [ "${BL_TEGRA:-}" = 1 ] && _bl_cef=(-cef-disable-gpu)
     # breakpad needs a fresh /tmp/dumps it owns; a stale dir kills dump writing,
     # which is the only record of why CEF children die here.
-    [ "${BL_TEGRA:-}" = 1 ] && { rm -rf /tmp/dumps; mkdir -m 777 /tmp/dumps; }
+    # chmod not mkdir -m: app umask (077) strips the mode, breakpad then
+    # endlessly "delete and recreate"s and no dump is ever written.
+    [ "${BL_TEGRA:-}" = 1 ] && { rm -rf /tmp/dumps; mkdir /tmp/dumps; chmod 1777 /tmp/dumps; }
     if [ "${BL_DESKTOP:-}" = 1 ] && [ "${BL_STEAM_UI:-}" = desktop ]; then
       _bl_cef=(-cef-disable-gpu)
       _bl_ui=(-nobigpicture)
