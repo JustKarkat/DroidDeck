@@ -186,10 +186,30 @@
              bNeedsFullComposite |= pFrameInfo->bFadingOut;
              bNeedsFullComposite |= !g_reshade_effect.empty();
  
-@@ -1669,6 +1785,10 @@
+@@ -1653,6 +1769,12 @@
+             m_bNeedsDecorCommit = false;
+         }
+ 
++        // 0123-diag: surface commit + libdecor state once every 30 calls
++        static int s_nCommitDiag = 0;
++        if ( ( s_nCommitDiag++ % 30 ) == 0 )
++            xdg_log.infof( "0123-diag: Commit surface=%p frame=%p state=%d",
++                (void *)m_pSurface, (void *)m_pFrame, (int)m_eWindowState );
++
+         wl_surface_commit( m_pSurface );
+     }
+ 
+@@ -1669,6 +1791,17 @@
          CWaylandFb *pWaylandFb = pLayer && pLayer->tex != nullptr ? static_cast<CWaylandFb*>( pLayer->tex->GetBackendFb()->EnsureImported() ) : nullptr;
          wl_buffer *pBuffer = pWaylandFb ? pWaylandFb->GetHostBuffer() : nullptr;
  
++        // 0123-diag
++        static int s_nPresentDiag = 0;
++        if ( ( s_nPresentDiag++ % 30 ) == 0 )
++            xdg_log.infof( "0123-diag: Present layer=%p tex=%p fb=%p buffer=%p",
++                (const void *)pLayer, pLayer && pLayer->tex ? (void *)pLayer->tex.get() : nullptr,
++                (void *)pWaylandFb, (void *)pBuffer );
++
 +        // 0123-shm: refresh the shm copy right before this buffer is attached.
 +        if ( pWaylandFb && pWaylandFb->IsShm() && pLayer && pLayer->tex != nullptr )
 +            pWaylandFb->FlushShm( pLayer->tex.get() );
@@ -197,7 +217,7 @@
          if ( pBuffer )
          {
              pWaylandFb->OnCompositorAcquire();
-@@ -2169,6 +2289,19 @@
+@@ -2169,6 +2302,19 @@
          return VK_IMAGE_LAYOUT_GENERAL;
      }
  
