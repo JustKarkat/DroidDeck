@@ -1,5 +1,5 @@
---- a/src/backend.h	2026-10-24 12:20:34.518681479 -0500
-+++ b/src/backend.h	2026-10-24 12:20:34.524547680 -0500
+--- a/src/backend.h
++++ b/src/backend.h
 @@ -25,10 +25,13 @@
  
  extern bool steamMode;
@@ -26,9 +26,18 @@
          virtual bool UsesModifiers() const = 0;
          virtual std::span<const uint64_t> GetSupportedModifiers( uint32_t uDrmFormat ) const = 0;
  		inline bool SupportsFormat( uint32_t uDrmFormat ) const
---- a/src/Backends/WaylandBackend.cpp	2026-10-24 12:20:34.518249317 -0500
-+++ b/src/Backends/WaylandBackend.cpp	2026-10-24 12:20:34.522516990 -0500
-@@ -499,6 +499,10 @@
+--- a/src/Backends/WaylandBackend.cpp
++++ b/src/Backends/WaylandBackend.cpp
+@@ -17,6 +17,8 @@
+ #include <unordered_set>
+ #include <csignal>
+ #include <sys/mman.h>
++#include <sys/syscall.h>
++#include <cerrno>
+ #include <poll.h>
+ #include <linux/input-event-codes.h>
+ #include <xkbcommon/xkbcommon.h>
+@@ -499,6 +501,10 @@
          wl_buffer *GetHostBuffer() const { return m_pHostBuffer; }
          wlr_buffer *GetClientBuffer() const { return m_pClientBuffer; }
  
@@ -39,7 +48,7 @@
          void Wayland_Buffer_Release( wl_buffer *pBuffer );
          static const wl_buffer_listener s_BufferListener;
  
-@@ -507,6 +511,15 @@
+@@ -507,6 +513,15 @@
          wl_buffer *m_pHostBuffer = nullptr;
          wlr_buffer *m_pClientBuffer = nullptr;
          bool m_bCompositorAcquired = false;
@@ -55,7 +64,7 @@
      };
      const wl_buffer_listener CWaylandFb::s_BufferListener =
      {
-@@ -687,6 +700,9 @@
+@@ -687,6 +702,9 @@
          virtual std::shared_ptr<BackendBlob> CreateBackendBlob( const std::type_info &type, std::span<const uint8_t> data ) override;
  
          virtual OwningRc<IBackendFb> ImportDmabufToBackend( wlr_dmabuf_attributes *pDmaBuf ) override;
@@ -65,7 +74,7 @@
          virtual bool UsesModifiers() const override;
          virtual std::span<const uint64_t> GetSupportedModifiers( uint32_t uDrmFormat ) const override;
  
-@@ -965,6 +981,88 @@
+@@ -965,6 +983,101 @@
          // I own the pHostBuffer.
          wl_buffer_destroy( m_pHostBuffer );
          m_pHostBuffer = nullptr;
@@ -92,17 +101,30 @@
 +        size_t uStride = nRowPitch;
 +        size_t uSize = uStride * uHeight;
 +
-+        int32_t nFd = CreateShmBuffer( uSize, nullptr );
++        xdg_log.infof( "0123-shm: allocating %ux%u shm buffer, size=%zu stride=%zu", pTexture->width(), pTexture->height(), uSize, uStride );
++
++        // Not using CreateShmBuffer(): it mkostemps a file in $XDG_RUNTIME_DIR,
++        // which on the prooted Shield TV guest is not reliably mmap-able
++        // MAP_SHARED. A memfd created with the raw syscall works everywhere the
++        // guest kernel has memfd_create (upstream 3.17+; this device is 4.9).
++        int32_t nFd = (int32_t)syscall( SYS_memfd_create, "gamescope-shm", 0 );
 +        if ( nFd < 0 )
 +        {
-+            xdg_log.errorf( "0123-shm: failed to create memfd" );
++            xdg_log.errorf( "0123-shm: memfd_create failed: %s", strerror( errno ) );
++            return nullptr;
++        }
++
++        if ( ftruncate( nFd, uSize ) < 0 )
++        {
++            xdg_log.errorf( "0123-shm: ftruncate(%zu) failed: %s", uSize, strerror( errno ) );
++            close( nFd );
 +            return nullptr;
 +        }
 +
 +        void *pMappedData = mmap( nullptr, uSize, PROT_READ | PROT_WRITE, MAP_SHARED, nFd, 0 );
 +        if ( pMappedData == MAP_FAILED )
 +        {
-+            xdg_log.errorf( "0123-shm: failed to map memfd" );
++            xdg_log.errorf( "0123-shm: mmap(%zu) failed: %s", uSize, strerror( errno ) );
 +            close( nFd );
 +            return nullptr;
 +        }
@@ -154,7 +176,7 @@
      }
  
      void CWaylandFb::OnCompositorAcquire()
-@@ -1101,6 +1199,9 @@
+@@ -1101,6 +1214,9 @@
              bNeedsFullComposite |= pFrameInfo->blurLayer0;
              bNeedsFullComposite |= bNeedsCompositeFromFilter;
              bNeedsFullComposite |= g_bColorSliderInUse;
@@ -164,7 +186,7 @@
              bNeedsFullComposite |= pFrameInfo->bFadingOut;
              bNeedsFullComposite |= !g_reshade_effect.empty();
  
-@@ -1669,6 +1770,10 @@
+@@ -1669,6 +1785,10 @@
          CWaylandFb *pWaylandFb = pLayer && pLayer->tex != nullptr ? static_cast<CWaylandFb*>( pLayer->tex->GetBackendFb()->EnsureImported() ) : nullptr;
          wl_buffer *pBuffer = pWaylandFb ? pWaylandFb->GetHostBuffer() : nullptr;
  
@@ -175,7 +197,7 @@
          if ( pBuffer )
          {
              pWaylandFb->OnCompositorAcquire();
-@@ -2169,6 +2274,19 @@
+@@ -2169,6 +2289,19 @@
          return VK_IMAGE_LAYOUT_GENERAL;
      }
  
@@ -195,8 +217,8 @@
      void CWaylandBackend::GetPreferredOutputFormat( uint32_t *pPrimaryPlaneFormat, uint32_t *pOverlayPlaneFormat ) const
      {
          // Prefer opaque for composition on the Wayland backend.
---- a/src/rendervulkan.cpp	2026-10-24 12:20:34.520062157 -0500
-+++ b/src/rendervulkan.cpp	2026-10-24 12:20:34.524563180 -0500
+--- a/src/rendervulkan.cpp
++++ b/src/rendervulkan.cpp
 @@ -103,6 +103,12 @@
  // device has no /dev/udmabuf, so caps.dmabuf is not full -> OPAQUE/memfd path).
  bool g_bDmaBufExportSupported = false;
@@ -272,8 +294,8 @@
  	outputImageflags.bStorage = true;
  	outputImageflags.bTransferSrc = true; // for screenshots
  	outputImageflags.bSampled = true; // for pipewire blits
---- a/src/rendervulkan.hpp	2026-10-24 12:20:34.519145662 -0500
-+++ b/src/rendervulkan.hpp	2026-10-24 12:20:34.524619721 -0500
+--- a/src/rendervulkan.hpp
++++ b/src/rendervulkan.hpp
 @@ -455,6 +455,8 @@
  };
  
