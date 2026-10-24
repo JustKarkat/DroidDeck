@@ -182,7 +182,7 @@
      {
 +        // 0123-diag
 +        static int s_nConnPresentDiag = 0;
-+        if ( ( s_nConnPresentDiag++ % 30 ) == 0 )
++        if ( s_nConnPresentDiag++ < 3 )
 +            xdg_log.infof( "0123-diag: CWaylandConnector::Present visible=%d layers=%u async=%d",
 +                (int)m_bVisible, pFrameInfo ? (uint32_t)pFrameInfo->layers.count() : 0, (int)bAsync );
          UpdateFullscreenState();
@@ -204,7 +204,7 @@
  
 +        // 0123-diag: surface commit + libdecor state once every 30 calls
 +        static int s_nCommitDiag = 0;
-+        if ( ( s_nCommitDiag++ % 30 ) == 0 )
++        if ( s_nCommitDiag++ < 3 )
 +            xdg_log.infof( "0123-diag: Commit surface=%p frame=%p state=%d",
 +                (void *)m_pSurface, (void *)m_pFrame, (int)m_eWindowState );
 +
@@ -217,7 +217,7 @@
  
 +        // 0123-diag
 +        static int s_nPresentDiag = 0;
-+        if ( ( s_nPresentDiag++ % 30 ) == 0 )
++        if ( s_nPresentDiag++ < 3 )
 +            xdg_log.infof( "0123-diag: Present layer=%p tex=%p fb=%p buffer=%p",
 +                (const void *)pLayer, pLayer && pLayer->tex ? (void *)pLayer->tex.get() : nullptr,
 +                (void *)pWaylandFb, (void *)pBuffer );
@@ -377,7 +377,7 @@
 +	// 0123-diag
 +	{
 +		static int s_nPaintAllDiag = 0;
-+		if ( ( s_nPaintAllDiag++ % 90 ) == 0 )
++		if ( s_nPaintAllDiag++ < 3 )
 +			xwm_log.errorf( "0123-diag: paint_all connector=%p layers=%u", (void *)pConnector,
 +				(uint32_t)frameInfo.layers.count() );
 +	}
