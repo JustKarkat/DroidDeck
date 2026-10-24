@@ -176,7 +176,19 @@
      }
  
      void CWaylandFb::OnCompositorAcquire()
-@@ -1101,6 +1214,9 @@
+@@ -1076,6 +1189,11 @@
+ 
+     int CWaylandConnector::Present( const FrameInfo_t *pFrameInfo, bool bAsync )
+     {
++        // 0123-diag
++        static int s_nConnPresentDiag = 0;
++        if ( ( s_nConnPresentDiag++ % 30 ) == 0 )
++            xdg_log.infof( "0123-diag: CWaylandConnector::Present visible=%d layers=%u async=%d",
++                (int)m_bVisible, pFrameInfo ? (uint32_t)pFrameInfo->layers.count() : 0, (int)bAsync );
+         UpdateFullscreenState();
+ 
+         bool bNeedsFullComposite = false;
+@@ -1101,6 +1219,9 @@
              bNeedsFullComposite |= pFrameInfo->blurLayer0;
              bNeedsFullComposite |= bNeedsCompositeFromFilter;
              bNeedsFullComposite |= g_bColorSliderInUse;
@@ -186,7 +198,7 @@
              bNeedsFullComposite |= pFrameInfo->bFadingOut;
              bNeedsFullComposite |= !g_reshade_effect.empty();
  
-@@ -1653,6 +1769,12 @@
+@@ -1653,6 +1774,12 @@
              m_bNeedsDecorCommit = false;
          }
  
@@ -199,7 +211,7 @@
          wl_surface_commit( m_pSurface );
      }
  
-@@ -1669,6 +1791,17 @@
+@@ -1669,6 +1796,17 @@
          CWaylandFb *pWaylandFb = pLayer && pLayer->tex != nullptr ? static_cast<CWaylandFb*>( pLayer->tex->GetBackendFb()->EnsureImported() ) : nullptr;
          wl_buffer *pBuffer = pWaylandFb ? pWaylandFb->GetHostBuffer() : nullptr;
  
@@ -217,7 +229,7 @@
          if ( pBuffer )
          {
              pWaylandFb->OnCompositorAcquire();
-@@ -2169,6 +2302,19 @@
+@@ -2169,6 +2307,19 @@
          return VK_IMAGE_LAYOUT_GENERAL;
      }
  
@@ -356,3 +368,20 @@
  
  
  	void prepareSrcImage(CVulkanTexture *image);
+--- a/src/steamcompmgr.cpp
++++ b/src/steamcompmgr.cpp
+@@ -3496,6 +3496,14 @@
+ 		frameInfo.applyOutputColorMgmt = false;
+ 	}
+ 
++	// 0123-diag
++	{
++		static int s_nPaintAllDiag = 0;
++		if ( ( s_nPaintAllDiag++ % 90 ) == 0 )
++			xwm_log.errorf( "0123-diag: paint_all connector=%p layers=%u", (void *)pConnector,
++				(uint32_t)frameInfo.layers.count() );
++	}
++
+ 	for (uint32_t i = 0; i < EOTF_Count; i++)
+ 	{
+ 		if ( g_ColorMgmtLuts[i].HasLuts() )
