@@ -263,7 +263,20 @@
  void CVulkanCmdBuffer::copyBufferToImage(VkBuffer buffer, VkDeviceSize offset, uint32_t stride, gamescope::Rc<CVulkanTexture> dst)
  {
  	prepareDestImage(dst.get());
-@@ -2765,7 +2795,18 @@
+@@ -2177,6 +2207,12 @@
+ 	m_drmFormat = drmFormat;
+ 	VkResult res = VK_ERROR_INITIALIZATION_FAILED;
+ 
++	// 0123-shm: when the ICD cannot export DMA_BUF, flippable textures are
++	// published through a mapped wl_shm buffer, so every flippable texture
++	// must be CPU-mappable (LINEAR tiling gives GetImageSubresourceLayout a
++	// pitch). On lavapipe this is free: one host heap, CPU rendering.
++	if ( flags.bFlippable == true && !g_bDmaBufExportSupported )
++		flags.bMappable = true;
+ 	VkImageTiling tiling = (flags.bMappable || flags.bLinear) ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+ 	VkImageUsageFlags usage = 0;
+ 	VkMemoryPropertyFlags properties;
+@@ -2765,7 +2801,18 @@
  
  	if ( flags.bFlippable == true )
  	{
@@ -283,7 +296,7 @@
  	}
  
  	bool bHasAlpha = pDMA ? DRMFormatHasAlpha( pDMA->format ) : true;
-@@ -3562,6 +3603,10 @@
+@@ -3562,6 +3609,10 @@
  {
  	CVulkanTexture::createFlags outputImageflags;
  	outputImageflags.bFlippable = true;
