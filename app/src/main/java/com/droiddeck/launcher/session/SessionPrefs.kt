@@ -403,6 +403,13 @@ object SessionPrefs {
         prefs(context).edit().putBoolean("logs", on).apply()
     }
 
+    fun loadingLogEnabled(context: Context): Boolean =
+        prefs(context).getBoolean("loadingLog", false)
+
+    fun setLoadingLogEnabled(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("loadingLog", on).apply()
+    }
+
     fun storageDiagnosticsEnabled(context: Context): Boolean =
         prefs(context).getBoolean("storageDiagnostics", false)
 

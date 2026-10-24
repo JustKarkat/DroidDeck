@@ -711,6 +711,8 @@
     <string name="setup_session">Session</string>
     <string name="setup_logs">Session logs</string>
     <string name="setup_logs_hint">Saved after each session</string>
+    <string name="setup_loading_log">Loading log on screen</string>
+    <string name="setup_loading_log_hint">Show recent session log lines while Steam or a desktop session is starting</string>
     <string name="setup_agent_commands">Debugging tools</string>
     <string name="setup_latest_logs">Latest session logs</string>
     <string name="setup_saved_logs">Saved session logs</string>

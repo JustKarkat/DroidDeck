@@ -131,6 +131,7 @@ android {
         }
         release {
             minifyEnabled false
+            debuggable true // ponytail: temporary, for run-as log access; revert after session-log pull
             signingConfig signingConfigs.testkey
         }
     }

@@ -23,6 +23,8 @@ class LoadingState(context: Context, private val steam: Boolean = true) {
     var hint by mutableStateOf("")
     var ended by mutableStateOf(false)
     var endedDetail by mutableStateOf<String?>(null)
+    var log by mutableStateOf<String?>(null)
+        private set
 
     private val hints = context.resources.getStringArray(
         if (steam) com.droiddeck.launcher.R.array.loading_hints else com.droiddeck.launcher.R.array.loading_hints_desktop,
@@ -50,6 +52,24 @@ class LoadingState(context: Context, private val steam: Boolean = true) {
     }
 
     fun update(context: Context, log: File?) {
+        this.log = if (log?.isFile == true) try {
+            RandomAccessFile(log, "r").use { file ->
+                val length = file.length()
+                val want = minOf(length, DEBUG_TAIL_BYTES)
+                file.seek(length - want)
+                val bytes = ByteArray(want.toInt())
+                file.readFully(bytes)
+                String(bytes, StandardCharsets.UTF_8)
+                    .replace(ANSI_COLORS, "")
+                    .replace('\r', '\n')
+                    .split('\n')
+                    .filter { it.isNotBlank() }
+                    .takeLast(12)
+                    .joinToString("\n")
+            }
+        } catch (e: Exception) {
+            null
+        } else null
         val state = read(context, log) ?: return
         step = state.line
         topic = state.topic
@@ -138,6 +158,8 @@ class LoadingState(context: Context, private val steam: Boolean = true) {
         }
 
         private const val TAIL_BYTES = 48L * 1024
+        private const val DEBUG_TAIL_BYTES = 8L * 1024
+        private val ANSI_COLORS = Regex("\u001b\\[[0-9;]*[A-Za-z]")
         private val UPDATE_PROGRESS = Regex("""Downloading update \((\d+) of (\d+) KB\)""")
         private val INSTALL_COUNT = Regex("""downloading Steam: (\S+) \((\d+)/(\d+)\)""")
     }

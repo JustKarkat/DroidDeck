@@ -7,7 +7,38 @@ the timeline, then lessons and backlog. Companion to the README (what the app *d
 
 ---
 
-## 2026-10-10 - `feat/wincomp-auto-sources`: Windows components picked by the game's source
+## 2026-10-23 - branch `shield-tv`: Shield TV Phase 1 root cause fixed, built by fork CI
+
+- GTK, **root cause fixed**: gamescope 3.16.29 on the Shield TV (lavapipe, 4 Cortex-A57,
+  no `/dev/dri`) died ~1.4 s after start - `vkAllocateMemory failed (VkResult: -2)` then
+  `assert(bRes)` fired at `vulkan_create_flat_texture` (`rendervulkan.cpp:3170`). Root cause:
+  `CVulkanTexture::BInit` is the one `findMemoryType()` call site that casts the `int32_t`
+  return straight to `uint32_t` (lines 1046 and 4770 already check `~0u`), so a failed lookup
+  produced `memoryTypeIndex = 0xFFFFFFFF`. Fix as patch
+  `tools/gamescope/patches/0116-vulkan-texture-alloc-failure.patch` (two edits: the missing
+  `~0u` check + `return false` with a descriptive error, and `vulkan_create_flat_texture`
+  returning `nullptr` instead of asserting - `steamcompmgr.cpp:3314` already null-checks).
+  Verified `patch -p1 --dry-run` applies cleanly to upstream 3.16.29; commit e5dc28f.
+- Built with the **existing CI, no local ARM toolchain**: the gamescope binary comes from
+  `build-gamescope.yml` (ubuntu-24.04-arm runner, `menci/archlinuxarm:base-devel` docker).
+  No push access to `Droid-Deck/DroidDeck`, so: forked to `JustKarkat/DroidDeck`, pushed
+  `shield-tv`, enabled Actions on the fork (forks default off: `PUT
+  /actions/permissions`), dispatched the workflow by API (`gh workflow run` only resolves
+  workflows on the default branch, which a fresh fork lacks - go through the dispatch API
+  instead).
+- **Install gotcha found**: `SessionFiles.kt:117-124` restages `usr/local/bin/gamescope`
+  from APK assets at *every* session start, unconditionally - pushing a new binary into the
+  guest rootfs is clobbered on the next start (earlier handoff note was wrong). Fix must be
+  baked into `app/src/main/assets/linuxfs/usr/local/bin/gamescope` (git-ignored asset,
+  packaged as-is by `stageRuntimeAssets`; no re-download in the local gradle path) or its
+  pinned release tag (`tools/gamescope/release.env` → `DroidDeck-Components`).
+- Wasted-effort note (parent of the dead end): ~45 min went into pacman-in-userns inside a
+  qemu-user Arch ARM rootfs on this host (chown EINVAL in user namespaces), plus an
+  LD_PRELOAD dlsym-hijack shim sketch, before re-reading the repo and finding the repo's own
+  CI already builds ARM64. Check for an existing build pipeline before emulating one.
+
+---
+
 
 - **Per source** (`WinCompSources`): Steam - Steamworks Shared depots from the appmanifest or the
   client's app info (`SteamAppInfo`, appinfo.vdf v27-29, cached per appid, weekly retry); GOG - the

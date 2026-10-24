@@ -517,10 +517,22 @@ class SessionService : Service() {
         guest.add("WAYLAND_DISPLAY=wayland-0")
         guest.add("BL_ANDROID_CLIPBOARD=" + File(filesDir, "session/android-clipboard").path)
         guest.add("GAMESCOPE_FORCE_GENERAL_QUEUE=1")
+        // Guest scripts key Tegra-specific fallbacks off this (e.g. software CEF).
+        // LP_NUM_THREADS: llvmpipe spawns one raster pool per core (~80 MB each);
+        // on 3 GB of RAM that starves CEF's network/renderer processes.
+        if (DeviceSupport.tegra()) {
+            guest.add("BL_TEGRA=1")
+            guest.add("LP_NUM_THREADS=2")
+        }
         guest.add("LIBDECOR_PLUGIN_DIR=/tmp/libdecor-plugins")
-        guest.add("MESA_LOADER_DRIVER_OVERRIDE=zink")
-        guest.add("GALLIUM_DRIVER=zink")
-        guest.add("LIBGL_KOPPER_DRI2=true")
+        // zink GLX on the Tegra path's lavapipe ICD fails pdev choice (glXChooseVisual
+        // assert in the Steam client); software GL works, and Tegra has no native GL
+        // driver, so only Adreno-class devices force zink.
+        if (!DeviceSupport.tegra()) {
+            guest.add("MESA_LOADER_DRIVER_OVERRIDE=zink")
+            guest.add("GALLIUM_DRIVER=zink")
+            guest.add("LIBGL_KOPPER_DRI2=true")
+        }
         LinuxRuntime.vulkanIcd(this)?.let { guest.add("VK_ICD_FILENAMES=" + it.path) }
         val linuxDriverId = SessionPrefs.linuxDriver(this)
         LinuxVulkanDriver.resolveIcdPath(this, linuxDriverId)

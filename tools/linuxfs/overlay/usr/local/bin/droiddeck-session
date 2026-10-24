@@ -654,6 +654,13 @@ BUSCONF
     _bl_ui=(-gamepadui)
     [ "${BL_STEAM_UI:-}" = desktop ] && _bl_ui=()
     _bl_cef=(-cef-force-gpu -cef-use-gl=angle -cef-use-angle=vulkan)
+    # BL_TEGRA: ANGLE-on-lavapipe wedges the in-process GPU thread; renderer watchdog
+    # then kills the UI ("Crashing because hung", no first frame). Software raster is
+    # slow but paints. Revert when the device has a real Vulkan ICD.
+    [ "${BL_TEGRA:-}" = 1 ] && _bl_cef=(-cef-disable-gpu)
+    # breakpad needs a fresh /tmp/dumps it owns; a stale dir kills dump writing,
+    # which is the only record of why CEF children die here.
+    [ "${BL_TEGRA:-}" = 1 ] && { rm -rf /tmp/dumps; mkdir -m 777 /tmp/dumps; }
     if [ "${BL_DESKTOP:-}" = 1 ] && [ "${BL_STEAM_UI:-}" = desktop ]; then
       _bl_cef=(-cef-disable-gpu)
       _bl_ui=(-nobigpicture)
@@ -676,7 +683,11 @@ BUSCONF
       [ -n "$_stale" ] && echo "== steam: cleared what an earlier session left:$_stale"
       unset _stale _f
     fi
-    steam_channel=steamdeck_publicbeta
+    steam_channel=droiddeck-pinned-v8.0
+    # ponytail: not a real Valve channel — the client updater's manifest fetch for
+    # it 404s, which is exactly what we want: every live channel's client is LSE-only
+    # (ArmV8.1) and SIGILLs on this CPU (steam-for-linux#13288), so self-update to
+    # any of them must not succeed. The pinned 1776387948 install stays put.
     _bl_lang=()
     [ -n "${BL_STEAM_LANGUAGE:-}" ] && _bl_lang=(-language "$BL_STEAM_LANGUAGE")
     steam_beta=$steam_root/package/beta

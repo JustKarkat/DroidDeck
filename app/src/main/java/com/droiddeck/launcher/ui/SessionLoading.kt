@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -121,6 +122,7 @@ fun LoadingOverlay(
     topic: LoadingState.Topic, readable: Boolean,
     title: String = stringResource(R.string.load_starting_steam), steam: Boolean = true, onCancel: (() -> Unit)? = null,
     endedDetail: String? = null,
+    debugLog: String? = null,
     onRetry: (() -> Unit)? = null,
     onShareLogs: (() -> Unit)? = null,
     onClose: (() -> Unit)? = null,
@@ -195,6 +197,16 @@ fun LoadingOverlay(
             modifier = Modifier.align(Alignment.BottomCenter).padding(start = 120.dp, end = 120.dp, bottom = 28.dp),
         )
         if (!ended && onCancel != null) CancelHint(onCancel, Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 16.dp))
+        if (debugLog != null) Text(
+            debugLog.trim(), fontFamily = FontFamily.Monospace, fontSize = 10.sp, lineHeight = 14.sp,
+            color = Color.White.copy(alpha = 0.85f), maxLines = 14, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(12.dp)
+                .fillMaxWidth()
+                .background(Color(0x99000000))
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+        )
         if (flood != null) FloodGather(flood, ball, onFlooded)
     }
 }

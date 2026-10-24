@@ -483,6 +483,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback {
                     title = loadingTitle(), steam = loadingMode() == SessionService.MODE_STEAM,
                     onCancel = { SessionService.stop(this@SessionActivity); finish() },
                     endedDetail = loading.endedDetail,
+                    debugLog = if (SessionPrefs.loadingLogEnabled(this@SessionActivity)) loading.log else null,
                     onRetry = { retrySession() },
                     onShareLogs = { shareCurrentSessionLogs() },
                     onClose = { finish() },
