@@ -37,12 +37,10 @@ cd src/hybris
   --enable-arch=arm64 \
   --with-default-egl-platform=null
 
-# The bundled tests need extra includes and are irrelevant here; everything
-# else (common/egl/glesv2/platforms/...) builds fine.
-SUBS=$(grep -E '^SUBDIRS = ' Makefile | sed -E 's/^SUBDIRS = //' | tr ' ' '\n' | grep -vx 'tests' | tr '\n' ' ')
-echo "== building subdirs: $SUBS"
-make -j"$(nproc)" SUBDIRS="$SUBS"
-make install SUBDIRS="$SUBS" DESTDIR="$WORK/root"
+# The bundled tests are irrelevant and one of them forgot <string.h>.
+sed -i '1i #include <string.h>' tests/test_audio.c
+make -j"$(nproc)"
+make install DESTDIR="$WORK/root"
 
 echo "== glibc EGL probe"
 cd "$WORK"
