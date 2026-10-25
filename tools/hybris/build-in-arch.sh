@@ -52,7 +52,7 @@ cd "$WORK"
 mkdir -p "$WORK/root/usr/bin"
 gcc -O1 -o "$WORK/root/usr/bin/eglprobe" /work/tools/hybris/eglprobe.c \
   -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
-  -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -lEGL -lGLESv2
+  -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lEGL -lGLESv2 -lhybris-common -lhardware
 
 echo "== package"
 cd "$WORK/root"
