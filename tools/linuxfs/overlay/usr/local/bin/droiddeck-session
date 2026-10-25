@@ -279,6 +279,7 @@ if [ "${BL_DESKTOP:-}" != 1 ] && [ -n "${BL_ANDROID_CLIPBOARD:-}" ] && [ -x /usr
 fi
 
 [ "${BL_DESKTOP:-}" = 1 ] || start_agent
+[ -x /usr/local/bin/droiddeck-oom-guard ] && /usr/local/bin/droiddeck-oom-guard &
 
 case $mode in
   desktop)

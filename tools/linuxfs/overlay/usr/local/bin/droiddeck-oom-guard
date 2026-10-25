@@ -1,0 +1,48 @@
+#!/usr/bin/python3
+# Keep Steam's CEF children killable last.
+#
+# Chromium raises its own renderer/utility oom_score_adj (300/200) so the
+# browser survives memory pressure. On this 3 GB device Android's LMKD then
+# kills the Steam UI renderer every 20-40 s (`sad_tab.cc Tab Killed`,
+# `Network service crashed`) while gamescope and the browser at adj 0 are
+# untouched. The session is the foreground experience, so put its CEF children
+# back at 0; LMKD reaps background Android apps first, as it did before.
+#
+# One long-lived process, no fork/exec per tick (proot makes forks expensive).
+# ponytail: 1 s poll; exits by itself once the CEF tree is gone.
+import os
+import time
+
+IDLE_TICKS = 60
+
+
+def children():
+    for pid in os.listdir('/proc'):
+        if not pid.isdigit():
+            continue
+        try:
+            cmd = open('/proc/%s/cmdline' % pid, 'rb').read()
+        except OSError:
+            continue
+        if b'steamwebhelper' in cmd and b'--type=' in cmd:
+            yield pid
+
+
+def main():
+    idle = 0
+    while True:
+        found = False
+        for pid in children():
+            found = True
+            try:
+                if open('/proc/%s/oom_score_adj' % pid).read().strip() != '0':
+                    open('/proc/%s/oom_score_adj' % pid, 'w').write('0')
+            except OSError:
+                pass
+        idle = 0 if found else idle + 1
+        if idle >= IDLE_TICKS:
+            return
+        time.sleep(1)
+
+
+main()
