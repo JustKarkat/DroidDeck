@@ -16,7 +16,7 @@ grep -q '^DisableSandbox' /etc/pacman.conf || sed -i 's/^\[options\]/[options]\n
 { for m in https://ca.us.mirror.archlinuxarm.org https://fl.us.mirror.archlinuxarm.org https://de3.mirror.archlinuxarm.org https://nl.mirror.archlinuxarm.org; do echo "Server = $m/\$arch/\$repo"; done; cat /etc/pacman.d/mirrorlist; } > /etc/pacman.d/mirrorlist.new
 mv /etc/pacman.d/mirrorlist.new /etc/pacman.d/mirrorlist
 
-pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar >/dev/null
+pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar libglvnd >/dev/null
 
 WORK=/work/build-hybris
 rm -rf "$WORK"
@@ -49,7 +49,7 @@ make install DESTDIR="$WORK/root"
 echo "== glibc EGL probe"
 cd "$WORK"
 gcc -O1 -o "$WORK/root/usr/bin/eglprobe" /work/tools/hybris/eglprobe.c \
-  -I"$WORK/prefix/include/android" \
+  -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
   -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -lEGL -lGLESv2
 
 echo "== package"
