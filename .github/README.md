@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="../artwork/shielddeck-mark.svg" alt="ShieldDeck" width="160">
+  <img src="../ShieldDeck.png" alt="ShieldDeck" width="160">
 </p>
 
 <h1 align="center">ShieldDeck</h1>
 
 <p align="center"><b>DroidDeck on the NVIDIA Shield TV.</b><br>Valve's Steam client in Big Picture on a Tegra X1 box, rendered on the CPU for now.</p>
 
-ShieldDeck is a work-in-progress fork of [DroidDeck](https://github.com/Droid-Deck/DroidDeck) (the upstream project's own README is [`README.md`](../README.md) in this repo; its build, install and credits sections still apply). DroidDeck assumes an Adreno GPU with the Turnip driver. The Shield TV has none of that, so this fork reworks the launcher, runtime and patched gamescope until the whole stack runs on a stock, locked-bootloader Shield.
+ShieldDeck is a personal project for fun: a work-in-progress fork of [DroidDeck](https://github.com/Droid-Deck/DroidDeck) (the upstream project's own README is [`README.md`](../README.md) in this repo; its build, install and credits sections still apply). DroidDeck assumes an Adreno GPU with the Turnip driver. The Shield TV has none of that, so this fork reworks the launcher, runtime and patched gamescope until the whole stack runs on a stock, locked-bootloader Shield.
 
 > **Status: experimental, not usable yet.** The Steam client starts and stays alive on a Shield TV, but its first UI frame has not been confirmed on screen. Nothing here is a release.
 
