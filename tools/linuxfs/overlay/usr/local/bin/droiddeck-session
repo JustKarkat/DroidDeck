@@ -4,6 +4,12 @@ export HOME=${HOME:-/root}
 mode=${1:-desktop}
 shift || true
 step() { echo "== STEP $(date -u +%H:%M:%S) $*"; }
+
+# Chromium's in-process SwiftShader GPU thread burns a whole core on the Shield
+# TV's A57s and starves the Steam UI. Keep GPU work in its own process. Anything
+# set through the debugging env still wins.
+: "${BL_WEBHELPER_ARGS:=--no-zygote -AudioServiceOutOfProcess}"
+export BL_WEBHELPER_ARGS
 if [ -n "${BL_LOG:-}" ] && [ -z "${BL_INSIDE:-}" ]; then
   mkdir -p "$(dirname "$BL_LOG")" 2>/dev/null
   if [ "$(stat -c %s "$BL_LOG" 2>/dev/null || echo 0)" -gt 8388608 ]; then
