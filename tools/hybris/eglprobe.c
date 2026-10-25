@@ -24,6 +24,22 @@ static void on_fault(int sig, siginfo_t *si, void *ctx) {
     void *bt[32];
     int c = backtrace(bt, 32);
     backtrace_symbols_fd(bt, c, 1);
+    {
+        FILE *m = fopen("/proc/self/maps", "r");
+        char line[512];
+        if (m) {
+            while (fgets(line, sizeof line, m)) {
+                unsigned long s = 0, e = 0;
+                if (sscanf(line, "%lx-%lx", &s, &e) != 2) continue;
+                unsigned long a = (unsigned long)si->si_addr;
+                unsigned long p = (unsigned long)pc;
+                unsigned long l = (unsigned long)lr;
+                if ((p >= s && p < e) || (l >= s && l < e) || (a >= s && a < e))
+                    write(1, line, strlen(line));
+            }
+            fclose(m);
+        }
+    }
     say("--- /proc/self/maps (executable) ---\n");
     FILE *f = fopen("/proc/self/maps", "r");
     if (f) {
