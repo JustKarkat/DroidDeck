@@ -401,25 +401,31 @@
  	for (uint32_t i = 0; i < EOTF_Count; i++)
  	{
  		if ( g_ColorMgmtLuts[i].HasLuts() )
-@@ -5211,6 +5228,17 @@
+@@ -5211,6 +5228,23 @@
  		pFocus->ulVirtualFocusKey,
  		gamescope::cv_backend_virtual_connector_strategy );
  
 +	// 0124-diag: which window wins the focus pick, and with what inputs (temporary)
 +	{
 +		static int s_nFocusDiag = 0;
-+		if ( s_nFocusDiag++ < 40 )
-+			xwm_log.errorf( "0124-diag: focus pick=%p appID=%u strategy=%u appids=%zu control=0x%lx candidates=%zu",
++		if ( s_nFocusDiag++ < 200 )
++		{
++			char szCandidates[512] = {};
++			for ( steamcompmgr_win_t *pCandidate : vecPossibleFocusWindows )
++				snprintf( szCandidates + strlen( szCandidates ), sizeof( szCandidates ) - strlen( szCandidates ),
++					"0x%x:%u ", pCandidate->id(), pCandidate->appID );
++			xwm_log.errorf( "0124-diag: focus pick=%p appID=%u strategy=%u appids=%zu control=0x%lx candidates=%zu [%s]",
 +				(void *)pFocus->focusWindow, pFocus->focusWindow ? pFocus->focusWindow->appID : 0u,
 +				(unsigned)gamescope::cv_backend_virtual_connector_strategy,
 +				vecFocuscontrolAppIDs.size(), root_ctx->focusControlWindow,
-+				vecPossibleFocusWindows.size() );
++				vecPossibleFocusWindows.size(), szCandidates );
++		}
 +	}
 +
  	if ( pFocus->overrideWindow != previousLocalFocus.overrideWindow )
  	{
  		if ( pFocus->overrideWindow )
-@@ -10069,6 +10097,12 @@
+@@ -10069,6 +10103,12 @@
  
  	for (;;)
  	{
