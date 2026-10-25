@@ -427,7 +427,39 @@
  	if ( pFocus->overrideWindow != previousLocalFocus.overrideWindow )
  	{
  		if ( pFocus->overrideWindow )
-@@ -8627,7 +8663,16 @@
+@@ -8587,6 +8623,7 @@
+ 			pBackendFb->SetBuffer( buf );
+ 	}
+ 
++	const char *pszFenceKind = "acquire";
+ 	if ( eventFd != gamescope::CAcquireTimelinePoint::k_InvalidEvent )
+ 	{
+ 		fence = eventFd.first;
+@@ -8598,13 +8635,23 @@
+ 		if ( wlr_buffer_get_dmabuf( buf, &dmabuf ) )
+ 		{
+ 			fence = dup( dmabuf.fd[0] );
++			pszFenceKind = "dmabuf";
+ 		}
+ 		else
+ 		{
+ 			fence = newCommit->vulkanTex->memoryFence();
++			pszFenceKind = "memfence";
+ 		}
+ 	}
+ 
++	// 0124-diag: which wait primitive does this commit use? (temporary)
++	{
++		static int s_nFenceDiag = 0;
++		if ( s_nFenceDiag++ < 50 )
++			xwm_log.errorf( "0124-diag: commit fence kind=%s fd=%d knownReady=%d tex=%p",
++				pszFenceKind, fence, (int)bKnownReady, (void *)newCommit->vulkanTex.get() );
++	}
++
+ 	gpuvis_trace_printf( "pushing wait for commit %lu win %lx", newCommit->commitID, w->type == steamcompmgr_win_type_t::XWAYLAND ? w->xwayland().id : 0 );
+ 	{
+ 		newCommit->SetFence( fence, mango_nudge, uMangoMsgType, doneCommits );
+@@ -8627,7 +8674,16 @@
  	for ( uint32_t i = 0; i < tmp_queue.size(); i++ )
  	{
  		steamcompmgr_win_t	*w = find_win( ctx, tmp_queue[ i ].surf );
@@ -445,7 +477,7 @@
  	}
  }
  
-@@ -10069,6 +10114,12 @@
+@@ -10069,6 +10125,12 @@
  
  	for (;;)
  	{
