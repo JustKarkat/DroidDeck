@@ -385,3 +385,16 @@
  	for (uint32_t i = 0; i < EOTF_Count; i++)
  	{
  		if ( g_ColorMgmtLuts[i].HasLuts() )
+@@ -10069,6 +10077,12 @@
+ 
+ 	for (;;)
+ 	{
++		// 0123-diag: main-loop heartbeat, first three and then once a minute
++		{
++			static int s_nMainDiag = 0;
++			if ( s_nMainDiag++ < 3 || ( s_nMainDiag % 3600 ) == 0 )
++				xwm_log.errorf( "0123-diag: main loop iter=%d vblank=%d", s_nMainDiag, (int)vblank );
++		}
+ 		{
+ 			gamescope_xwayland_server_t *server = NULL;
+ 			for (size_t i = 0; (server = wlserver_get_xwayland_server(i)); i++)
