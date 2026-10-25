@@ -37,18 +37,19 @@
  #include <poll.h>
  #include <linux/input-event-codes.h>
  #include <xkbcommon/xkbcommon.h>
-@@ -499,6 +501,10 @@
+@@ -499,6 +501,11 @@
          wl_buffer *GetHostBuffer() const { return m_pHostBuffer; }
          wlr_buffer *GetClientBuffer() const { return m_pClientBuffer; }
  
 +        // 0123-shm
 +        bool IsShm() const { return m_pShmData != nullptr; }
++        bool IsCompositorAcquired() const { return m_bCompositorAcquired; }
 +        void FlushShm( ::CVulkanTexture *pTexture );
 +
          void Wayland_Buffer_Release( wl_buffer *pBuffer );
          static const wl_buffer_listener s_BufferListener;
  
-@@ -507,6 +513,15 @@
+@@ -507,6 +514,15 @@
          wl_buffer *m_pHostBuffer = nullptr;
          wlr_buffer *m_pClientBuffer = nullptr;
          bool m_bCompositorAcquired = false;
@@ -64,7 +65,7 @@
      };
      const wl_buffer_listener CWaylandFb::s_BufferListener =
      {
-@@ -687,6 +702,9 @@
+@@ -687,6 +703,9 @@
          virtual std::shared_ptr<BackendBlob> CreateBackendBlob( const std::type_info &type, std::span<const uint8_t> data ) override;
  
          virtual OwningRc<IBackendFb> ImportDmabufToBackend( wlr_dmabuf_attributes *pDmaBuf ) override;
@@ -74,7 +75,7 @@
          virtual bool UsesModifiers() const override;
          virtual std::span<const uint64_t> GetSupportedModifiers( uint32_t uDrmFormat ) const override;
  
-@@ -965,6 +983,101 @@
+@@ -965,6 +984,101 @@
          // I own the pHostBuffer.
          wl_buffer_destroy( m_pHostBuffer );
          m_pHostBuffer = nullptr;
@@ -176,7 +177,7 @@
      }
  
      void CWaylandFb::OnCompositorAcquire()
-@@ -1076,6 +1189,11 @@
+@@ -1076,6 +1190,11 @@
  
      int CWaylandConnector::Present( const FrameInfo_t *pFrameInfo, bool bAsync )
      {
@@ -188,7 +189,7 @@
          UpdateFullscreenState();
  
          bool bNeedsFullComposite = false;
-@@ -1101,6 +1219,9 @@
+@@ -1101,6 +1220,9 @@
              bNeedsFullComposite |= pFrameInfo->blurLayer0;
              bNeedsFullComposite |= bNeedsCompositeFromFilter;
              bNeedsFullComposite |= g_bColorSliderInUse;
@@ -198,7 +199,7 @@
              bNeedsFullComposite |= pFrameInfo->bFadingOut;
              bNeedsFullComposite |= !g_reshade_effect.empty();
  
-@@ -1653,6 +1774,12 @@
+@@ -1653,6 +1775,12 @@
              m_bNeedsDecorCommit = false;
          }
  
@@ -211,7 +212,7 @@
          wl_surface_commit( m_pSurface );
      }
  
-@@ -1669,6 +1796,17 @@
+@@ -1669,6 +1797,24 @@
          CWaylandFb *pWaylandFb = pLayer && pLayer->tex != nullptr ? static_cast<CWaylandFb*>( pLayer->tex->GetBackendFb()->EnsureImported() ) : nullptr;
          wl_buffer *pBuffer = pWaylandFb ? pWaylandFb->GetHostBuffer() : nullptr;
  
@@ -224,12 +225,19 @@
 +
 +        // 0123-shm: refresh the shm copy right before this buffer is attached.
 +        if ( pWaylandFb && pWaylandFb->IsShm() && pLayer && pLayer->tex != nullptr )
-+            pWaylandFb->FlushShm( pLayer->tex.get() );
++        {
++            // 0126: if the host still has this buffer on screen, do not overwrite
++            // its pixels. With a single shm buffer per output image that would
++            // tear or show a mix of old and new frames (the "jumps back to an
++            // older frame" symptom). Keep the pixels it is displaying.
++            if ( !pWaylandFb->IsCompositorAcquired() )
++                pWaylandFb->FlushShm( pLayer->tex.get() );
++        }
 +
          if ( pBuffer )
          {
              pWaylandFb->OnCompositorAcquire();
-@@ -2169,6 +2307,19 @@
+@@ -2169,6 +2315,19 @@
          return VK_IMAGE_LAYOUT_GENERAL;
      }
  
