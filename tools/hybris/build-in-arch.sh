@@ -24,9 +24,8 @@ mkdir -p "$WORK"
 cd "$WORK"
 mkdir -p "$WORK/root/usr/bin"
 
-echo "== android headers (Halium 9.0)"
-git clone --quiet https://github.com/Halium/android-headers.git headers
-git -C headers checkout --quiet 00543b4ff3f56a9f96be336df276365aef46f8a2
+echo "== android headers (Halium 11.0)"
+git clone --quiet --depth 1 --branch halium-11.0 https://github.com/Halium/android-headers.git headers
 make -C headers install PREFIX="$WORK/prefix"
 
 echo "== libhybris"
