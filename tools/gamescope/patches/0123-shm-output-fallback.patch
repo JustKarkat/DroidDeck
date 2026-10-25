@@ -370,7 +370,23 @@
  	void prepareSrcImage(CVulkanTexture *image);
 --- a/src/steamcompmgr.cpp
 +++ b/src/steamcompmgr.cpp
-@@ -3496,6 +3496,14 @@
+@@ -3307,6 +3307,15 @@
+ 		}
+ 	}
+ 
++	// 0124-diag: why does paint_all bail? (temporary, remove before release)
++	{
++		static int s_nPaintDiag = 0;
++		if ( s_nPaintDiag++ < 10 )
++			xwm_log.errorf( "0124-diag: paint_all focus=%p id=0x%x appID=%u opacity=0x%x layers=%u override=%p",
++				(void *)w, w ? (unsigned)w->id() : 0u, w ? w->appID : 0u,
++				w ? w->opacity : 0u, (uint32_t)frameInfo.layers.count(), (void *)override );
++	}
++
+ 	// If we have any layers that aren't a cursor or overlay, then we have valid contents for presentation.
+ 	const bool bValidContents = frameInfo.layers.count() > 0;
+ 
+@@ -3496,6 +3505,14 @@
  		frameInfo.applyOutputColorMgmt = false;
  	}
  
@@ -385,7 +401,7 @@
  	for (uint32_t i = 0; i < EOTF_Count; i++)
  	{
  		if ( g_ColorMgmtLuts[i].HasLuts() )
-@@ -10069,6 +10077,12 @@
+@@ -10069,6 +10086,12 @@
  
  	for (;;)
  	{
