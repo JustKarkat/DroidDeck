@@ -393,7 +393,7 @@
 +		{
 +			static int s_nMainDiag = 0;
 +			if ( s_nMainDiag++ < 3 || ( s_nMainDiag % 3600 ) == 0 )
-+				xwm_log.errorf( "0123-diag: main loop iter=%d", s_nMainDiag );
++				xwm_log.errorf( "0123-diag: main loop iter=%d repaint=%d", s_nMainDiag, (int)hasRepaint.load() );
 +		}
  		{
  			gamescope_xwayland_server_t *server = NULL;
