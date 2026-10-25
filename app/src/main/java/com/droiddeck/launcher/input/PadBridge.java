@@ -68,6 +68,23 @@ public final class PadBridge {
     private final java.util.Set<Integer> seenDevices = new java.util.HashSet<>();
     private int lastDeviceId = Integer.MIN_VALUE;
 
+    private static volatile boolean gamepadOnly = true;
+
+    public static void setGamepadOnly(boolean on) { gamepadOnly = on; }
+
+    // The Android TV remote advertises SOURCE_GAMEPAD and a d-pad but no sticks;
+    // framework devices named "virtual-*" also slip past InputDevice.isVirtual().
+    // Requiring one analog stick keeps the real gamepad as the only player.
+    private static boolean hasAnalogStick(InputDevice device) {
+        String name = device.getName();
+        if (name != null && name.startsWith("virtual-")) return false;
+        for (int axis : new int[]{MotionEvent.AXIS_X, MotionEvent.AXIS_Y, MotionEvent.AXIS_Z, MotionEvent.AXIS_RZ}) {
+            InputDevice.MotionRange range = device.getMotionRange(axis, InputDevice.SOURCE_JOYSTICK);
+            if (range != null && range.getMax() > range.getMin()) return true;
+        }
+        return false;
+    }
+
     public static final int NO_CONTROLLER = -1;
     private static volatile int activeControllerId = NO_CONTROLLER;
     private static final AtomicIntegerArray slotControllers = new AtomicIntegerArray(SLOTS);
@@ -129,6 +146,7 @@ public final class PadBridge {
     public static boolean isFromController(InputDevice device) {
         if (device == null) return false;
         if (device.isVirtual()) return false;
+        if (gamepadOnly && !hasAnalogStick(device)) return false;
         int sources = device.getSources();
         if ((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) return true;
         if ((sources & InputDevice.SOURCE_JOYSTICK) != InputDevice.SOURCE_JOYSTICK) return false;

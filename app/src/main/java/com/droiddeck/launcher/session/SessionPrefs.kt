@@ -403,6 +403,16 @@ object SessionPrefs {
         prefs(context).edit().putBoolean("logs", on).apply()
     }
 
+    // Only devices with analog sticks (real gamepads) become session players.
+    // Without this the Android TV remote and framework "virtual-*" devices get
+    // player slots, and Steam binds one of them instead of the gamepad.
+    fun gamepadOnly(context: Context): Boolean =
+        prefs(context).getBoolean("gamepadOnly", true)
+
+    fun setGamepadOnly(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("gamepadOnly", on).apply()
+    }
+
     fun loadingLogEnabled(context: Context): Boolean =
         prefs(context).getBoolean("loadingLog", false)
 
