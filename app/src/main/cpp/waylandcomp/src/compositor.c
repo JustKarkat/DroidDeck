@@ -625,6 +625,7 @@ static void take_shm(struct surface *s, struct wl_shm_buffer *shm, struct wl_res
         s->shm_img = NULL;
     }
     if (!s->shm_img) s->shm_img = vkp_image_create_shm(w, h);
+    if (!s->shm_img) WLOGE("shm import failed to create image (%dx%d stride %d)", w, h, stride);
     if (s->shm_img) {
         wl_shm_buffer_begin_access(shm);
         vkp_image_upload_shm(s->shm_img, wl_shm_buffer_get_data(shm), stride);
@@ -1363,6 +1364,7 @@ static void xdg_surface_destroy_req(struct wl_client *c, struct wl_resource *r) 
 static void xdg_surface_get_toplevel(struct wl_client *c, struct wl_resource *r, uint32_t id) {
     struct surface *s = wl_resource_get_user_data(r);
     struct wl_resource *tl = wl_resource_create(c, &xdg_toplevel_interface, wl_resource_get_version(r), id);
+    droiddeck_log("program", "xdg_toplevel created (surface %p)", (void*)s);
     if (!tl) { wl_client_post_no_memory(c); return; }
     wl_resource_set_implementation(tl, &xdg_toplevel_impl, s, xdg_toplevel_resource_destroy);
     if (!s) return;

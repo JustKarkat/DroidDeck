@@ -400,6 +400,21 @@ static int dev_init(void) {
     for (unsigned i = 0; i < 5; i++)
         if (!has_ext(exts, ne, dev_exts[i]))
             LOGE("present: driver MISSING %s (dmabuf import will fail)", dev_exts[i]);
+    /* Tegra (nvgpu, no /dev/dri) ships without the dma-buf/modifier extensions;
+       passing them to vkCreateDevice makes the whole device fail and the
+       compositor render nothing. Swapchain stays required (the screen surface
+       needs it); dmabuf import (games presenting real swapchain buffers) is
+       optional - attest clients fall back to the wl_shm copy path. */
+    uint32_t n_kept = 0;
+    for (unsigned i = 0; i < n_dev_exts; i++) {
+        if (!has_ext(exts, ne, dev_exts[i])) {
+            if (i == 0) { free(exts); LOGE("present: driver MISSING %s (nothing can be presented)", dev_exts[0]); g_dev_state = -1; return -1; }
+            droiddeck_log("gpu", "present: skipping unsupported %s (wl_shm copy path covers it)", dev_exts[i]);
+            continue;
+        }
+        dev_exts[n_kept++] = dev_exts[i];
+    }
+    n_dev_exts = n_kept;
     int want_hdr_md = 0;
     if (droiddeck_color_requested()) {
         want_hdr_md = has_ext(exts, ne, VK_EXT_HDR_METADATA_EXTENSION_NAME);
