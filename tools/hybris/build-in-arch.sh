@@ -37,8 +37,12 @@ cd src/hybris
   --enable-arch=arm64 \
   --with-default-egl-platform=null
 
-# The bundled tests are irrelevant and one of them forgot <string.h>.
-sed -i '1i #include <string.h>' tests/test_audio.c
+# The bundled tests are irrelevant and one of them forgot <string.h>; stub the
+# generated tests Makefile so make skips compiling them.
+cat > tests/Makefile <<'EOF'
+all install install-exec install-data clean distclean uninstall:
+	@true
+EOF
 make -j"$(nproc)"
 make install DESTDIR="$WORK/root"
 
