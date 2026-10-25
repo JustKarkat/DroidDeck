@@ -79,6 +79,14 @@ Session logs are in the app's private `files/logs/<session-id>/session.log`; Ste
 - `main` tracks upstream DroidDeck. Do not commit port work here.
 - `shield-tv` is the port. Rebase it onto upstream when upstream moves.
 
+## Contributing
+
+This project is **not ready for use yet** — expect breakage. Contributions are welcome regardless: open an issue or PR against `shield-tv`.
+
+## AI usage
+
+Parts of this fork (code, patches and docs) were drafted with AI assistance and reviewed by the maintainer before landing.
+
 ## Credits and licence
 
 GPL-3.0, like upstream. ShieldDeck is built on [DroidDeck](https://github.com/Droid-Deck/DroidDeck) and inherits its credits (see the upstream README), plus [gamescope](https://github.com/ValveSoftware/gamescope) and [Mesa](https://gitlab.freedesktop.org/mesa/mesa) lavapipe. See [LICENSE](../LICENSE).
