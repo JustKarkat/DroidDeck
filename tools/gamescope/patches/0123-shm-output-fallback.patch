@@ -435,7 +435,7 @@
  	if ( eventFd != gamescope::CAcquireTimelinePoint::k_InvalidEvent )
  	{
  		fence = eventFd.first;
-@@ -8598,13 +8635,23 @@
+@@ -8598,13 +8635,29 @@
  		if ( wlr_buffer_get_dmabuf( buf, &dmabuf ) )
  		{
  			fence = dup( dmabuf.fd[0] );
@@ -445,6 +445,12 @@
  		{
  			fence = newCommit->vulkanTex->memoryFence();
 +			pszFenceKind = "memfence";
++			// 0125: an ICD that cannot export a dma-buf (lavapipe on the Shield)
++			// returns -1 here. The buffer was uploaded synchronously, so it is
++			// ready now; waiting on fd -1 would never signal and the commit
++			// would never be marked done (focus then never moves to the window).
++			if ( fence < 0 )
++				bKnownReady = true;
  		}
  	}
  
@@ -459,7 +465,7 @@
  	gpuvis_trace_printf( "pushing wait for commit %lu win %lx", newCommit->commitID, w->type == steamcompmgr_win_type_t::XWAYLAND ? w->xwayland().id : 0 );
  	{
  		newCommit->SetFence( fence, mango_nudge, uMangoMsgType, doneCommits );
-@@ -8627,7 +8674,16 @@
+@@ -8627,7 +8680,16 @@
  	for ( uint32_t i = 0; i < tmp_queue.size(); i++ )
  	{
  		steamcompmgr_win_t	*w = find_win( ctx, tmp_queue[ i ].surf );
@@ -477,7 +483,7 @@
  	}
  }
  
-@@ -10069,6 +10125,12 @@
+@@ -10069,6 +10131,12 @@
  
  	for (;;)
  	{
