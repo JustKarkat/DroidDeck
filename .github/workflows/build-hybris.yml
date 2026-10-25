@@ -1,0 +1,30 @@
+name: Build libhybris probe
+
+on:
+  push:
+    paths:
+      - 'tools/hybris/**'
+      - '.github/workflows/build-hybris.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build in Arch Linux ARM
+        run: |
+          set -euo pipefail
+          chmod +x tools/hybris/build-in-arch.sh
+          docker run --rm -v "$PWD:/work" -w /work menci/archlinuxarm:base-devel bash tools/hybris/build-in-arch.sh
+          sudo chown -R "$(id -u):$(id -g)" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hybris-probe
+          path: |
+            hybris.tzst
+            hybris.tzst.sha256
