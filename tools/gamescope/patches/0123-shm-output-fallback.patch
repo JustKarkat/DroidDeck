@@ -401,7 +401,7 @@
  	for (uint32_t i = 0; i < EOTF_Count; i++)
  	{
  		if ( g_ColorMgmtLuts[i].HasLuts() )
-@@ -5211,6 +5228,23 @@
+@@ -5211,6 +5228,25 @@
  		pFocus->ulVirtualFocusKey,
  		gamescope::cv_backend_virtual_connector_strategy );
  
@@ -413,7 +413,9 @@
 +			char szCandidates[512] = {};
 +			for ( steamcompmgr_win_t *pCandidate : vecPossibleFocusWindows )
 +				snprintf( szCandidates + strlen( szCandidates ), sizeof( szCandidates ) - strlen( szCandidates ),
-+					"0x%x:%u ", pCandidate->id(), pCandidate->appID );
++					"0x%x:%u(q%zu,d%d,o%d) ", pCandidate->id(), pCandidate->appID,
++					pCandidate->commit_queue.size(), (int)pCandidate->receivedDoneCommit,
++					(int)pCandidate->outdatedInteractiveFocus );
 +			xwm_log.errorf( "0124-diag: focus pick=%p appID=%u strategy=%u appids=%zu control=0x%lx candidates=%zu [%s]",
 +				(void *)pFocus->focusWindow, pFocus->focusWindow ? pFocus->focusWindow->appID : 0u,
 +				(unsigned)gamescope::cv_backend_virtual_connector_strategy,
@@ -425,7 +427,25 @@
  	if ( pFocus->overrideWindow != previousLocalFocus.overrideWindow )
  	{
  		if ( pFocus->overrideWindow )
-@@ -10069,6 +10103,12 @@
+@@ -8627,7 +8663,16 @@
+ 	for ( uint32_t i = 0; i < tmp_queue.size(); i++ )
+ 	{
+ 		steamcompmgr_win_t	*w = find_win( ctx, tmp_queue[ i ].surf );
+-		update_wayland_res( &ctx->doneCommits, w, tmp_queue[ i ]);
++		// 0124-diag: does the commit resolve to a tracked window? (temporary)
++		{
++			static int s_nCommitDiag = 0;
++			if ( s_nCommitDiag++ < 200 )
++				xwm_log.errorf( "0124-diag: commit surf=%p -> win=%p id=0x%x appID=%u q=%zu done=%d",
++					(void *)tmp_queue[ i ].surf, (void *)w,
++					w ? (unsigned)w->xwayland().id : 0u, w ? w->appID : 0u,
++					w ? w->commit_queue.size() : 0u, w ? (int)w->receivedDoneCommit : -1 );
++		}
++		update_wayland_res( &ctx->doneCommits, w, tmp_queue[ i ] );
+ 	}
+ }
+ 
+@@ -10069,6 +10114,12 @@
  
  	for (;;)
  	{
