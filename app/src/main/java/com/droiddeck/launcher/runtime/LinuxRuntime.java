@@ -166,6 +166,12 @@ public final class LinuxRuntime {
         shm.mkdirs();
         bind(cmd, shm.getPath() + ":/dev/shm");
         bindSystemFonts(cmd, root);
+        // libhybris (GPU feasibility): the vendor driver and the bionic runtime
+        // libraries it links against live in /vendor and /system/lib64.
+        bindIfReadable(cmd, "/system/lib64", new File(root, "system/lib64"));
+        // Android 11: libc.so / linker64 are symlinks into the runtime APEX.
+        bindIfReadable(cmd, "/apex/com.android.runtime", new File(root, "apex/com.android.runtime"));
+        bindIfReadable(cmd, "/vendor", new File(root, "vendor"));
 
         File fakeProc = new File(root, "etc/droiddeck/proc");
         File pciDevices = new File(fakeProc, "pci_devices");
@@ -360,6 +366,12 @@ public final class LinuxRuntime {
             }
         }
         return byType;
+    }
+
+    private static void bindIfReadable(List<String> cmd, String path, File guestTarget) {
+        File source = new File(path);
+        if (!source.isDirectory() || !source.canRead()) return;
+        if (guestTarget.isDirectory() || guestTarget.mkdirs()) bind(cmd, path + ":" + path);
     }
 
     private static void bindSystemFonts(List<String> cmd, File root) {
