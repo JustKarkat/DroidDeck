@@ -22,6 +22,7 @@ WORK=/work/build-hybris
 rm -rf "$WORK"
 mkdir -p "$WORK"
 cd "$WORK"
+mkdir -p "$WORK/root/usr/bin"
 
 echo "== android headers (Halium 9.0)"
 git clone --quiet https://github.com/Halium/android-headers.git headers
@@ -48,6 +49,7 @@ make install DESTDIR="$WORK/root"
 
 echo "== glibc EGL probe"
 cd "$WORK"
+mkdir -p "$WORK/root/usr/bin"
 gcc -O1 -o "$WORK/root/usr/bin/eglprobe" /work/tools/hybris/eglprobe.c \
   -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
   -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -lEGL -lGLESv2
