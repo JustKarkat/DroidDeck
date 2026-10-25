@@ -33,7 +33,7 @@ echo "== libhybris"
 git clone --quiet https://github.com/libhybris/libhybris.git src
 cd src/hybris
 ./autogen.sh \
-  --prefix="$WORK/prefix" \
+  --prefix=/usr \
   --with-android-headers="$WORK/prefix/include/android" \
   --enable-arch=arm64 \
   --with-default-egl-platform=null
