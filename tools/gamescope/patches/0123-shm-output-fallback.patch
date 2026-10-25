@@ -401,7 +401,25 @@
  	for (uint32_t i = 0; i < EOTF_Count; i++)
  	{
  		if ( g_ColorMgmtLuts[i].HasLuts() )
-@@ -10069,6 +10086,12 @@
+@@ -5211,6 +5228,17 @@
+ 		pFocus->ulVirtualFocusKey,
+ 		gamescope::cv_backend_virtual_connector_strategy );
+ 
++	// 0124-diag: which window wins the focus pick, and with what inputs (temporary)
++	{
++		static int s_nFocusDiag = 0;
++		if ( s_nFocusDiag++ < 40 )
++			xwm_log.errorf( "0124-diag: focus pick=%p appID=%u strategy=%u appids=%zu control=0x%lx candidates=%zu",
++				(void *)pFocus->focusWindow, pFocus->focusWindow ? pFocus->focusWindow->appID : 0u,
++				(unsigned)gamescope::cv_backend_virtual_connector_strategy,
++				vecFocuscontrolAppIDs.size(), root_ctx->focusControlWindow,
++				vecPossibleFocusWindows.size() );
++	}
++
+ 	if ( pFocus->overrideWindow != previousLocalFocus.overrideWindow )
+ 	{
+ 		if ( pFocus->overrideWindow )
+@@ -10069,6 +10097,12 @@
  
  	for (;;)
  	{
