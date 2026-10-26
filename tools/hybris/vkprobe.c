@@ -111,6 +111,20 @@ struct hw_module_methods_t {
     int (*open)(const struct hw_module_t *module, const char *id, void **device);
 };
 
+/* hardware/hwvulkan.h — the device carries all three entrypoints; the
+ * tegra HAL fills them via packed (APS2) relocations at load. */
+struct hwvulkan_device_t {
+    struct hw_device_t {
+        uint32_t tag;
+        uint32_t version;
+        const struct hw_module_t *module;
+        int (*close)(void *);
+    } common;
+    PFN_vkEnumerateInstanceExtensionProperties EnumerateInstanceExtensionProperties;
+    PFN_vkCreateInstance CreateInstance;
+    PFN_vkGetInstanceProcAddr GetInstanceProcAddr;
+};
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     install();
@@ -191,14 +205,14 @@ int main(void) {
             if (orc != 0)
                 printf("vkstage: HAL open dlerror: %s\n",
                        android_dlerror() ? android_dlerror() : "(none)");
-            /* hwvulkan_device_t = { hw_device_t common;
-             *                       PFN_vkGetInstanceProcAddr GetInstanceProcAddr; }
-             * hw_device_t = { u32 tag; u32 version; module*; close() } = 24 B.
-             * Drive the driver bare — this is what sysvk hands to the loader. */
+            /* Drive the driver bare — this is what sysvk hands to the loader. */
             if (orc == 0 && hdev) {
-                PFN_vkGetInstanceProcAddr dev_gipa =
-                    *(PFN_vkGetInstanceProcAddr *)((char *)hdev + 24);
-                printf("vkstage: device GetInstanceProcAddr -> %p\n", (void *)dev_gipa);
+                struct hwvulkan_device_t *vdev = (struct hwvulkan_device_t *)hdev;
+                printf("vkstage: device procs: EnumerateInstanceExt=%p CreateInstance=%p "
+                       "GetInstanceProcAddr=%p\n",
+                       (void *)vdev->EnumerateInstanceExtensionProperties,
+                       (void *)vdev->CreateInstance, (void *)vdev->GetInstanceProcAddr);
+                PFN_vkGetInstanceProcAddr dev_gipa = vdev->GetInstanceProcAddr;
                 if (dev_gipa) {
                     PFN_vkEnumerateInstanceExtensionProperties dep =
                         (PFN_vkEnumerateInstanceExtensionProperties)dev_gipa(
