@@ -131,6 +131,37 @@ struct hwvulkan_device_t {
  * afterwards table[1] is a vkGetProcAddressNV(name) getter and the driver's
  * real entrypoints come out of it (the hwvulkan device struct ships NULL
  * everywhere and the HAL wrappers expect an internal context). */
+struct hw_module_t_fwd {
+    uint32_t tag;
+    uint16_t module_api_version, hal_api_version;
+    const char *id, *name, *author;
+    struct hw_module_methods_fwd { int (*open)(const struct hw_module_t_fwd *, const char *, void **); } *methods;
+    void *dso;
+};
+
+/* Initialize driver-internal state the way every real consumer does: open the
+ * HAL device (its helpers allocate the driver context) and make one safe
+ * enumerate call through the proven struct field. */
+static int tegra_hal_warmup(void) {
+    void *lhw = android_dlopen("libhardware.so", RTLD_NOW);
+    int (*hgm)(const char *, void **) =
+        lhw ? (int (*)(const char *, void **))android_dlsym(lhw, "hw_get_module") : NULL;
+    if (!hgm) { printf("vkstage: warmup: no hw_get_module\n"); return -1; }
+    void *mod = NULL;
+    if (hgm("vulkan", &mod) != 0 || !mod) { printf("vkstage: warmup: hw_get_module failed\n"); return -1; }
+    struct hw_module_t_fwd *m = (struct hw_module_t_fwd *)mod;
+    void *dev = NULL;
+    int rc = m->methods->open(m, "vk0", &dev);
+    printf("vkstage: warmup: open(vk0) -> %d dev=%p\n", rc, dev);
+    if (rc != 0 || !dev) return -1;
+    PFN_vkEnumerateInstanceExtensionProperties e =
+        *(PFN_vkEnumerateInstanceExtensionProperties *)((char *)dev + 24);
+    uint32_t n = 0;
+    VkResult r = e ? e(VK_NULL_HANDLE, &n, NULL) : VK_ERROR_INITIALIZATION_FAILED;
+    printf("vkstage: warmup: struct enumerate -> %d count=%u\n", r, n);
+    return 0;
+}
+
 static void *tegra_table_init(void) {
     void *glc = android_dlopen("libglcore.so", RTLD_NOW | RTLD_LOCAL);
     printf("vkstage: dlopen libglcore.so -> %p (%s)\n", glc,
@@ -235,6 +266,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (argc > 2 && !strcmp(argv[1], "gpa")) {
+        tegra_hal_warmup(); /* driver context init; non-fatal if it fails */
         void **table = (void **)tegra_table_init();
         if (!table) return 1;
         return gpa_probe(table, argv[2]);
