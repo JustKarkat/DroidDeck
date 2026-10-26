@@ -16,7 +16,7 @@ grep -q '^DisableSandbox' /etc/pacman.conf || sed -i 's/^\[options\]/[options]\n
 { for m in https://ca.us.mirror.archlinuxarm.org https://fl.us.mirror.archlinuxarm.org https://de3.mirror.archlinuxarm.org https://nl.mirror.archlinuxarm.org; do echo "Server = $m/\$arch/\$repo"; done; cat /etc/pacman.d/mirrorlist; } > /etc/pacman.d/mirrorlist.new
 mv /etc/pacman.d/mirrorlist.new /etc/pacman.d/mirrorlist
 
-pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar libglvnd curl e2fsprogs >/dev/null
+pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar libglvnd curl e2fsprogs vulkan-headers >/dev/null
 
 WORK=/work/build-hybris
 rm -rf "$WORK"
@@ -52,6 +52,16 @@ mkdir -p "$WORK/root/usr/bin"
 gcc -O1 -o "$WORK/root/usr/bin/eglprobe" /work/tools/hybris/eglprobe.c \
   -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
   -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lEGL -lGLESv2 -lhybris-common -lhardware
+
+echo "== glibc Vulkan probe"
+# Requires vulkan/vulkan.h in the container (vulkan-headers): without it libhybris
+# skips its whole vulkan subdir (wrapper libvulkan.so + vulkanplatform_null.so),
+# which is what lets a glibc app drive the bionic Android loader + tegra ICD.
+gcc -O1 -o "$WORK/root/usr/bin/vkprobe" /work/tools/hybris/vkprobe.c \
+  -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
+  -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lvulkan -lhybris-common
+ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
+  || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 
 echo "== hybris-hal bionic (Droidian android-system-gsi-30, Halium-11 patched)"
 # Stock bionic violates libhybris' TLS contract: since Android 10 it reads TLS

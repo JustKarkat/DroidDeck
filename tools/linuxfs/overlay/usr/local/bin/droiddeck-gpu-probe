@@ -27,4 +27,13 @@ ln -sfn /usr/local/hybris/usr/lib/libhybris /usr/lib/libhybris
 
 export LD_LIBRARY_PATH=$hybris
 export HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic
-exec /usr/local/hybris/usr/bin/eglprobe "$@"
+
+rc=0
+/usr/local/hybris/usr/bin/eglprobe "$@" || rc=$?
+if [ -x /usr/local/hybris/usr/bin/vkprobe ]; then
+    # Vulkan goes through the same patched bionic; the hybris wrapper dlopens
+    # the Android loader (libvulkan.so) which loads the tegra ICD.
+    export HYBRIS_VULKANPLATFORM=null
+    /usr/local/hybris/usr/bin/vkprobe "$@" || rc=$?
+fi
+exit $rc
