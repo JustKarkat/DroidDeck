@@ -191,6 +191,55 @@ int main(void) {
             if (orc != 0)
                 printf("vkstage: HAL open dlerror: %s\n",
                        android_dlerror() ? android_dlerror() : "(none)");
+            /* hwvulkan_device_t = { hw_device_t common;
+             *                       PFN_vkGetInstanceProcAddr GetInstanceProcAddr; }
+             * hw_device_t = { u32 tag; u32 version; module*; close() } = 24 B.
+             * Drive the driver bare — this is what sysvk hands to the loader. */
+            if (orc == 0 && hdev) {
+                PFN_vkGetInstanceProcAddr dev_gipa =
+                    *(PFN_vkGetInstanceProcAddr *)((char *)hdev + 24);
+                printf("vkstage: device GetInstanceProcAddr -> %p\n", (void *)dev_gipa);
+                if (dev_gipa) {
+                    PFN_vkEnumerateInstanceExtensionProperties dep =
+                        (PFN_vkEnumerateInstanceExtensionProperties)dev_gipa(
+                            VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
+                    uint32_t nx = 0;
+                    VkResult dr =
+                        dep ? dep(VK_NULL_HANDLE, &nx, NULL) : VK_ERROR_INITIALIZATION_FAILED;
+                    printf("vkstage: driver vkEnumerateInstanceExtensionProperties -> %d count=%u\n",
+                           dr, nx);
+                    if (dr == VK_SUCCESS && nx > 0) {
+                        VkExtensionProperties ex[48] = { 0 };
+                        if (nx > 48) nx = 48;
+                        dep(VK_NULL_HANDLE, &nx, ex);
+                        printf("vkstage: driver instance extensions:");
+                        for (uint32_t i = 0; i < nx; i++) printf(" %s", ex[i].extensionName);
+                        printf("\n");
+                    }
+                    PFN_vkCreateInstance dci =
+                        (PFN_vkCreateInstance)dev_gipa(VK_NULL_HANDLE, "vkCreateInstance");
+                    VkInstance inst2 = VK_NULL_HANDLE;
+                    if (dci && dci(&ici, NULL, &inst2) == VK_SUCCESS) {
+                        PFN_vkEnumeratePhysicalDevices depd = (PFN_vkEnumeratePhysicalDevices)dev_gipa(
+                            inst2, "vkEnumeratePhysicalDevices");
+                        PFN_vkGetPhysicalDeviceProperties dpp = (PFN_vkGetPhysicalDeviceProperties)dev_gipa(
+                            inst2, "vkGetPhysicalDeviceProperties");
+                        uint32_t np = 0;
+                        VkResult pr = depd ? depd(inst2, &np, NULL) : VK_ERROR_INITIALIZATION_FAILED;
+                        printf("vkstage: driver vkEnumeratePhysicalDevices -> %d count=%u\n", pr, np);
+                        if (pr == VK_SUCCESS && np > 0) {
+                            VkPhysicalDevice pd = VK_NULL_HANDLE;
+                            depd(inst2, &np, &pd);
+                            VkPhysicalDeviceProperties pp = { 0 };
+                            dpp(pd, &pp);
+                            printf("RESULT VK_DIRECT_DEVICE=%s api=%u.%u.%u driver=0x%x\n",
+                                   pp.deviceName, VK_VERSION_MAJOR(pp.apiVersion),
+                                   VK_VERSION_MINOR(pp.apiVersion), VK_VERSION_PATCH(pp.apiVersion),
+                                   pp.driverVersion);
+                        }
+                    }
+                }
+            }
         }
         /* The decisive bypass test: drive the ICD like a bare ICD (no Android
          * loader). If this enumerates, a direct-ICD shim can feed gamescope. */

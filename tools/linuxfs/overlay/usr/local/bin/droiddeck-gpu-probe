@@ -51,7 +51,7 @@ icd=/usr/local/hybris/usr/share/vulkan/icd.d/sysvk_icd.json
 if [ -f "$icd" ]; then
     echo "== vulkaninfo via sysvk ICD:"
     export VK_ICD_FILENAMES=$icd VK_DRIVER_FILES=$icd
-    vulkaninfo --summary > /tmp/vulkaninfo.out 2>&1
+    vulkaninfo --summary > /tmp/vulkaninfo.out 2>&1 || true
     echo "vulkaninfo exit=$?"
     head -40 /tmp/vulkaninfo.out || true
 fi
