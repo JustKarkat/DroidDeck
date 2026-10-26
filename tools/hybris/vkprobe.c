@@ -182,11 +182,12 @@ int main(void) {
                    android_dlerror() ? android_dlerror() : "?");
         }
         /* The loader's next step after hw_get_module: open the HAL device.
-         * NVRM init happens in there for tegra. */
+         * The device id is "vk0" (HWVULKAN_DEVICE_0); open() strcmps it and
+         * returns -ENOENT for anything else. NVRM init happens in there. */
         if (hmod && hmod->methods && hmod->methods->open) {
             void *hdev = NULL;
-            int orc = hmod->methods->open(hmod, "vulkan", &hdev);
-            printf("vkstage: HAL open -> %d device=%p\n", orc, hdev);
+            int orc = hmod->methods->open(hmod, "vk0", &hdev);
+            printf("vkstage: HAL open(vk0) -> %d device=%p\n", orc, hdev);
             if (orc != 0)
                 printf("vkstage: HAL open dlerror: %s\n",
                        android_dlerror() ? android_dlerror() : "(none)");

@@ -51,6 +51,8 @@ icd=/usr/local/hybris/usr/share/vulkan/icd.d/sysvk_icd.json
 if [ -f "$icd" ]; then
     echo "== vulkaninfo via sysvk ICD:"
     export VK_ICD_FILENAMES=$icd VK_DRIVER_FILES=$icd
-    vulkaninfo --summary 2>&1 | grep -aE "GPU[0-9]|deviceName|driverName|driverInfo|apiVersion|architecture|Failed|ERROR" | head -15 || true
+    vulkaninfo --summary > /tmp/vulkaninfo.out 2>&1
+    echo "vulkaninfo exit=$?"
+    head -40 /tmp/vulkaninfo.out || true
 fi
 exit $rc
