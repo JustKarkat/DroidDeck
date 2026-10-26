@@ -139,6 +139,26 @@ int main(void) {
             void *hmi = android_dlsym(icd, "HMI");
             printf("vkstage: ICD HMI symbol -> %p\n", hmi);
         }
+        /* And test the loader's own discovery pieces: bionic access() on the
+         * ICD path, then the exact hw_get_module the loader calls. */
+        void *libc = android_dlopen("libc.so", RTLD_NOW);
+        int (*baccess)(const char *, int) =
+            libc ? (int (*)(const char *, int))android_dlsym(libc, "access") : NULL;
+        if (baccess)
+            printf("vkstage: bionic access(vendor ICD, R_OK) -> %d\n",
+                   baccess("/vendor/lib64/hw/vulkan.tegra.so", 4));
+        void *lhw = android_dlopen("libhardware.so", RTLD_NOW);
+        int (*hgm)(const char *, void **) =
+            lhw ? (int (*)(const char *, void **))android_dlsym(lhw, "hw_get_module") : NULL;
+        if (hgm) {
+            void *mod = NULL;
+            int hrc = hgm("vulkan", &mod);
+            printf("vkstage: hw_get_module(vulkan) -> %d module=%p %s\n",
+                   hrc, mod, hrc == 0 ? "ok" : "FAILED (this is the loader's discovery)");
+        } else {
+            printf("vkstage: hw_get_module unavailable (%s)\n",
+                   android_dlerror() ? android_dlerror() : "?");
+        }
     }
 
     VkApplicationInfo app = { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
