@@ -70,21 +70,30 @@ gcc -O1 -o "$WORK/root/usr/bin/vkprobe" /work/tools/hybris/vkprobe.c \
 ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
   || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 
-echo "== sysvk (Android Vulkan ICD: hw_get_module -> HAL device -> GetInstanceProcAddr)"
-# xMeM/sysvk turns the hwvulkan HAL into a standard Vulkan ICD, so the guest's
-# Mesa loader drives the Android driver directly — no Android loader, none of
-# its discovery/namespace quirks. hw_get_module and access() are already
-# verified on the device (vkprobe).
-git clone --quiet https://github.com/xMeM/sysvk.git sysvk
-cmake -S sysvk -B sysvk/build -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX="$WORK/root/usr" \
-  -DCMAKE_SHARED_LINKER_FLAGS="-L$WORK/root/usr/lib -Wl,-rpath,/usr/local/hybris/usr/lib"
-cmake --build sysvk/build -j"$(nproc)"
-cmake --install sysvk/build
-# Point the ICD json at the in-guest absolute path (relative paths resolve
-# against the json's own directory).
-sed -i 's|"library_path": "libsysvk.so"|"library_path": "/usr/local/hybris/usr/lib/libsysvk.so"|' \
-  "$WORK/root/usr/share/vulkan/icd.d/sysvk_icd.json"
+echo "== sysvk (patched ICD: hw_get_module -> HAL device -> driver, no Android loader)"
+# Upstream xMeM/sysvk forwards straight to GetInstanceProcAddr, but the tegra
+# HAL is not loader-conformant: its GetInstanceProcAddr crashes on a NULL
+# instance and the device struct ships with NULL entrypoints (empty
+# ANDROID_RELA; NVIDIA's own loader uses the struct fields for global-level
+# queries). tools/hybris/sysvk/sysvk.c fills the fields (tegra firmware
+# offsets) and answers NULL-instance queries from the struct; conformant HALs
+# are untouched. The clone provides the bundled Android headers it includes.
+git clone --quiet https://github.com/xMeM/sysvk.git sysvk-src
+mkdir -p "$WORK/root/usr/share/vulkan/icd.d"
+gcc -O2 -shared -fPIC -o "$WORK/root/usr/lib/libsysvk.so" \
+  /work/tools/hybris/sysvk/sysvk.c \
+  -I"$WORK/sysvk-src/include" -I"$WORK/root/usr/include" \
+  -L"$WORK/root/usr/lib" -lhardware \
+  -Wl,-rpath,/usr/local/hybris/usr/lib
+cat > "$WORK/root/usr/share/vulkan/icd.d/sysvk_icd.json" <<'JSON'
+{
+    "ICD": {
+        "api_version": "1.1.255",
+        "library_path": "/usr/local/hybris/usr/lib/libsysvk.so"
+    },
+    "file_format_version": "1.0.0"
+}
+JSON
 file "$WORK/root/usr/lib/libsysvk.so" | sed 's/^/  /'
 
 echo "== hybris-hal bionic (Droidian android-system-gsi-30, Halium-11 patched)"
