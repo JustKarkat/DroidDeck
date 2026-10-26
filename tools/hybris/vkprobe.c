@@ -139,8 +139,9 @@ static void *tegra_table_init(void) {
     int (*nvgl)(int, void *) = (int (*)(int, void *))android_dlsym(glc, "NvGlEglGetFunctions");
     printf("vkstage: NvGlEglGetFunctions -> %p\n", (void *)nvgl);
     if (!nvgl) return NULL;
-    void **table = NULL;
-    if (posix_memalign(&table, 8, 48) != 0) return NULL;
+    void *mem = NULL;
+    if (posix_memalign(&mem, 8, 48) != 0) return NULL;
+    void **table = (void **)mem;
     memset(table, 0, 48);
     table[0] = glc; /* the HAL stores the dlopen handle in slot 0 */
     nvgl(1, &table[1]);
@@ -150,13 +151,13 @@ static void *tegra_table_init(void) {
     return table;
 }
 
-static void *tegra_gpa(void *table, const char *name) {
+static void *tegra_gpa(void **table, const char *name) {
     if (!table || !table[1]) return NULL;
     return ((void *(*)(const char *))table[1])(name);
 }
 
 /* per-name empirical calls, one process per name (crashes are contained) */
-static int gpa_probe(void *table, const char *name) {
+static int gpa_probe(void **table, const char *name) {
     void *fn = tegra_gpa(table, name);
     printf("vkstage: GetProcAddressNV(%s) -> %p\n", name, fn);
     if (!fn) return 1;
@@ -234,7 +235,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (argc > 2 && !strcmp(argv[1], "gpa")) {
-        void *table = tegra_table_init();
+        void **table = (void **)tegra_table_init();
         if (!table) return 1;
         return gpa_probe(table, argv[2]);
     }
