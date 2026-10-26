@@ -63,7 +63,10 @@ echo "== glibc Vulkan probe"
 # which is what lets a glibc app drive the bionic Android loader + tegra ICD.
 gcc -O1 -o "$WORK/root/usr/bin/vkprobe" /work/tools/hybris/vkprobe.c \
   -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
-  -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lvulkan -lhybris-common
+  -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lhybris-common
+# NB: deliberately NOT -lvulkan — linking the wrapper creates IFUNC dispatch
+# entries whose resolvers run in ld.so's relocation phase, before main, and
+# that dies under proot. vkprobe dlopens libvulkan.so.1 itself.
 ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
   || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 

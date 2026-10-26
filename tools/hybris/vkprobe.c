@@ -15,6 +15,20 @@
 #include <dlfcn.h>
 #include <hybris/common/binding.h>
 
+/* The wrapper is opened with dlopen in main (see below), so rebind the
+ * entrypoints we use to dlsym'd pointers while keeping the call sites
+ * reading like ordinary Vulkan code. */
+#define vkCreateInstance p_vkCreateInstance
+#define vkGetInstanceProcAddr p_vkGetInstanceProcAddr
+#define vkEnumerateInstanceExtensionProperties p_vkEnumerateInstanceExtensionProperties
+#define vkEnumeratePhysicalDevices p_vkEnumeratePhysicalDevices
+#define vkGetPhysicalDeviceProperties p_vkGetPhysicalDeviceProperties
+#define vkGetPhysicalDeviceQueueFamilyProperties p_vkGetPhysicalDeviceQueueFamilyProperties
+#define vkGetPhysicalDeviceMemoryProperties p_vkGetPhysicalDeviceMemoryProperties
+#define vkEnumerateDeviceExtensionProperties p_vkEnumerateDeviceExtensionProperties
+#define vkCreateDevice p_vkCreateDevice
+#define vkGetDeviceProcAddr p_vkGetDeviceProcAddr
+
 static void say(const char *s) { write(1, s, strlen(s)); }
 
 static void on_fault(int sig, siginfo_t *si, void *ctx) {
@@ -86,6 +100,32 @@ int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     install();
     say("vkstage: start\n");
+
+    /* The hybris wrapper resolves its entrypoints via IFUNC, whose resolvers
+     * run inside ld.so's relocation phase when linked at startup — that
+     * crashed before main. Open it explicitly instead and bind by dlsym. */
+    static PFN_vkCreateInstance vkCreateInstance;
+    static PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+    static PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
+    static PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices;
+    static PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties;
+    static PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyProperties;
+    static PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
+    static PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
+    static PFN_vkCreateDevice vkCreateDevice;
+    static PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
+    void *libvulkan = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
+    printf("vkstage: dlopen libvulkan.so.1 -> %p (%s)\n", libvulkan,
+           libvulkan ? "ok (hybris wrapper)" : (dlerror() ? dlerror() : "failed"));
+    if (!libvulkan) return 1;
+#define BIND(sym) sym = (PFN_##sym)dlsym(libvulkan, #sym); \
+    if (!sym) { printf("vkstage: dlsym %s failed\n", #sym); return 1; }
+    BIND(vkCreateInstance); BIND(vkGetInstanceProcAddr);
+    BIND(vkEnumerateInstanceExtensionProperties); BIND(vkEnumeratePhysicalDevices);
+    BIND(vkGetPhysicalDeviceProperties); BIND(vkGetPhysicalDeviceQueueFamilyProperties);
+    BIND(vkGetPhysicalDeviceMemoryProperties); BIND(vkEnumerateDeviceExtensionProperties);
+    BIND(vkCreateDevice); BIND(vkGetDeviceProcAddr);
+#undef BIND
 
     /* Separate "the loader's file discovery failed" from "the ICD itself
      * cannot load": try the tegra ICD directly through the hybris linker. */
