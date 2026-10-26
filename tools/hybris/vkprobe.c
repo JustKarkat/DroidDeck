@@ -217,6 +217,70 @@ static void vk_notify_cb(void *ud, size_t size, VkInternalAllocationType t,
     (void)ud; (void)size; (void)t; (void)s;
 }
 
+/* The tegra driver's CreateInstance calls singleton allocator objects whose
+ * function pointers (libglcore .bss, referenced via GOT 0x185b880/88/98)
+ * are NULL in our process — nothing installed them (NVIDIA's loader does on
+ * stock). Patch them with logging glibc-backed shims; each call prints its
+ * args so the convention can be identified from the log. */
+static void *vk_shim_a(size_t a, size_t b, size_t c, size_t d) {
+    printf("vkstage: shimA(%#zx, %#zx, %#zx, %#zx)\n", a, b, c, d);
+    void *p = NULL;
+    if (a && a < (1ull << 30)) {
+        size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
+        if (posix_memalign(&p, align, a) != 0) return NULL;
+        memset(p, 0, a);
+    }
+    return p;
+}
+static void *vk_shim_b(size_t a, size_t b, size_t c, size_t d) {
+    printf("vkstage: shimB(%#zx, %#zx, %#zx, %#zx)\n", a, b, c, d);
+    void *p = NULL;
+    if (a && a < (1ull << 30)) {
+        size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
+        if (posix_memalign(&p, align, a) != 0) return NULL;
+        memset(p, 0, a);
+    }
+    return p;
+}
+static void *vk_shim_c(size_t a, size_t b, size_t c, size_t d) {
+    printf("vkstage: shimC(%#zx, %#zx, %#zx, %#zx)\n", a, b, c, d);
+    void *p = NULL;
+    if (a && a < (1ull << 30)) {
+        size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
+        if (posix_memalign(&p, align, a) != 0) return NULL;
+        memset(p, 0, a);
+    }
+    return p;
+}
+
+static int patch_libglcore_allocators(void) {
+    FILE *m = fopen("/proc/self/maps", "r");
+    if (!m) return -1;
+    char line[512];
+    unsigned long base = 0;
+    while (fgets(line, sizeof line, m)) {
+        if (strstr(line, "/vendor/lib64/libglcore.so")) {
+            unsigned long s = 0, e = 0;
+            if (sscanf(line, "%lx-%lx", &s, &e) == 2 && s < e) {
+                base = s;
+                break;
+            }
+        }
+    }
+    fclose(m);
+    if (!base) { printf("vkstage: libglcore not found in maps\n"); return -1; }
+    /* .bss singletons (vaddrs are load-relative: first LOAD vaddr is 0) */
+    void **slots[3] = { (void **)(base + 0x19c5a30), (void **)(base + 0x19c5a50),
+                        (void **)(base + 0x19c5a70) };
+    void *fns[3] = { (void *)vk_shim_a, (void *)vk_shim_b, (void *)vk_shim_c };
+    printf("vkstage: libglcore base=%#lx\n", base);
+    for (int i = 0; i < 3; i++) {
+        printf("vkstage: bss slot %d @%p = %p\n", i, (void *)slots[i], (void *)*slots[i]);
+        if (*slots[i] == NULL) *slots[i] = fns[i];
+    }
+    return 0;
+}
+
 /* per-name empirical calls, one process per name (crashes are contained) */
 static int gpa_probe(void **table, const char *name) {
     void *fn = tegra_gpa(table, name);
@@ -309,6 +373,8 @@ int main(int argc, char **argv) {
         tegra_hal_warmup(); /* driver context init; non-fatal if it fails */
         void **table = (void **)tegra_table_init();
         if (!table) return 1;
+        if (!strcmp(argv[2], "vkCreateInstance") || !strcmp(argv[2], "all"))
+            patch_libglcore_allocators();
         return gpa_probe(table, argv[2]);
     }
 
