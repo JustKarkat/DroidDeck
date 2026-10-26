@@ -405,47 +405,10 @@ int main(int argc, char **argv) {
         tegra_hal_warmup(); /* driver context init; non-fatal if it fails */
         void **table = (void **)tegra_table_init();
         if (!table) return 1;
-        /* variant inits: NvGlEglGetFunctions(2, …) may install the Vulkan
-         * singletons the way (1, …) installs the EGL ones */
-        {
-            void *glc = android_dlopen("libglcore.so", RTLD_NOW | RTLD_LOCAL);
-            int (*nvgl)(int, void *) = glc ? (int (*)(int, void *))android_dlsym(glc, "NvGlEglGetFunctions") : NULL;
-            if (nvgl) {
-                void *mem = NULL;
-                if (posix_memalign(&mem, 8, 48) == 0) {
-                    void **t2 = (void **)mem;
-                    memset(t2, 0, 48);
-                    t2[0] = glc;
-                    nvgl(2, &t2[1]);
-                    printf("vkstage: variant table(2):");
-                    for (int i = 0; i < 6; i++) printf(" [%d]=%p", i, t2[i]);
-                    printf("\n");
-                }
-            }
-        }
-        /* the HAL's own ensure-init helper (base+0x2160) with its static
-         * context — the official bootstrap path that should install the
-         * singletons */
-        {
-            FILE *m = fopen("/proc/self/maps", "r");
-            unsigned long base = 0;
-            if (m) {
-                char line[512];
-                while (fgets(line, sizeof line, m)) {
-                    if (strstr(line, "/vendor/lib64/hw/vulkan.tegra.so")) {
-                        unsigned long s = 0, e = 0;
-                        if (sscanf(line, "%lx-%lx", &s, &e) == 2 && s < e) { base = s; break; }
-                    }
-                }
-                fclose(m);
-            }
-            if (base) {
-                void *(*hal_ensure)(unsigned long, void *, unsigned long) =
-                    (void *(*)(unsigned long, void *, unsigned long))(base + 0x2160);
-                void *r = hal_ensure(0, NULL, 0);
-                printf("vkstage: HAL ensure(0x2160)(0,NULL,0) -> %p\n", r);
-            }
-        }
+        /* Patch before any driver call that can reach the singletons: the
+         * variant(2) init and the blind HAL ensure call were both removed —
+         * (2,…) fills nothing and ensure(0,NULL,0) faults at NULL+0x30,
+         * which used to abort the process before the shims were installed. */
         if (!strcmp(argv[2], "vkCreateInstance") || !strcmp(argv[2], "all"))
             patch_libglcore_allocators();
         return gpa_probe(table, argv[2]);
