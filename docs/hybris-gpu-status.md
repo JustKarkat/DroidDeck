@@ -2,7 +2,9 @@
 
 Short version: the Shield's GPU is reachable from the proot guest, libhybris builds and loads the
 whole bionic stack, but **stock Android 11 bionic fails libhybris' TLS contract**, so `eglGetDisplay`
-segfaults inside `libc.so`. The missing piece is a patched bionic (`hybris-hal`), not a flag.
+segfaults inside `libc.so`. The missing piece was a patched bionic (`hybris-hal`) — **it has now
+been found, verified and packaged into the CI artifact** (see "hybris-hal bionic" below); what
+remains is a device run with the new `HYBRIS_LD_LIBRARY_PATH` order.
 
 ## What is verified
 
@@ -23,7 +25,47 @@ segfaults inside `libc.so`. The missing piece is a patched bionic (`hybris-hal`)
   `/usr/lib/libhybris -> /usr/local/hybris/usr/lib/libhybris` (the wrapper hardcodes that path), and
   run with
   `LD_LIBRARY_PATH=/usr/local/hybris/usr/lib`,
-  `HYBRIS_LD_LIBRARY_PATH=/system/lib64:/vendor/lib64:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic`.
+  `HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic`
+  (the `/usr/local/hybris/bionic` entry — Halium-patched bionic from the artifact — is new and must
+  come first; it supplies `libc.so`, `libm.so`, `libdl.so`, `libdl_android.so`, `ld-android.so`,
+  `libc++.so`, so every bionic DT_NEEDED resolves to a TLS-contract-conforming libc).
+
+## hybris-hal bionic: found, verified, packaged (2026-10-25)
+
+The missing artifact — an arm64 API-30 bionic with Halium's hybris patches — is **publicly
+available** and needs no AOSP platform build:
+
+- **Source: Droidian package `android-system-gsi-30`** ([pool
+  listing](https://production.repo.droidian.org/pool/main/a/android-system-gsi-30-bin/)), pinned
+  `11.0.0+r46.20230226.ubports.286+git20230329184623.6015077.bookworm.production_arm64.deb`
+  (sha256 `8f3cb4b0…3f4413f`, 114 MB). It is UBports' Halium-11 (Android 11) GSI system image
+  (`android-rootfs.img`, ext4 inside the deb), the same production image Droidian/UBports run
+  against stock Android 11 vendor partitions on Treble devices.
+- **Verified locally:** its `libc.so` (from `/system/apex/com.android.runtime/lib64/bionic` inside
+  the image) exports `__get_tls_hooks@@LIBC` and contains the emutls machinery — both Halium
+  patches present. `readelf -sW libc.so | grep __get_tls_hooks` is non-empty, exactly the check the
+  stock Shield bionic failed.
+- **Patch ground truth** ([Halium/hybris-patches](https://github.com/Halium/hybris-patches) branch
+  `halium-11.0`): `bionic/0004-hybris-Fix-__get_tls-and-related-functions-Android-1.patch` adds
+  `libc/hybris_support.c` defining `__get_tls_hooks()` (exported via `libc.map.txt`) and routes
+  bionic's TCB access through it; `bionic/0007-halium-disable-GWP-ASan-and-use-emulated-TLS-in-libc.patch`
+  adds emulated TLS; `frameworks/native/0003` makes libEGL etc. use the private hook.
+  [mer-hybris/hybris-patches](https://github.com/mer-hybris/hybris-patches) branch
+  `hybris-sony-aosp-11` carries the same patches for Sailfish. Upstream libhybris
+  [issue #559](https://github.com/libhybris/libhybris/issues/559) confirms patched bionic is the
+  only proven route; the TLS save/restore alternative discussed there is still an unfinished
+  experiment.
+- **Packaged in CI:** `tools/hybris/build-in-arch.sh` downloads the pinned deb, extracts
+  `libc.so`, `libm.so`, `libdl.so`, `libdl_android.so` (from `/system/apex/com.android.runtime/lib64/bionic`
+  in the image — `/system/lib64/libc.so` there is just a symlink to it) plus `ld-android.so`,
+  `libc++.so` (real files in the image's `/system/lib64`), asserts the `__get_tls_hooks@@LIBC`
+  export, and ships the six libs (1.9 MB) as `usr/local/hybris/bionic/` inside the `hybris-probe`
+  artifact.
+- **Fallback if unpatched Shield system libs still trip on TLS:** the GSI image contains the *full*
+  patched `/system/lib64` (~460 libs, Droidian model — patched system tree + Shield's `/vendor`);
+  extracting more of it is mechanical. Alternative sources if the deb ever disappears: the Redmi 9
+  `lancelot` Droidian Halium-11 release zip (gitlab.com/GwOS/droidian-lancelot/-/releases), or any
+  Halium-11 device build's system image.
 
 ## The two crashes (both root-caused)
 
@@ -46,16 +88,20 @@ segfaults inside `libc.so`. The missing piece is a patched bionic (`hybris-hal`)
    `-femulated-tls`). Upstream confirms a patched bionic is required (libhybris issue #512).
    This cannot be fixed with env vars or by forcing a different linker at runtime.
 
-## What is needed next
+## What is next
 
-- **Option A (in-process, the upstream-supported route):** obtain or build an arm64 API-30 bionic
-  with `halium-11.0` hybris patches (`libc.so`, `libm.so`, `libdl.so`, `libc++.so`, … — the
-  "hybris-hal" set), place it in the guest, and put it **first** in `HYBRIS_LD_LIBRARY_PATH`.
-  Building AOSP 11 bionic is a full platform build; lifting the libs from a public Halium-11 /
-  Droidian / UBports arm64 image (`/usr/libexec/droid-hybris/system/lib64`) is the cheaper source.
-- **Option B (out-of-process):** a small bionic helper (NDK) that owns EGL/GLES + gralloc and
-  hands buffers to the guest. No ROM patching, but needs a buffer/IPC protocol; waylandcomp already
-  has an AHardwareBuffer import path (`ahb_swapchain.c`).
+1. **Device run with patched bionic (ready to go).** Pull the new `hybris-probe` artifact from the
+   `Build libhybris probe` workflow, extract over `/usr/local/hybris` in the guest (bionic set lands
+   in `/usr/local/hybris/bionic`), and re-run `eglprobe` with the updated `HYBRIS_LD_LIBRARY_PATH`
+   above. Expected: `eglGetDisplay` gets past bionic init; the TLS segfault inside `libc.so` is the
+   thing to watch disappear (probe prints the faulting mapping if it doesn't).
+2. **If vendor/system libs still fault on TLS** (they read `tpidr_el0` inline and are unpatched):
+   escalate to the Droidian model — serve the *whole* GSI `/system/lib64` in
+   `HYBRIS_LD_LIBRARY_PATH` (keep the Shield's `/vendor/lib64`), i.e. patched system tree + Shield
+   vendor blobs. The image already contains it; only packaging changes.
+3. **Option B (out-of-process) stays the fallback** if in-process proving too brittle: a small
+   bionic helper (NDK) owning EGL/GLES + gralloc handing buffers to the guest; waylandcomp already
+   has an AHardwareBuffer import path (`ahb_swapchain.c`).
 
 Everything up to the bionic TLS boundary is in place and reproducible; the probe is
 `tools/hybris/eglprobe.c` (stage prints + in-process SIGSEGV handler that prints the faulting

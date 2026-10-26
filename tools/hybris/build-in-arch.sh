@@ -16,7 +16,7 @@ grep -q '^DisableSandbox' /etc/pacman.conf || sed -i 's/^\[options\]/[options]\n
 { for m in https://ca.us.mirror.archlinuxarm.org https://fl.us.mirror.archlinuxarm.org https://de3.mirror.archlinuxarm.org https://nl.mirror.archlinuxarm.org; do echo "Server = $m/\$arch/\$repo"; done; cat /etc/pacman.d/mirrorlist; } > /etc/pacman.d/mirrorlist.new
 mv /etc/pacman.d/mirrorlist.new /etc/pacman.d/mirrorlist
 
-pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar libglvnd >/dev/null
+pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar libglvnd curl e2fsprogs >/dev/null
 
 WORK=/work/build-hybris
 rm -rf "$WORK"
@@ -52,6 +52,52 @@ mkdir -p "$WORK/root/usr/bin"
 gcc -O1 -o "$WORK/root/usr/bin/eglprobe" /work/tools/hybris/eglprobe.c \
   -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
   -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lEGL -lGLESv2 -lhybris-common -lhardware
+
+echo "== hybris-hal bionic (Droidian android-system-gsi-30, Halium-11 patched)"
+# Stock bionic violates libhybris' TLS contract: since Android 10 it reads TLS
+# inline (mrs tpidr_el0) and no longer exports __get_tls_hooks, which libhybris
+# interposes. Halium patches bionic for exactly this (hybris-patches halium-11.0
+# bionic/0004 __get_tls, 0007 emulated TLS). Instead of building AOSP 11 from
+# source, lift the patched bionic set from Droidian's Android 11 GSI system
+# image (android-system-gsi-30, built by UBports: 11.0.0+r46 ubports.286), the
+# same production artifact Droidian/UBports run against stock Android 11
+# vendor partitions. Put this dir FIRST in HYBRIS_LD_LIBRARY_PATH.
+GSI_DEB=android-system-gsi-30_11.0.0+r46.20230226.ubports.286+git20230329184623.6015077.bookworm.production_arm64.deb
+GSI_URL="https://production.repo.droidian.org/pool/main/a/android-system-gsi-30-bin/${GSI_DEB//+/%2B}"
+GSI_SHA=8f3cb4b02843c23b96ff0c8c62e0727776f30332811b1bc7aed06ff043f4413f
+# In the image, /system/lib64/libc.so is a symlink into the (inactive) runtime
+# APEX; the real patched bionic lives in /system/apex/com.android.runtime,
+# except ld-android.so and libc++.so which are real files in /system/lib64.
+BIONIC_APEX=/system/apex/com.android.runtime/lib64/bionic
+declare -A GSI_LIBS=(
+  [libc.so]="$BIONIC_APEX/libc.so"
+  [libdl.so]="$BIONIC_APEX/libdl.so"
+  [libdl_android.so]="$BIONIC_APEX/libdl_android.so"
+  [libm.so]="$BIONIC_APEX/libm.so"
+  [ld-android.so]="/system/lib64/ld-android.so"
+  [libc++.so]="/system/lib64/libc++.so"
+)
+
+mkdir -p "$WORK/gsi" "$WORK/root/usr/local/hybris/bionic"
+cd "$WORK/gsi"
+curl -fsSL -o "$GSI_DEB" "$GSI_URL"
+echo "$GSI_SHA  $GSI_DEB" | sha256sum -c -
+ar x "$GSI_DEB" data.tar.xz
+tar -xf data.tar.xz ./var/lib/lxc/android/android-rootfs.img
+IMG=var/lib/lxc/android/android-rootfs.img
+for lib in "${!GSI_LIBS[@]}"; do
+  debugfs -R "dump ${GSI_LIBS[$lib]} $WORK/root/usr/local/hybris/bionic/$lib" "$IMG" >/dev/null 2>&1
+  [ -s "$WORK/root/usr/local/hybris/bionic/$lib" ] || { echo "ERROR: could not extract $lib from GSI image" >&2; exit 1; }
+done
+# The whole point: the GSI libc must export __get_tls_hooks (Halium patch
+# 0004). Fail the build if it doesn't. (No grep -q: under pipefail its early
+# exit SIGPIPEs readelf and the match reads as a failure.)
+if ! readelf -sW "$WORK/root/usr/local/hybris/bionic/libc.so" | grep '__get_tls_hooks@@LIBC' >/dev/null; then
+  echo "ERROR: GSI libc.so does not export __get_tls_hooks (wrong/unpatched artifact?)" >&2
+  exit 1
+fi
+file "$WORK/root/usr/local/hybris/bionic/"*.so | sed 's/^/  /'
+du -sh "$WORK/root/usr/local/hybris/bionic"
 
 echo "== package"
 cd "$WORK/root"
