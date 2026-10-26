@@ -35,10 +35,20 @@ if [ -x /usr/local/hybris/usr/bin/vkprobe ]; then
     # the Android loader (libvulkan.so) which loads the tegra ICD. The loader
     # names the ICD via properties, so log what it will see.
     echo "== vulkan-hal:"
-    /usr/local/hybris/usr/bin/getprop ro.hardware.vulkan
-    /usr/local/hybris/usr/bin/getprop ro.board.platform
-    ls -la /vendor/lib64/hw/vulkan.*.so 2>&1
+    /usr/local/hybris/usr/bin/getprop ro.hardware.vulkan || true
+    /usr/local/hybris/usr/bin/getprop ro.board.platform || true
+    # statx is ENOSYS under proot here; don't let the failing ls (or its
+    # exit code) stop the script before vkprobe runs.
+    ls -la /vendor/lib64/hw/vulkan.*.so 2>&1 || true
     export HYBRIS_VULKANPLATFORM=null
     /usr/local/hybris/usr/bin/vkprobe "$@" || rc=$?
+fi
+# The path gamescope will use: the guest's Mesa loader + the sysvk ICD
+# (hw_get_module -> HAL device -> driver, no Android loader).
+icd=/usr/local/hybris/usr/share/vulkan/icd.d/sysvk_icd.json
+if [ -f "$icd" ]; then
+    echo "== vulkaninfo via sysvk ICD:"
+    export VK_ICD_FILENAMES=$icd VK_DRIVER_FILES=$icd
+    vulkaninfo --summary 2>&1 | grep -aE "GPU[0-9]|deviceName|driverName|driverInfo|apiVersion|architecture|Failed|ERROR" | head -15 || true
 fi
 exit $rc

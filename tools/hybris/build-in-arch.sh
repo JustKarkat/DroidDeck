@@ -70,6 +70,23 @@ gcc -O1 -o "$WORK/root/usr/bin/vkprobe" /work/tools/hybris/vkprobe.c \
 ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
   || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 
+echo "== sysvk (Android Vulkan ICD: hw_get_module -> HAL device -> GetInstanceProcAddr)"
+# xMeM/sysvk turns the hwvulkan HAL into a standard Vulkan ICD, so the guest's
+# Mesa loader drives the Android driver directly — no Android loader, none of
+# its discovery/namespace quirks. hw_get_module and access() are already
+# verified on the device (vkprobe).
+git clone --quiet https://github.com/xMeM/sysvk.git sysvk
+cmake -S sysvk -B sysvk/build -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$WORK/root/usr" \
+  -DCMAKE_SHARED_LINKER_FLAGS="-L$WORK/root/usr/lib -Wl,-rpath,/usr/local/hybris/usr/lib"
+cmake --build sysvk/build -j"$(nproc)"
+cmake --install sysvk/build
+# Point the ICD json at the in-guest absolute path (relative paths resolve
+# against the json's own directory).
+sed -i 's|"library_path": "libsysvk.so"|"library_path": "/usr/local/hybris/usr/lib/libsysvk.so"|' \
+  "$WORK/root/usr/share/vulkan/icd.d/sysvk_icd.json"
+file "$WORK/root/usr/lib/libsysvk.so" | sed 's/^/  /'
+
 echo "== hybris-hal bionic (Droidian android-system-gsi-30, Halium-11 patched)"
 # Stock bionic violates libhybris' TLS contract: since Android 10 it reads TLS
 # inline (mrs tpidr_el0) and no longer exports __get_tls_hooks, which libhybris

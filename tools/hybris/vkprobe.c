@@ -97,6 +97,20 @@ static const char *wanted_extensions[] = {
     "VK_KHR_dedicated_allocation",
 };
 
+/* Stable since Android HAL v0; avoid hunting for the exact android-headers
+ * layout in the build. */
+struct hw_module_methods_t;
+struct hw_module_t {
+    uint32_t tag;
+    uint16_t module_api_version, hal_api_version;
+    const char *id, *name, *author;
+    struct hw_module_methods_t *methods;
+    void *dso;
+};
+struct hw_module_methods_t {
+    int (*open)(const struct hw_module_t *module, const char *id, void **device);
+};
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     install();
@@ -129,6 +143,12 @@ int main(void) {
     BIND(vkCreateDevice); BIND(vkGetDeviceProcAddr); BIND(vkDestroyInstance);
 #undef BIND
 
+    VkApplicationInfo app = { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                              .pApplicationName = "droiddeck-vkprobe",
+                              .apiVersion = VK_API_VERSION_1_1 };
+    VkInstanceCreateInfo ici = { .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+                                 .pApplicationInfo = &app };
+
     /* Separate "the loader's file discovery failed" from "the ICD itself
      * cannot load": try the tegra ICD directly through the hybris linker. */
     {
@@ -150,22 +170,79 @@ int main(void) {
         void *lhw = android_dlopen("libhardware.so", RTLD_NOW);
         int (*hgm)(const char *, void **) =
             lhw ? (int (*)(const char *, void **))android_dlsym(lhw, "hw_get_module") : NULL;
+        const struct hw_module_t *hmod = NULL;
         if (hgm) {
             void *mod = NULL;
             int hrc = hgm("vulkan", &mod);
+            hmod = (const struct hw_module_t *)mod;
             printf("vkstage: hw_get_module(vulkan) -> %d module=%p %s\n",
                    hrc, mod, hrc == 0 ? "ok" : "FAILED (this is the loader's discovery)");
         } else {
             printf("vkstage: hw_get_module unavailable (%s)\n",
                    android_dlerror() ? android_dlerror() : "?");
         }
+        /* The loader's next step after hw_get_module: open the HAL device.
+         * NVRM init happens in there for tegra. */
+        if (hmod && hmod->methods && hmod->methods->open) {
+            void *hdev = NULL;
+            int orc = hmod->methods->open(hmod, "vulkan", &hdev);
+            printf("vkstage: HAL open -> %d device=%p\n", orc, hdev);
+        }
+        /* The decisive bypass test: drive the ICD like a bare ICD (no Android
+         * loader). If this enumerates, a direct-ICD shim can feed gamescope. */
+        PFN_vkGetInstanceProcAddr icd_gipa =
+            icd ? (PFN_vkGetInstanceProcAddr)android_dlsym(icd, "vkGetInstanceProcAddr") : NULL;
+        if (icd_gipa) {
+            PFN_vkCreateInstance icd_ci =
+                (PFN_vkCreateInstance)icd_gipa(VK_NULL_HANDLE, "vkCreateInstance");
+            printf("vkstage: ICD vkGetInstanceProcAddr -> %p\n", (void *)icd_ci);
+            VkInstance inst = VK_NULL_HANDLE;
+            VkResult dir = icd_ci ? icd_ci(&ici, NULL, &inst) : VK_ERROR_INITIALIZATION_FAILED;
+            printf("vkstage: direct ICD vkCreateInstance -> %d\n", dir);
+            if (dir == VK_SUCCESS) {
+                PFN_vkEnumeratePhysicalDevices icd_epd =
+                    (PFN_vkEnumeratePhysicalDevices)icd_gipa(inst, "vkEnumeratePhysicalDevices");
+                PFN_vkGetPhysicalDeviceProperties icd_gpp =
+                    (PFN_vkGetPhysicalDeviceProperties)icd_gipa(inst, "vkGetPhysicalDeviceProperties");
+                PFN_vkEnumerateDeviceExtensionProperties icd_edx =
+                    (PFN_vkEnumerateDeviceExtensionProperties)icd_gipa(
+                        inst, "vkEnumerateDeviceExtensionProperties");
+                uint32_t n = 0;
+                dir = icd_epd(inst, &n, NULL);
+                printf("vkstage: direct vkEnumeratePhysicalDevices -> %d count=%u\n", dir, n);
+                if (dir == VK_SUCCESS && n > 0) {
+                    VkPhysicalDevice pd = VK_NULL_HANDLE;
+                    icd_epd(inst, &n, &pd);
+                    VkPhysicalDeviceProperties p = { 0 };
+                    icd_gpp(pd, &p);
+                    printf("RESULT VK_DIRECT_DEVICE=%s api=%u.%u.%u driver=0x%x\n", p.deviceName,
+                           VK_VERSION_MAJOR(p.apiVersion), VK_VERSION_MINOR(p.apiVersion),
+                           VK_VERSION_PATCH(p.apiVersion), p.driverVersion);
+                    if (icd_edx) {
+                        uint32_t ndx = 0;
+                        icd_edx(pd, NULL, &ndx, NULL);
+                        VkExtensionProperties *dx = calloc(ndx ? ndx : 1, sizeof *dx);
+                        if (dx && icd_edx(pd, NULL, &ndx, dx) == VK_SUCCESS) {
+                            for (size_t w = 0;
+                                 w < sizeof wanted_extensions / sizeof wanted_extensions[0];
+                                 w++) {
+                                int found = 0;
+                                for (uint32_t i = 0; i < ndx; i++)
+                                    if (!strcmp(dx[i].extensionName, wanted_extensions[w]))
+                                        found = 1;
+                                printf("RESULT VK_DIRECT_EXT %s = %s\n", wanted_extensions[w],
+                                       found ? "yes" : "NO");
+                            }
+                        }
+                        free(dx);
+                    }
+                }
+            }
+        } else {
+            printf("vkstage: ICD does not export vkGetInstanceProcAddr\n");
+        }
     }
 
-    VkApplicationInfo app = { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-                              .pApplicationName = "droiddeck-vkprobe",
-                              .apiVersion = VK_API_VERSION_1_1 };
-    VkInstanceCreateInfo ici = { .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-                                 .pApplicationInfo = &app };
     VkInstance instance = VK_NULL_HANDLE;
     VkResult r = vkCreateInstance(&ici, NULL, &instance);
     printf("vkstage: vkCreateInstance -> %d\n", r);
