@@ -16,7 +16,7 @@ grep -q '^DisableSandbox' /etc/pacman.conf || sed -i 's/^\[options\]/[options]\n
 { for m in https://ca.us.mirror.archlinuxarm.org https://fl.us.mirror.archlinuxarm.org https://de3.mirror.archlinuxarm.org https://nl.mirror.archlinuxarm.org; do echo "Server = $m/\$arch/\$repo"; done; cat /etc/pacman.d/mirrorlist; } > /etc/pacman.d/mirrorlist.new
 mv /etc/pacman.d/mirrorlist.new /etc/pacman.d/mirrorlist
 
-pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar libglvnd curl e2fsprogs vulkan-headers >/dev/null
+pacman -Syu --noconfirm --needed base-devel git autoconf automake libtool pkg-config zstd tar libglvnd curl e2fsprogs vulkan-headers cmake >/dev/null
 
 WORK=/work/build-hybris
 rm -rf "$WORK"
