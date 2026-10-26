@@ -196,6 +196,27 @@ static void *tegra_gpa(void **table, const char *name) {
     return ((void *(*)(const char *))table[1])(name);
 }
 
+/* glibc-backed allocator callbacks: the tegra driver requires a real
+ * pAllocator (see the 0x255b98 global-allocator fallback in libglcore). */
+static void *vk_alloc_cb(void *ud, size_t size, size_t align, VkSystemAllocationScope scope) {
+    (void)ud; (void)scope;
+    void *p = NULL;
+    if (posix_memalign(&p, align < 8 ? 8 : align, size) != 0) return NULL;
+    return p;
+}
+static void *vk_realloc_cb(void *ud, void *orig, size_t size, size_t align,
+                           VkSystemAllocationScope scope) {
+    void *p = vk_alloc_cb(ud, size, align, scope);
+    if (p && orig) memcpy(p, orig, size); /* probe only: optimistic copy */
+    free(orig);
+    return p;
+}
+static void vk_free_cb(void *ud, void *p) { (void)ud; free(p); }
+static void vk_notify_cb(void *ud, size_t size, VkInternalAllocationType t,
+                         VkSystemAllocationScope s) {
+    (void)ud; (void)size; (void)t; (void)s;
+}
+
 /* per-name empirical calls, one process per name (crashes are contained) */
 static int gpa_probe(void **table, const char *name) {
     void *fn = tegra_gpa(table, name);
@@ -231,8 +252,18 @@ static int gpa_probe(void **table, const char *name) {
                                   .apiVersion = VK_API_VERSION_1_1 };
         VkInstanceCreateInfo ci = { .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
                                     .pApplicationInfo = &app };
+        /* the tegra driver dereferences pAllocator (and falls back to an
+         * unset global when it is NULL): always pass real callbacks */
+        VkAllocationCallbacks acb = {
+            .pUserData = NULL,
+            .pfnAllocation = vk_alloc_cb,
+            .pfnReallocation = vk_realloc_cb,
+            .pfnFree = vk_free_cb,
+            .pfnInternalAllocation = vk_notify_cb,
+            .pfnInternalFree = vk_notify_cb,
+        };
         VkInstance inst = VK_NULL_HANDLE;
-        VkResult r = f(&ci, NULL, &inst);
+        VkResult r = f(&ci, &acb, &inst);
         printf("vkstage: CreateInstance -> %d instance=%p\n", r, (void *)inst);
         if (r != VK_SUCCESS) return 1;
         /* dispatch object check: hwvulkan_dispatch_t = {magic 0x01CDC0DE, vtbl} */
