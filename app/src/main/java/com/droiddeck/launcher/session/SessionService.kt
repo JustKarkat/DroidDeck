@@ -227,7 +227,14 @@ class SessionService : Service() {
             stopSession(0)
             return START_NOT_STICKY
         }
-        if (SessionState.mode == MODE_STEAM || SessionState.mode == MODE_DESKTOP) RivalClients.stopBeforeSession(this)
+        if (SessionState.mode == MODE_STEAM || SessionState.mode == MODE_DESKTOP) {
+            RivalClients.stopBeforeSession(this)
+            SessionReclaim.stop(this)
+            // They restart; one more sweep while the guest settles.
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                { SessionReclaim.stop(this) }, 45_000
+            )
+        }
         SessionState.firstFrameSeen = false
         SessionState.guestPid = -1
         SessionEvents.transition(SessionPhase.STARTING_GUEST, "service.started", mapOf("mode" to SessionState.mode))

@@ -413,6 +413,15 @@ object SessionPrefs {
         prefs(context).edit().putBoolean("gamepadOnly", on).apply()
     }
 
+    // Drop the Android TV home/recommendations processes while a session runs;
+    // on a 3 GB device they otherwise keep a core busy. See SessionReclaim.
+    fun reclaimMemory(context: Context): Boolean =
+        prefs(context).getBoolean("reclaimMemory", true)
+
+    fun setReclaimMemory(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("reclaimMemory", on).apply()
+    }
+
     fun loadingLogEnabled(context: Context): Boolean =
         prefs(context).getBoolean("loadingLog", false)
 
