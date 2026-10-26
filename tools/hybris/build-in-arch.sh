@@ -31,6 +31,10 @@ make -C headers install PREFIX="$WORK/prefix"
 echo "== libhybris"
 git clone --quiet https://github.com/libhybris/libhybris.git src
 cd src/hybris
+# The 2022 vulkan wrapper references VK_NV_cuda_kernel_launch functions that
+# current Vulkan headers no longer declare; the driver entrypoints it forwarded
+# there are irrelevant for a Tegra.
+sed -i '/VULKAN_IDLOAD(vk[A-Za-z]*Cuda[A-Za-z]*)/d' vulkan/vulkan.c
 ./autogen.sh \
   --prefix=/usr \
   --with-android-headers="$WORK/prefix/include/android" \
