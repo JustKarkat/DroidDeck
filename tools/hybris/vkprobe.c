@@ -28,6 +28,7 @@
 #define vkEnumerateDeviceExtensionProperties p_vkEnumerateDeviceExtensionProperties
 #define vkCreateDevice p_vkCreateDevice
 #define vkGetDeviceProcAddr p_vkGetDeviceProcAddr
+#define vkDestroyInstance p_vkDestroyInstance
 
 static void say(const char *s) { write(1, s, strlen(s)); }
 
@@ -114,6 +115,7 @@ int main(void) {
     static PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
     static PFN_vkCreateDevice vkCreateDevice;
     static PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
+    static PFN_vkDestroyInstance vkDestroyInstance;
     void *libvulkan = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
     printf("vkstage: dlopen libvulkan.so.1 -> %p (%s)\n", libvulkan,
            libvulkan ? "ok (hybris wrapper)" : (dlerror() ? dlerror() : "failed"));
@@ -124,7 +126,7 @@ int main(void) {
     BIND(vkEnumerateInstanceExtensionProperties); BIND(vkEnumeratePhysicalDevices);
     BIND(vkGetPhysicalDeviceProperties); BIND(vkGetPhysicalDeviceQueueFamilyProperties);
     BIND(vkGetPhysicalDeviceMemoryProperties); BIND(vkEnumerateDeviceExtensionProperties);
-    BIND(vkCreateDevice); BIND(vkGetDeviceProcAddr);
+    BIND(vkCreateDevice); BIND(vkGetDeviceProcAddr); BIND(vkDestroyInstance);
 #undef BIND
 
     /* Separate "the loader's file discovery failed" from "the ICD itself
