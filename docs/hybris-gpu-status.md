@@ -108,7 +108,34 @@ stands:
   (the HAL dlopens `vulkan.tegra.so` by soname), and the HAL's `open()` strcmps the device id
   `"vk0"` (anything else → `-ENOENT`).
 
-**The remaining blocker (driver-internal):**
+**The remaining blocker — and how far it moved (2026-10-26, sessions 01–03):**
+
+The decisive stock-Android test (option 2) came back **positive**: `cmd gpu vkjson` and a native
+NDK probe both enumerate the real driver outside the guest — `NVIDIA Tegra X1 (rev B) (nvgpu)`,
+driver 495.0, Vulkan 1.1.146, **99 extensions** including `VK_KHR_external_memory_fd`,
+`VK_KHR_external_semaphore_fd` and `VK_ANDROID_external_memory_android_hardware_buffer` (no
+dma_buf, no timeline_semaphore — gamescope integration will need the AHB path). The device-struct
+fields are NULL **on stock too** — the stock loader reaches the driver some other way (likely
+tegra-specific glue in NVIDIA's libvulkan; the hwvulkan HAL looks vestigial).
+
+In the guest, the synthesized `/linkerconfig/ld.config.txt` (written by the probe wrapper — the
+device's real one is root-only and the q linker fully supports the format) unlocked the driver
+bootstrap: the HAL's `EnumerateInstanceExtensionProperties` (0x2060) now returns **7 real instance
+extensions** (`VK_KHR_device_group_creation`, `VK_KHR_external_{fence,memory,semaphore}_capabilities`,
+`VK_KHR_get_physical_device_properties2`, `VK_EXT_debug_report`, `VK_EXT_debug_utils`) — from zero
+before. The environment problem is largely solved; what remains is the **calling protocol of the
+tegra driver's function table**:
+
+- `NvGlEglGetFunctions(1, ctx48)` in libglcore fills a 48-byte context table (the HAL's internals
+  allocate 48 bytes, pass it, then use `ctx[8]`, `ctx[0x20]`, …).
+- The HAL's `CreateInstance` candidate (0x242c) takes **(ctx, pCreateInfo, pAllocator, pInstance)**
+  — 4 args, ctx first; calling it with 3 fails silently.
+- Next probe step: call `NvGlEglGetFunctions(1, ctx)` directly, dump the 6 table slots, and identify
+  `CreateInstance` / `GetInstanceProcAddr` / physical-device entrypoints by probing them with
+  `NULL, "vkEnumerateInstanceExtensionProperties"` etc. under the fault handler. Then wire that
+  protocol into sysvk (or drop the HAL and talk to libglcore the way NVIDIA's loader does).
+
+**The remaining blocker (earlier analysis, kept for reference):**
 The tegra HAL is *not loader-conformant*: its `GetInstanceProcAddr` requires a real instance
 (dereferences `instance+8`, the hwvulkan_dispatch — `NULL` crashes), and the `hwvulkan_device_t`
 ships with all three entrypoints NULL (its `ANDROID_RELA` section decodes to zero relocations; the
