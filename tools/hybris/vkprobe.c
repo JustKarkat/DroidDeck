@@ -205,13 +205,21 @@ int main(void) {
             if (orc != 0)
                 printf("vkstage: HAL open dlerror: %s\n",
                        android_dlerror() ? android_dlerror() : "(none)");
-            /* Drive the driver bare — this is what sysvk hands to the loader. */
+            /* Drive the driver bare — this is what sysvk hands to the loader.
+             * The tegra HAL ships the device with NULL function pointers (its
+             * ANDROID_RELA section is empty and nothing else fills them under
+             * the q linker). The functions exist in the HAL; identified by
+             * their error-string references in disassembly. Fill them in. */
             if (orc == 0 && hdev) {
                 struct hwvulkan_device_t *vdev = (struct hwvulkan_device_t *)hdev;
-                printf("vkstage: device procs: EnumerateInstanceExt=%p CreateInstance=%p "
-                       "GetInstanceProcAddr=%p\n",
+                char *base = (char *)hdev - 0x4448; /* device is at vaddr 0x4448 */
+                printf("vkstage: device=%p base=%p procs(E=%p C=%p G=%p)\n", hdev, (void *)base,
                        (void *)vdev->EnumerateInstanceExtensionProperties,
                        (void *)vdev->CreateInstance, (void *)vdev->GetInstanceProcAddr);
+                vdev->EnumerateInstanceExtensionProperties =
+                    (PFN_vkEnumerateInstanceExtensionProperties)(base + 0x2060);
+                vdev->CreateInstance = (PFN_vkCreateInstance)(base + 0x242c);
+                vdev->GetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)(base + 0x22f0);
                 PFN_vkGetInstanceProcAddr dev_gipa = vdev->GetInstanceProcAddr;
                 if (dev_gipa) {
                     PFN_vkEnumerateInstanceExtensionProperties dep =
