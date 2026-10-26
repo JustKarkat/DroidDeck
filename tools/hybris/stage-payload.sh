@@ -23,17 +23,20 @@ target=$assets/usr/local/hybris
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-tar --zstd -xf "$tzst" -C "$work" ./usr/lib ./usr/bin ./usr/local/hybris
+# Two extractions: GNU tar refuses ./usr/local/hybris as an explicit member
+# once ./usr has been extracted (the parent dir already exists).
+tar --zstd -xf "$tzst" -C "$work" ./usr
+tar --zstd -xf "$tzst" -C "$work" ./usr/local/hybris
 # bionic lives under usr/local/hybris/bionic in the artifact; flatten the wrapper
 if [ -d "$work/usr/local/hybris/bionic" ]; then
     mv "$work/usr/local/hybris/bionic" "$work/bionic"
 fi
-rmdir "$work/usr/local/hybris" 2>/dev/null || true
+rm -rf "$work/usr/local"
 
 rm -rf "$target"
 mkdir -p "$target"
 cd "$work"
-find usr bin bionic -type f ! -name '*.la' ! -path '*pkgconfig*' -print0 |
+find usr bionic -type f ! -name '*.la' ! -path '*pkgconfig*' ! -path 'usr/include/*' -print0 |
     while IFS= read -r -d '' f; do
         install -Dm755 "$f" "$target/$f"
     done
