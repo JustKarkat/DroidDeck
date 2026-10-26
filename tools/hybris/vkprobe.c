@@ -12,6 +12,8 @@
 #include <ucontext.h>
 #include <unistd.h>
 #include <vulkan/vulkan.h>
+#include <dlfcn.h>
+#include <hybris/common/binding.h>
 
 static void say(const char *s) { write(1, s, strlen(s)); }
 
@@ -84,6 +86,18 @@ int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     install();
     say("vkstage: start\n");
+
+    /* Separate "the loader's file discovery failed" from "the ICD itself
+     * cannot load": try the tegra ICD directly through the hybris linker. */
+    {
+        void *icd = android_dlopen("/vendor/lib64/hw/vulkan.tegra.so", RTLD_NOW | RTLD_LOCAL);
+        printf("vkstage: direct ICD dlopen -> %p (%s)\n", icd,
+               icd ? "ok" : (android_dlerror() ? android_dlerror() : "failed"));
+        if (icd) {
+            void *hmi = android_dlsym(icd, "HMI");
+            printf("vkstage: ICD HMI symbol -> %p\n", hmi);
+        }
+    }
 
     VkApplicationInfo app = { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
                               .pApplicationName = "droiddeck-vkprobe",

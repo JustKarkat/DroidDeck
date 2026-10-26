@@ -32,7 +32,12 @@ rc=0
 /usr/local/hybris/usr/bin/eglprobe "$@" || rc=$?
 if [ -x /usr/local/hybris/usr/bin/vkprobe ]; then
     # Vulkan goes through the same patched bionic; the hybris wrapper dlopens
-    # the Android loader (libvulkan.so) which loads the tegra ICD.
+    # the Android loader (libvulkan.so) which loads the tegra ICD. The loader
+    # names the ICD via properties, so log what it will see.
+    echo "== vulkan-hal:"
+    /usr/local/hybris/usr/bin/getprop ro.hardware.vulkan
+    /usr/local/hybris/usr/bin/getprop ro.board.platform
+    ls -la /vendor/lib64/hw/vulkan.*.so 2>&1
     export HYBRIS_VULKANPLATFORM=null
     /usr/local/hybris/usr/bin/vkprobe "$@" || rc=$?
 fi
