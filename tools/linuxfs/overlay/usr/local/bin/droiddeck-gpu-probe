@@ -26,7 +26,9 @@ done
 ln -sfn /usr/local/hybris/usr/lib/libhybris /usr/lib/libhybris
 
 export LD_LIBRARY_PATH=$hybris
-export HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic
+# /vendor/lib64/hw is required for Vulkan: the tegra HAL's open() dlopens
+# "vulkan.tegra.so" by soname to find its driver entrypoints.
+export HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic
 
 rc=0
 /usr/local/hybris/usr/bin/eglprobe "$@" || rc=$?

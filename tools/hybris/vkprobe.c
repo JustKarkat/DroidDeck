@@ -187,6 +187,9 @@ int main(void) {
             void *hdev = NULL;
             int orc = hmod->methods->open(hmod, "vulkan", &hdev);
             printf("vkstage: HAL open -> %d device=%p\n", orc, hdev);
+            if (orc != 0)
+                printf("vkstage: HAL open dlerror: %s\n",
+                       android_dlerror() ? android_dlerror() : "(none)");
         }
         /* The decisive bypass test: drive the ICD like a bare ICD (no Android
          * loader). If this enumerates, a direct-ICD shim can feed gamescope. */
