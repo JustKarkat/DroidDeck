@@ -1,0 +1,30 @@
+#!/bin/bash
+# GPU feasibility probe: initialise the vendor EGL driver from the glibc guest
+# through libhybris. Run as `droiddeck-gpu-probe [eglprobe args...]`; success is
+# the "RESULT GL_RENDERER=NVIDIA Tegra" line, failure prints the faulting
+# mapping from the in-process SIGSEGV handler.
+#
+# /usr/local/hybris/bionic (Halium-patched bionic, see tools/hybris/build-in-arch.sh)
+# must stay FIRST in HYBRIS_LD_LIBRARY_PATH: stock Android 11 bionic reads TLS
+# inline (mrs tpidr_el0) and no longer exports __get_tls_hooks, which libhybris
+# interposes — with the stock libc the probe segfaults inside bionic during
+# eglGetDisplay.
+set -e
+
+hybris=/usr/local/hybris/usr/lib
+
+# The APK cannot carry symlinks; restore the soname links next to the real
+# versioned libraries (libEGL.so.1.0.0 needs libEGL.so.1 and libEGL.so), plus
+# the pkglibdir path libhybris dlopens its EGL platform backend from
+# (compiled-in /usr/lib/libhybris).
+for real in "$hybris"/*.so.*.*.*; do
+    [ -f "$real" ] || continue
+    soname=${real%.*.*}                  # .../libEGL.so.1 (the DT_SONAME)
+    ln -sfn "${real##*/}" "$soname"
+    ln -sfn "${real##*/}" "${soname%.*}" # .../libEGL.so
+done
+ln -sfn /usr/local/hybris/usr/lib/libhybris /usr/lib/libhybris
+
+export LD_LIBRARY_PATH=$hybris
+export HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic
+exec /usr/local/hybris/usr/bin/eglprobe "$@"

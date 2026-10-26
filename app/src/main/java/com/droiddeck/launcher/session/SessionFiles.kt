@@ -80,6 +80,7 @@ object SessionFiles {
             "usr/local/bin/droiddeck-script-run" to "usr/local/bin/droiddeck-script-run",
             "usr/local/bin/droiddeck-open" to "usr/local/bin/droiddeck-open",
             "usr/local/bin/droiddeck-proton-run" to "usr/local/bin/droiddeck-proton-run",
+            "usr/local/bin/droiddeck-gpu-probe" to "usr/local/bin/droiddeck-gpu-probe",
             "usr/bin/steamos-update" to "usr/bin/steamos-update",
             "usr/bin/steamos-select-branch" to "usr/bin/steamos-select-branch",
             "usr/bin/steamos-session-select" to "usr/bin/steamos-session-select",
@@ -115,11 +116,55 @@ object SessionFiles {
         val fexPreloads = listOf("x86_64", "i386").flatMap { arch ->
             listOf("libblsession.so", "libfakeinput.so", "libfaultreport.so").map { "$arch/$it" to "usr/local/lib/droiddeck-fex/$arch/$it" }
         } + listOf("libthunkaudit.so", "libvulkan-thunk.so").map { "x86_64/$it" to "usr/local/lib/droiddeck-fex/x86_64/$it" }
+        // libhybris GPU probe payload: the glibc-side libhybris/EGL stack, the
+        // vendor EGL probe, and the Halium-patched bionic set (first in
+        // HYBRIS_LD_LIBRARY_PATH — stock bionic breaks libhybris' TLS
+        // contract). Soname symlinks are recreated by droiddeck-gpu-probe.
+        val hybrisPayload = listOf(
+            "bionic/ld-android.so",
+            "bionic/libc++.so",
+            "bionic/libc.so",
+            "bionic/libdl_android.so",
+            "bionic/libdl.so",
+            "bionic/libm.so",
+            "usr/bin/eglprobe",
+            "usr/bin/getprop",
+            "usr/bin/setprop",
+            "usr/lib/libandroid-properties.so.1.0.0",
+            "usr/lib/libcamera.so.1.0.0",
+            "usr/lib/libEGL.so.1.0.0",
+            "usr/lib/libGLESv1_CM.so.1.0.1",
+            "usr/lib/libGLESv2.so.2.0.0",
+            "usr/lib/libgralloc.so.1.0.0",
+            "usr/lib/libhardware.so.2.0.0",
+            "usr/lib/libhwc2.so.1.0.0",
+            "usr/lib/libhybris-common.so.1.0.0",
+            "usr/lib/libhybris-eglplatformcommon.so.1.0.0",
+            "usr/lib/libhybris/eglplatform_fbdev.so",
+            "usr/lib/libhybris/eglplatform_hwcomposer.so",
+            "usr/lib/libhybris/eglplatform_null.so",
+            "usr/lib/libhybris-hwcomposerwindow.so.1.0.0",
+            "usr/lib/libhybris/linker/mm.so",
+            "usr/lib/libhybris/linker/n.so",
+            "usr/lib/libhybris/linker/o.so",
+            "usr/lib/libhybris/linker/q.so",
+            "usr/lib/libhybris-platformcommon.so.1.0.0",
+            "usr/lib/libis.so.1.0.0",
+            "usr/lib/libmedia.so.1.0.0",
+            "usr/lib/libnfc_ndef_nxp.so.1.0.0",
+            "usr/lib/libnfc_nxp.so.1.0.0",
+            "usr/lib/libOpenCL.so.1.0.0",
+            "usr/lib/libsf.so.1.0.0",
+            "usr/lib/libsync.so.2.0.0",
+            "usr/lib/libui.so.1.0.0",
+            "usr/lib/libvibrator.so.1.0.0",
+            "usr/lib/libwifi.so.1.0.0",
+        ).map { "usr/local/hybris/$it" to "usr/local/hybris/$it" }
         val optional = (arrayOf(
             "usr/local/bin/gamescope" to "usr/local/bin/gamescope",
             "usr/local/lib/droiddeck/uruntime" to "usr/local/lib/droiddeck/uruntime",
             "usr/local/share/licenses/uruntime/LICENSE" to "usr/local/share/licenses/uruntime/LICENSE",
-        ) + mangoapp + listOf("comet", "GalaxyCommunication.exe", "update-permissions.exe", "LICENSE", "version").map { "usr/local/lib/droiddeck-comet/$it" to "usr/local/lib/droiddeck-comet/$it" } + msitools.map { it to it } + vr + fexPreloads).filter { (asset, _) ->
+        ) + mangoapp + listOf("comet", "GalaxyCommunication.exe", "update-permissions.exe", "LICENSE", "version").map { "usr/local/lib/droiddeck-comet/$it" to "usr/local/lib/droiddeck-comet/$it" } + msitools.map { it to it } + vr + fexPreloads + hybrisPayload).filter { (asset, _) ->
             val dir = asset.substringBeforeLast('/')
             runCatching { context.assets.list("linuxfs/$dir")?.contains(asset.substringAfterLast('/')) == true }.getOrDefault(false)
         }

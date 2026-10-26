@@ -90,19 +90,47 @@ available** and needs no AOSP platform build:
 
 ## What is next
 
-1. **Device run with patched bionic (ready to go).** Pull the new `hybris-probe` artifact from the
-   `Build libhybris probe` workflow, extract over `/usr/local/hybris` in the guest (bionic set lands
-   in `/usr/local/hybris/bionic`), and re-run `eglprobe` with the updated `HYBRIS_LD_LIBRARY_PATH`
-   above. Expected: `eglGetDisplay` gets past bionic init; the TLS segfault inside `libc.so` is the
-   thing to watch disappear (probe prints the faulting mapping if it doesn't).
-2. **If vendor/system libs still fault on TLS** (they read `tpidr_el0` inline and are unpatched):
-   escalate to the Droidian model — serve the *whole* GSI `/system/lib64` in
-   `HYBRIS_LD_LIBRARY_PATH` (keep the Shield's `/vendor/lib64`), i.e. patched system tree + Shield
-   vendor blobs. The image already contains it; only packaging changes.
-3. **Option B (out-of-process) stays the fallback** if in-process proving too brittle: a small
+1. **Device run with patched bionic: PASSED (2026-10-25, session `2026-10-25-39-droiddeck-gpu-probe`).**
+   The app now ships the whole probe stack (`usr/local/hybris/`: libhybris, `eglprobe`, and the
+   Halium-patched bionic set, staged by `SessionFiles` and run via the new
+   `usr/local/bin/droiddeck-gpu-probe` wrapper). Running it from the app session:
+
+   ```
+   stage: eglGetDisplay -> 0x1                      ← previously SIGSEGV'd here in stock bionic
+   stage: EGL 1.5 vendor=Android version=1.5 Android META-EGL
+   stage: pbuffer=0x… err 0x3000
+   stage: context=0x… err 0x3000
+   RESULT GL_RENDERER=NVIDIA Tegra
+   RESULT GL_VENDOR=NVIDIA Corporation
+   RESULT GL_VERSION=OpenGL ES 3.2 NVIDIA 495.00
+   ```
+
+   The full NVIDIA stack maps into the glibc probe process (`libEGL_tegra.so`, `libglcore.so`,
+   `libGLESv2_tegra.so`, `gralloc.tegra.so`, `libnvidia-glvkspirv.so`). The TLS contract is
+   satisfied by the patched bionic, first in `HYBRIS_LD_LIBRARY_PATH`.
+2. **Known secondary issue (non-blocking): teardown fault.** After printing the results, the probe
+   segfaults at cleanup: ROM `/system/lib64/libEGL.so` calls into **glibc** `libc.so.6` (+0x8a560),
+   `addr=0x428` — a bionic/glibc symbol mixup on the teardown path only. Rendering, context and
+   `eglMakeCurrent` all work; gamescope integration will not call `eglTerminate` (it keeps the
+   context for the session lifetime). Root-cause later if it bites.
+3. **Next step toward GPU for the guest:** point gamescope/zink at the hybris EGL device instead of
+   lavapipe. The wrapper (`droiddeck-gpu-probe`) shows the exact env needed.
+4. **Option B (out-of-process) stays the fallback** if in-process proving too brittle: a small
    bionic helper (NDK) owning EGL/GLES + gralloc handing buffers to the guest; waylandcomp already
    has an AHardwareBuffer import path (`ahb_swapchain.c`).
 
-Everything up to the bionic TLS boundary is in place and reproducible; the probe is
-`tools/hybris/eglprobe.c` (stage prints + in-process SIGSEGV handler that prints the faulting
-mapping), the runner is the same `Build libhybris probe` workflow.
+### Reproducing the probe on the device
+
+```
+dd run /usr/local/bin/droiddeck-gpu-probe     # starts a run-mode session under gamescope
+# headless sessions suspend (no visible activity): resume as the app itself, then wait:
+adb -s 192.168.0.194:5555 shell "run-as com.droiddeck.launcher sh -c \
+  'am startservice --user 0 -n com.droiddeck.launcher/.session.SessionService -a com.droiddeck.launcher.RESUME_SESSION'"
+adb -s 192.168.0.194:5555 shell "run-as com.droiddeck.launcher sh -c \
+  'grep -E \"stage|RESULT|FAULT\" files/logs/<session-id>/session.log'"
+```
+
+Everything up to the bionic TLS boundary — and now the boundary itself — is reproducible; the probe
+is `tools/hybris/eglprobe.c` (stage prints + in-process SIGSEGV handler that prints the faulting
+mapping), the wrapper is `tools/linuxfs/overlay/usr/local/bin/droiddeck-gpu-probe`, and the payload
+staging is `tools/hybris/stage-payload.sh` (CI artifact → APK assets).

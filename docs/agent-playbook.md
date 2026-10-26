@@ -70,6 +70,16 @@ Session facts:
 - The debug env (`dd env set`) seeds the **next** session; `dd env clear all` resets it.
 - `ddd input pad …` writes the same fake pad the controller uses; it is the reliable way to drive
   Steam's UI from an agent.
+- **Headless `dd run` sessions suspend immediately** (`session.suspend_requested`,
+  `activityVisible:false` — the session activity is never foreground when started from adb).
+  Resume as the app itself, then the program runs:
+
+  ```sh
+  adb -s 192.168.0.194:5555 shell "run-as com.droiddeck.launcher sh -c \
+    'am startservice --user 0 -n com.droiddeck.launcher/.session.SessionService -a com.droiddeck.launcher.RESUME_SESSION'"
+  ```
+
+  (`--user 0` is required; without it `am` under run-as fails with an INTERACT_ACROSS_USERS denial.)
 
 ## 5. Logs (read these instead of retrying `focus`/`state`)
 
@@ -157,9 +167,11 @@ CI workflows: `build-gamescope.yml` (artifact `gamescope-patched`), `build-hybri
   `/system/lib64` + `/apex/com.android.runtime` + `/vendor` binds for the GPU spike.
 - Branding is **ShieldDeck**: app name in all locales, adaptive icon, 320×180 TV banner, in-app
   wordmark/loading logo (commit `1d07a4ce`).
-- GPU/libhybris: read `docs/hybris-gpu-status.md`. It builds and loads the Android stack, but stock
-  Android 11 bionic fails libhybris' TLS contract; the missing artifact is a patched API-30 bionic
-  (`hybris-hal`). Do not redo the linker/APS2 work.
+- GPU/libhybris: read `docs/hybris-gpu-status.md`. **The TLS boundary is passed on device** (the
+  app ships a Halium-patched bionic + libhybris as `usr/local/hybris`, run
+  `dd run /usr/local/bin/droiddeck-gpu-probe` → `RESULT GL_RENDERER=NVIDIA Tegra`). Remaining
+  known issue: teardown-only fault (ROM libEGL → glibc, after results print). Do not redo the
+  linker/APS2/TLS work.
 - Performance is still the open problem (software CEF + lavapipe, ~2 fps UI, Steam UI thread stalls).
 - `0124-diag` logging is temporary and should be removed before release.
 
