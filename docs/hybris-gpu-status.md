@@ -88,6 +88,42 @@ available** and needs no AOSP platform build:
    `-femulated-tls`). Upstream confirms a patched bionic is required (libhybris issue #512).
    This cannot be fixed with env vars or by forcing a different linker at runtime.
 
+## Vulkan status (2026-10-25, session `2026-10-25-49`)
+
+Steam/gamescope render via **Vulkan**, so EGL was only the foundation. libhybris ships a Vulkan
+wrapper (`libvulkan.so.1`: a loader-API shim that `android_dlopen`s the bionic Android loader,
+which loads the tegra ICD); it was never built because the Halium headers lack `vulkan/vulkan.h`
+— the CI container now installs `vulkan-headers`, and the wrapper builds after stripping retired
+`VK_NV_cuda_kernel_launch` IDLOADs (`build-in-arch.sh`). `vkprobe` links nothing Vulkan: it
+`dlopen`s the wrapper in `main` and `dlsym`-binds its entrypoints — **linking it is not an
+option**: the wrapper's IFUNC resolvers run inside `ld.so`'s relocation phase (before `main`) and
+die under proot. (Same caveat applies to any future glibc binary using the wrapper, e.g.
+gamescope/zink: dlopen-in-main, or link and accept startup risk.)
+
+Probe evidence on device:
+
+```
+vkstage: dlopen libvulkan.so.1      -> ok (hybris wrapper)
+vkstage: direct ICD dlopen          -> ok          (vulkan.tegra.so loads via the hybris linker)
+vkstage: ICD HMI symbol             -> ok
+vkstage: bionic access(vendor ICD)  -> 0           (proot file checks are fine for access())
+vkstage: hw_get_module(vulkan)      -> 0 module=…  (the loader's own discovery primitive works)
+vkstage: vkCreateInstance           -> 0           (the Android loader initializes)
+vkstage: vkEnumeratePhysicalDevices -> count=0     ← the one remaining gap
+```
+
+`ro.hardware.vulkan` is empty on the Shield; the loader falls back to `ro.board.platform=tegra`
+— the ICD name is right. So discovery works when called directly, the ICD loads, and the loader
+initializes — but the loader's enumeration still returns zero devices. The remaining suspects are
+the loader's next steps: the HAL device `open()` in the tegra module, or its
+`android_dlopen_ext`-with-namespace ("sphal") path under the hybris q linker. Next debugging
+steps: call `module->methods->open()` from the probe and print its errno; try
+`android_dlopen_ext(ns=sphal)` on the ICD path; if the loader is the problem, teach the hybris
+wrapper a direct-ICD mode (open the HAL device itself, forward entrypoints) so nothing depends on
+the Android loader's discovery. The Mesa loader already works in the guest (llvmpipe enumerates
+`VK_KHR_external_memory_fd` + `VK_EXT_external_memory_dma_buf`), so once the tegra driver is
+enumerable, an ICD json + zink/GL for Steam's CEF becomes the follow-on.
+
 ## What is next
 
 1. **Device run with patched bionic: PASSED (2026-10-25, session `2026-10-25-39-droiddeck-gpu-probe`).**
@@ -119,7 +155,7 @@ available** and needs no AOSP platform build:
    bionic helper (NDK) owning EGL/GLES + gralloc handing buffers to the guest; waylandcomp already
    has an AHardwareBuffer import path (`ahb_swapchain.c`).
 
-### Reproducing the probe on the device
+### Reproducing the probes on the device
 
 ```
 dd run /usr/local/bin/droiddeck-gpu-probe     # starts a run-mode session under gamescope
@@ -127,7 +163,7 @@ dd run /usr/local/bin/droiddeck-gpu-probe     # starts a run-mode session under 
 adb -s 192.168.0.194:5555 shell "run-as com.droiddeck.launcher sh -c \
   'am startservice --user 0 -n com.droiddeck.launcher/.session.SessionService -a com.droiddeck.launcher.RESUME_SESSION'"
 adb -s 192.168.0.194:5555 shell "run-as com.droiddeck.launcher sh -c \
-  'grep -E \"stage|RESULT|FAULT\" files/logs/<session-id>/session.log'"
+  'grep -E \"stage|RESULT|FAULT|vkstage|VK_\" files/logs/<session-id>/session.log'"
 ```
 
 Everything up to the bionic TLS boundary — and now the boundary itself — is reproducible; the probe
