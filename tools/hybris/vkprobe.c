@@ -222,9 +222,11 @@ int main(void) {
                 vdev->GetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)(base + 0x22f0);
                 PFN_vkGetInstanceProcAddr dev_gipa = vdev->GetInstanceProcAddr;
                 if (dev_gipa) {
+                    /* Global-level queries go through the struct fields, not
+                     * gipa(NULL, ...) — the tegra HAL's gipa dereferences the
+                     * instance and crashes on NULL. */
                     PFN_vkEnumerateInstanceExtensionProperties dep =
-                        (PFN_vkEnumerateInstanceExtensionProperties)dev_gipa(
-                            VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
+                        vdev->EnumerateInstanceExtensionProperties;
                     uint32_t nx = 0;
                     VkResult dr =
                         dep ? dep(VK_NULL_HANDLE, &nx, NULL) : VK_ERROR_INITIALIZATION_FAILED;
@@ -238,8 +240,7 @@ int main(void) {
                         for (uint32_t i = 0; i < nx; i++) printf(" %s", ex[i].extensionName);
                         printf("\n");
                     }
-                    PFN_vkCreateInstance dci =
-                        (PFN_vkCreateInstance)dev_gipa(VK_NULL_HANDLE, "vkCreateInstance");
+                    PFN_vkCreateInstance dci = vdev->CreateInstance;
                     VkInstance inst2 = VK_NULL_HANDLE;
                     if (dci && dci(&ici, NULL, &inst2) == VK_SUCCESS) {
                         PFN_vkEnumeratePhysicalDevices depd = (PFN_vkEnumeratePhysicalDevices)dev_gipa(

@@ -88,41 +88,46 @@ available** and needs no AOSP platform build:
    `-femulated-tls`). Upstream confirms a patched bionic is required (libhybris issue #512).
    This cannot be fixed with env vars or by forcing a different linker at runtime.
 
-## Vulkan status (2026-10-25, session `2026-10-25-49`)
+## Vulkan status (2026-10-25, sessions 39–58)
 
-Steam/gamescope render via **Vulkan**, so EGL was only the foundation. libhybris ships a Vulkan
-wrapper (`libvulkan.so.1`: a loader-API shim that `android_dlopen`s the bionic Android loader,
-which loads the tegra ICD); it was never built because the Halium headers lack `vulkan/vulkan.h`
-— the CI container now installs `vulkan-headers`, and the wrapper builds after stripping retired
-`VK_NV_cuda_kernel_launch` IDLOADs (`build-in-arch.sh`). `vkprobe` links nothing Vulkan: it
-`dlopen`s the wrapper in `main` and `dlsym`-binds its entrypoints — **linking it is not an
-option**: the wrapper's IFUNC resolvers run inside `ld.so`'s relocation phase (before `main`) and
-die under proot. (Same caveat applies to any future glibc binary using the wrapper, e.g.
-gamescope/zink: dlopen-in-main, or link and accept startup risk.)
+Steam/gamescope render via **Vulkan**, so EGL was only the foundation. What it took, and where it
+stands:
 
-Probe evidence on device:
+**Working chain (all verified on device):**
+- libhybris' vulkan wrapper + `vulkanplatform_null` now build (Halium headers lack
+  `vulkan/vulkan.h`; the CI container installs `vulkan-headers`, and the wrapper's retired
+  `VK_NV_cuda_kernel_launch` IDLOADs are stripped). Caveat: never *link* the wrapper — its IFUNC
+  resolvers run in ld.so's relocation phase and die under proot; always dlopen-in-main.
+- **sysvk** (xMeM/sysvk, found via kde-yyds' android-vulkan-bridge — the existing project for
+  exactly this) turns the hwvulkan HAL into a standard ICD for the guest's Mesa loader. Our
+  vendored copy (`tools/hybris/sysvk/sysvk.c`) is patched for the Tegra.
+- `hw_get_module("vulkan")` works, HAL `open("vk0")` works, and the HAL's driver bootstrap
+  (`NvGlEglGetFunctions` → libglcore.so, bootstrapping through the bionic EGL chain) **loads and
+  runs in the guest** — the full tegra gralloc/EGL/GLES chain maps via the vndksupport fallback.
+- Two device quirks found and handled: `/vendor/lib64/hw` must be in `HYBRIS_LD_LIBRARY_PATH`
+  (the HAL dlopens `vulkan.tegra.so` by soname), and the HAL's `open()` strcmps the device id
+  `"vk0"` (anything else → `-ENOENT`).
 
-```
-vkstage: dlopen libvulkan.so.1      -> ok (hybris wrapper)
-vkstage: direct ICD dlopen          -> ok          (vulkan.tegra.so loads via the hybris linker)
-vkstage: ICD HMI symbol             -> ok
-vkstage: bionic access(vendor ICD)  -> 0           (proot file checks are fine for access())
-vkstage: hw_get_module(vulkan)      -> 0 module=…  (the loader's own discovery primitive works)
-vkstage: vkCreateInstance           -> 0           (the Android loader initializes)
-vkstage: vkEnumeratePhysicalDevices -> count=0     ← the one remaining gap
-```
+**The remaining blocker (driver-internal):**
+The tegra HAL is *not loader-conformant*: its `GetInstanceProcAddr` requires a real instance
+(dereferences `instance+8`, the hwvulkan_dispatch — `NULL` crashes), and the `hwvulkan_device_t`
+ships with all three entrypoints NULL (its `ANDROID_RELA` section decodes to zero relocations; the
+only constructor registers an atexit). NVIDIA's own loader uses the device-struct fields directly
+for global-level queries, which is why stock Android works. Our patched sysvk answers NULL-instance
+queries from the struct and fills the fields with the HAL's own implementations
+(`EnumerateInstanceExtensionProperties=0x2060`, `CreateInstance=0x242c`,
+`GetInstanceProcAddr=0x22f0`, firmware-stable offsets — see vkprobe.c).
 
-`ro.hardware.vulkan` is empty on the Shield; the loader falls back to `ro.board.platform=tegra`
-— the ICD name is right. So discovery works when called directly, the ICD loads, and the loader
-initializes — but the loader's enumeration still returns zero devices. The remaining suspects are
-the loader's next steps: the HAL device `open()` in the tegra module, or its
-`android_dlopen_ext`-with-namespace ("sphal") path under the hybris q linker. Next debugging
-steps: call `module->methods->open()` from the probe and print its errno; try
-`android_dlopen_ext(ns=sphal)` on the ICD path; if the loader is the problem, teach the hybris
-wrapper a direct-ICD mode (open the HAL device itself, forward entrypoints) so nothing depends on
-the Android loader's discovery. The Mesa loader already works in the guest (llvmpipe enumerates
-`VK_KHR_external_memory_fd` + `VK_EXT_external_memory_dma_buf`), so once the tegra driver is
-enumerable, an ICD json + zink/GL for Steam's CEF becomes the follow-on.
+With all of that in place, the driver's **`EnumerateInstanceExtensionProperties` still returns an
+empty list in the guest** (`vulkaninfo` dies on its own zero-vector bug; vkprobe confirms count=0
+via the struct field). The HAL's EGL bootstrap completes without logged errors, so something the
+driver needs from its environment (binder service? surfaceflinger-side state? an Android-only
+property?) is still missing — this is now inside NVIDIA's 2019-era driver and is the honest
+frontier. Next hypotheses to test: run a *native* on-device Vulkan enumeration (bionic app, e.g.
+`cmd gpu vkjson` if present) to confirm the driver enumerates on stock Android at all; strace-free
+comparison of the bootstrap; or accept that this driver is out of reach for in-process Vulkan and
+fall back to Option B (out-of-process GPU helper, which the working EGL path makes very feasible:
+the helper owns EGL/GLES via the proven route and hands buffers to the guest).
 
 ## What is next
 
