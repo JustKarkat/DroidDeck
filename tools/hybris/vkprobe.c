@@ -154,11 +154,14 @@ static int tegra_hal_warmup(void) {
     int rc = m->methods->open(m, "vk0", &dev);
     printf("vkstage: warmup: open(vk0) -> %d dev=%p\n", rc, dev);
     if (rc != 0 || !dev) return -1;
+    /* the device struct ships NULL; the real HAL enumerate lives at a fixed
+     * offset in the module (see TEGRA_ENUMERATE… in sysvk.c) */
+    char *base = (char *)dev - 0x4448;
     PFN_vkEnumerateInstanceExtensionProperties e =
-        *(PFN_vkEnumerateInstanceExtensionProperties *)((char *)dev + 24);
+        (PFN_vkEnumerateInstanceExtensionProperties)(base + 0x2060);
     uint32_t n = 0;
-    VkResult r = e ? e(VK_NULL_HANDLE, &n, NULL) : VK_ERROR_INITIALIZATION_FAILED;
-    printf("vkstage: warmup: struct enumerate -> %d count=%u\n", r, n);
+    VkResult r = e(VK_NULL_HANDLE, &n, NULL);
+    printf("vkstage: warmup: HAL enumerate(0x2060) -> %d count=%u\n", r, n);
     return 0;
 }
 
@@ -176,6 +179,12 @@ static void *tegra_table_init(void) {
     memset(table, 0, 48);
     table[0] = glc; /* the HAL stores the dlopen handle in slot 0 */
     nvgl(1, &table[1]);
+    /* The HAL's own helper does this before anything else touches the table:
+     * table[4] = GetProcAddressNV("vkGetInstanceProcAddr"). The driver's
+     * CreateInstance calls through table[4] internally — leaving it NULL is
+     * the pc=(nil) crash we saw. */
+    if (table[1])
+        table[4] = ((void *(*)(const char *))table[1])("vkGetInstanceProcAddr");
     printf("vkstage: driver table @%p:", (void *)table);
     for (int i = 0; i < 6; i++) printf(" [%d]=%p", i, table[i]);
     printf("\n");
