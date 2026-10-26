@@ -222,34 +222,66 @@ static void vk_notify_cb(void *ud, size_t size, VkInternalAllocationType t,
  * are NULL in our process — nothing installed them (NVIDIA's loader does on
  * stock). Patch them with logging glibc-backed shims; each call prints its
  * args so the convention can be identified from the log. */
+static void hexdump16(const char *tag, unsigned long v) {
+    /* only deref pointers that land in a mapped file/bss region we recognize */
+    if (!v || v < 0x100000000ull || v > 0xfffffffffffull) return;
+    FILE *m = fopen("/proc/self/maps", "r");
+    if (!m) return;
+    char line[512];
+    int ok = 0, readable = 0;
+    while (fgets(line, sizeof line, m)) {
+        unsigned long s = 0, e = 0;
+        if (sscanf(line, "%lx-%lx", &s, &e) != 2) continue;
+        if (v >= s && v < e) {
+            ok = 1;
+            readable = strstr(line, "r--") != NULL || strstr(line, "rw-") != NULL ||
+                       strstr(line, "r-x") != NULL;
+            break;
+        }
+    }
+    fclose(m);
+    if (!ok || !readable) return;
+    unsigned char buf[16];
+    memcpy(buf, (void *)v, sizeof buf); /* best effort; fault handler catches races */
+    printf("vkstage: %s @%#lx:", tag, v);
+    for (int i = 0; i < 16; i++) printf(" %02x", buf[i]);
+    printf("\n");
+}
+
 static void *vk_shim_a(size_t a, size_t b, size_t c, size_t d) {
     printf("vkstage: shimA(%#zx, %#zx, %#zx, %#zx)\n", a, b, c, d);
+    hexdump16("shimA.arg0", a);
+    hexdump16("shimA.arg1", b);
     void *p = NULL;
-    if (a && a < (1ull << 30)) {
-        size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
-        if (posix_memalign(&p, align, a) != 0) return NULL;
-        memset(p, 0, a);
-    }
+    size_t size = (a && a < (1ull << 30)) ? a : ((c && c < (1ull << 30)) ? c : 0);
+    size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
+    if (!size) size = 4096; /* unknown convention: give it something valid */
+    if (posix_memalign(&p, align, size) != 0) return NULL;
+    memset(p, 0, size);
     return p;
 }
 static void *vk_shim_b(size_t a, size_t b, size_t c, size_t d) {
     printf("vkstage: shimB(%#zx, %#zx, %#zx, %#zx)\n", a, b, c, d);
+    hexdump16("shimB.arg0", a);
+    hexdump16("shimB.arg1", b);
     void *p = NULL;
-    if (a && a < (1ull << 30)) {
-        size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
-        if (posix_memalign(&p, align, a) != 0) return NULL;
-        memset(p, 0, a);
-    }
+    size_t size = (a && a < (1ull << 30)) ? a : ((c && c < (1ull << 30)) ? c : 0);
+    size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
+    if (!size) size = 4096;
+    if (posix_memalign(&p, align, size) != 0) return NULL;
+    memset(p, 0, size);
     return p;
 }
 static void *vk_shim_c(size_t a, size_t b, size_t c, size_t d) {
     printf("vkstage: shimC(%#zx, %#zx, %#zx, %#zx)\n", a, b, c, d);
+    hexdump16("shimC.arg0", a);
+    hexdump16("shimC.arg1", b);
     void *p = NULL;
-    if (a && a < (1ull << 30)) {
-        size_t align = (b && b < 4096 && !(b & (b - 1))) ? b : 8;
-        if (posix_memalign(&p, align, a) != 0) return NULL;
-        memset(p, 0, a);
-    }
+    /* observed: shimC(ptr, rodata, 8, ptr) — arg2 looked like a size */
+    size_t size = (c && c < (1ull << 30)) ? c : ((a && a < (1ull << 30)) ? a : 4096);
+    size_t align = 8;
+    if (posix_memalign(&p, align, size) != 0) return NULL;
+    memset(p, 0, size);
     return p;
 }
 
@@ -373,6 +405,47 @@ int main(int argc, char **argv) {
         tegra_hal_warmup(); /* driver context init; non-fatal if it fails */
         void **table = (void **)tegra_table_init();
         if (!table) return 1;
+        /* variant inits: NvGlEglGetFunctions(2, …) may install the Vulkan
+         * singletons the way (1, …) installs the EGL ones */
+        {
+            void *glc = android_dlopen("libglcore.so", RTLD_NOW | RTLD_LOCAL);
+            int (*nvgl)(int, void *) = glc ? (int (*)(int, void *))android_dlsym(glc, "NvGlEglGetFunctions") : NULL;
+            if (nvgl) {
+                void *mem = NULL;
+                if (posix_memalign(&mem, 8, 48) == 0) {
+                    void **t2 = (void **)mem;
+                    memset(t2, 0, 48);
+                    t2[0] = glc;
+                    nvgl(2, &t2[1]);
+                    printf("vkstage: variant table(2):");
+                    for (int i = 0; i < 6; i++) printf(" [%d]=%p", i, t2[i]);
+                    printf("\n");
+                }
+            }
+        }
+        /* the HAL's own ensure-init helper (base+0x2160) with its static
+         * context — the official bootstrap path that should install the
+         * singletons */
+        {
+            FILE *m = fopen("/proc/self/maps", "r");
+            unsigned long base = 0;
+            if (m) {
+                char line[512];
+                while (fgets(line, sizeof line, m)) {
+                    if (strstr(line, "/vendor/lib64/hw/vulkan.tegra.so")) {
+                        unsigned long s = 0, e = 0;
+                        if (sscanf(line, "%lx-%lx", &s, &e) == 2 && s < e) { base = s; break; }
+                    }
+                }
+                fclose(m);
+            }
+            if (base) {
+                void *(*hal_ensure)(unsigned long, void *, unsigned long) =
+                    (void *(*)(unsigned long, void *, unsigned long))(base + 0x2160);
+                void *r = hal_ensure(0, NULL, 0);
+                printf("vkstage: HAL ensure(0x2160)(0,NULL,0) -> %p\n", r);
+            }
+        }
         if (!strcmp(argv[2], "vkCreateInstance") || !strcmp(argv[2], "all"))
             patch_libglcore_allocators();
         return gpa_probe(table, argv[2]);
