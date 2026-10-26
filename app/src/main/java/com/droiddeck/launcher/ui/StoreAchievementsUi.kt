@@ -393,7 +393,7 @@ private val previewList = listOf(
 
 @Composable
 private fun PreviewSurface(content: @Composable () -> Unit) {
-    DroidDeckTheme(theme = Themes.GRAPHITE) {
+    ShieldDeckTheme(theme = Themes.GRAPHITE) {
         Box(Modifier.fillMaxSize().background(LocalPalette.current.background).padding(16.dp)) { content() }
     }
 }
@@ -412,13 +412,13 @@ private fun StoreAchievementsSectionSignedOutPreview() = PreviewSurface {
 
 @Preview(name = "Session panel", widthDp = 800, heightDp = 500)
 @Composable
-private fun SessionAchievementsPanelPreview() = DroidDeckTheme(theme = Themes.GRAPHITE) {
+private fun SessionAchievementsPanelPreview() = ShieldDeckTheme(theme = Themes.GRAPHITE) {
     SessionAchievementsPanel("Epic", AchievementsState(previewList, null, false), "Hollow Valley", onClose = {})
 }
 
 @Preview(name = "Session panel, 4:3", widthDp = 560, heightDp = 420)
 @Composable
-private fun SessionAchievementsPanelShortPreview() = DroidDeckTheme(theme = Themes.GRAPHITE) {
+private fun SessionAchievementsPanelShortPreview() = ShieldDeckTheme(theme = Themes.GRAPHITE) {
     SessionAchievementsPanel("GOG", AchievementsState(previewList.map {
         Achievement(it.id, it.name, it.description, it.hidden, true, 1_760_000_000, null, null)
     }, null, false), "Hollow Valley", onClose = {})
@@ -426,7 +426,7 @@ private fun SessionAchievementsPanelShortPreview() = DroidDeckTheme(theme = Them
 
 @Preview(name = "Session panel, offline", widthDp = 800, heightDp = 500)
 @Composable
-private fun SessionAchievementsPanelOfflinePreview() = DroidDeckTheme(theme = Themes.GRAPHITE) {
+private fun SessionAchievementsPanelOfflinePreview() = ShieldDeckTheme(theme = Themes.GRAPHITE) {
     SessionAchievementsPanel("GOG", AchievementsState(null, Reason.UNREACHABLE, false), "Hollow Valley", onClose = {})
 }
 

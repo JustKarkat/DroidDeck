@@ -89,7 +89,7 @@ private fun AchievementNotificationCard(unlock: AchievementNotifications.Unlock)
 
 @Preview(widthDp = 420, heightDp = 150)
 @Composable
-private fun AchievementNotificationPreview() = DroidDeckTheme {
+private fun AchievementNotificationPreview() = ShieldDeckTheme {
     Box(Modifier.padding(20.dp)) {
         AchievementNotificationCard(AchievementNotifications.Unlock("1", "first", "First Steps", "", null, "Hollow Valley"))
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>Η πρώτη εκτέλεση κάνει λήψη του Steam. Αυτό μπορεί να διαρκέσει μερικά λεπτά.</item>
         <item>Από προεπιλογή, η έξοδος από την εφαρμογή θέτει το Steam σε παύση· συνεχίζει από εκεί που είχε μείνει όταν επιστρέψετε.</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">Πατήστε ξανά για αφαίρεση</string>
     <string name="user_apps_stop_session">Διακόψτε τη συνεδρία για αφαίρεση</string>
     <string name="user_apps_script_linked">Εκτελεί το %1$s από τον φάκελό του, συνδεδεμένο στη συνεδρία όπου βρίσκεται. Η αφαίρεση της εφαρμογής αφήνει αυτόν τον φάκελο ανέγγιχτο.</string>
-    <string name="user_apps_script_copied">Εκτελεί το %1$s από ένα αντίγραφο του φακέλου του μέσα στο DroidDeck. Η αφαίρεση της εφαρμογής διαγράφει το αντίγραφο, όχι το πρωτότυπο.</string>
+    <string name="user_apps_script_copied">Εκτελεί το %1$s από ένα αντίγραφο του φακέλου του μέσα στο ShieldDeck. Η αφαίρεση της εφαρμογής διαγράφει το αντίγραφο, όχι το πρωτότυπο.</string>
     <string name="user_apps_runtime_required">Εγκαταστήστε πρώτα το runtime Linux</string>
     <string name="user_apps_file_gone">Το αρχείο δεν υπάρχει πια</string>
     <string name="user_apps_no_space">Δεν υπάρχει αρκετός ελεύθερος χώρος: η αντιγραφή του φακέλου απαιτεί %1$s</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">Ανενεργό</string>
     <string name="app_fex_hint">Το FEX εκτελεί προγράμματα x86 Linux σε αυτή τη συσκευή ARM64. Το Αυτόματο το χρησιμοποιεί όταν το πρόγραμμα είναι χτισμένο για x86.</string>
     <string name="app_fex_x86">%1$s μέσω FEX</string>
-    <string name="app_fex_not_ready">Αυτό το πρόγραμμα είναι χτισμένο για υπολογιστές %1$s και εκτελείται μέσω FEX, το οποίο δεν έχει ρυθμιστεί ακόμα. Ανοίξτε το Steam μία φορά ενώ είστε συνδεδεμένοι: το DroidDeck κάνει λήψη του FEX και του Steam Linux Runtime που χρειάζεται, και μετά αυτό ανοίγει.</string>
+    <string name="app_fex_not_ready">Αυτό το πρόγραμμα είναι χτισμένο για υπολογιστές %1$s και εκτελείται μέσω FEX, το οποίο δεν έχει ρυθμιστεί ακόμα. Ανοίξτε το Steam μία φορά ενώ είστε συνδεδεμένοι: το ShieldDeck κάνει λήψη του FEX και του Steam Linux Runtime που χρειάζεται, και μετά αυτό ανοίγει.</string>
     <string name="session_end_program">Αυτό το πρόγραμμα</string>
     <string name="session_end_fex_missing">Το %1$s είναι χτισμένο για υπολογιστές x86 και εκτελείται μέσω FEX, το οποίο δεν έχει εγκατασταθεί ακόμα. Εκκινήστε το Steam μία φορά ενώ είστε συνδεδεμένοι και αφήστε το να κάνει λήψη του FEX και του Steam Linux Runtime, μετά εκκινήστε αυτό ξανά.</string>
     <string name="add_app_flatpak_hint">Ένα ID εφαρμογής Flathub ή η σελίδα της στο Flathub. Το Flatpak ρυθμίζεται πρώτα, αν δεν έχει ρυθμιστεί ακόμα.</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">Αποθήκευση</string>
     <string name="add_app_checking_folder">Έλεγχος φακέλου…</string>
     <string name="add_app_folder_linked">Ο φάκελός του είναι συνδεδεμένος στη συνεδρία: %1$s</string>
-    <string name="add_app_folder_copied">Ο φάκελός του περιέχει προγράμματα Linux, τα οποία ο κοινός χώρος αποθήκευσης δεν μπορεί να εκτελέσει, οπότε αντιγράφεται μέσα στο DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Ο φάκελός του περιέχει προγράμματα Linux, τα οποία ο κοινός χώρος αποθήκευσης δεν μπορεί να εκτελέσει, οπότε αντιγράφεται μέσα στο ShieldDeck (%1$s).</string>
     <string name="add_app_confirm">Προσθήκη</string>
     <string name="add_app_cancel">Ακύρωση</string>
     <string name="add_app_runtime_required">Εγκαταστήστε πρώτα το runtime Linux από τη Ρύθμιση.</string>
     <string name="add_app_busy">Περιμένετε να τελειώσει το %1$s.</string>
     <string name="steam_compat_label">Συμβατό</string>
-    <string name="proton_compatible_note">Τα builds που φέρουν τη σήμανση «%1$s» στο μενού Συμβατότητα του Steam έχουν τις διορθώσεις prefix του DroidDeck και εκκινούν παιχνίδια εδώ. Η προεπιλογή είναι το Proton Experimental ARM64 (%1$s), ή το Proton 11.0 ARM64 (%1$s) μόλις εγκατασταθεί αυτό το νεότερο build. Οι δικές της καταχωρίσεις Proton της Valve χωρίς τη σήμανση δεν μπορούν να εκκινήσουν παιχνίδι σε αυτή τη συσκευή.</string>
+    <string name="proton_compatible_note">Τα builds που φέρουν τη σήμανση «%1$s» στο μενού Συμβατότητα του Steam έχουν τις διορθώσεις prefix του ShieldDeck και εκκινούν παιχνίδια εδώ. Η προεπιλογή είναι το Proton Experimental ARM64 (%1$s), ή το Proton 11.0 ARM64 (%1$s) μόλις εγκατασταθεί αυτό το νεότερο build. Οι δικές της καταχωρίσεις Proton της Valve χωρίς τη σήμανση δεν μπορούν να εκκινήσουν παιχνίδι σε αυτή τη συσκευή.</string>
     <string name="proton_installed_compatible">Εγκατεστημένο %1$s · %2$s</string>
     <string name="common_cancel">Ακύρωση</string>
     <string name="common_auto">Αυτόματο</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">Καθυστερεί την αναστολή παρασκηνίου όσο το Steam κάνει ενεργά λήψη.</string>
     <string name="mode_suspend_note">Το Αυτόματο θέτει σε παύση στο παρασκήνιο και συνεχίζει όταν εμφανίζεται. Το Μη αυτόματο περιμένει το Συνέχιση. Το Ποτέ συνεχίζει να εκτελείται.</string>
     <string name="mode_startup">Εκκίνηση</string>
-    <string name="mode_steam_startup">Εκκίνηση του Steam με το DroidDeck</string>
-    <string name="mode_steam_startup_hint">Ανοίγει τη συνεδρία Steam όταν εκκινείται το DroidDeck.</string>
+    <string name="mode_steam_startup">Εκκίνηση του Steam με το ShieldDeck</string>
+    <string name="mode_steam_startup_hint">Ανοίγει τη συνεδρία Steam όταν εκκινείται το ShieldDeck.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Έλεγχος για εκδόσεις…</string>
     <string name="mode_decky_ready">Έτοιμο για εγκατάσταση %1$s.</string>
@@ -373,7 +373,7 @@
     <string name="mode_wifi_open_settings">Άνοιγμα ρυθμίσεων</string>
     <string name="mode_wifi_continue">Συνέχεια</string>
     <string name="mode_wifi_explain_title">Ενεργοποίηση εντοπισμού Wi-Fi;</string>
-    <string name="mode_wifi_explain_text">Το Android απαιτεί άδεια τοποθεσίας για να διαβάσει ονόματα Wi-Fi και να εντοπίσει κοντινά δίκτυα. Το DroidDeck χρησιμοποιεί αυτή την πρόσβαση για να εμφανίσει αυτά τα δίκτυα στο Steam. Δεν παρακολουθούμε την τοποθεσία σας. Η πρόσβαση στο διαδίκτυο λειτουργεί χωρίς αυτή την άδεια.</string>
+    <string name="mode_wifi_explain_text">Το Android απαιτεί άδεια τοποθεσίας για να διαβάσει ονόματα Wi-Fi και να εντοπίσει κοντινά δίκτυα. Το ShieldDeck χρησιμοποιεί αυτή την πρόσβαση για να εμφανίσει αυτά τα δίκτυα στο Steam. Δεν παρακολουθούμε την τοποθεσία σας. Η πρόσβαση στο διαδίκτυο λειτουργεί χωρίς αυτή την άδεια.</string>
     <string name="mode_storage">Αποθηκευτικός χώρος παιχνιδιών</string>
     <string name="mode_storage_auto">Αυτόματο - η κάρτα SD όταν υπάρχει, καθώς και οι φάκελοι Games σας</string>
     <string name="mode_storage_auto_none">Αυτόματο - οι φάκελοι Games σας, καθώς και η κάρτα SD όταν υπάρχει (καμία τώρα)</string>
@@ -469,7 +469,7 @@
     <string name="comp_applies_next_game">Εφαρμόζεται την επόμενη φορά που θα ξεκινήσει ένα παιχνίδι</string>
     <string name="comp_import_zip">Εισαγωγή .zip</string>
     <string name="comp_reading">Ανάγνωση Proton…</string>
-    <string name="comp_no_proton">Δεν έχει εγκατασταθεί Proton ακόμα. Εκκινήστε το Steam μία φορά για λήψη του ARM64 Proton του, ή προσθέστε GE-Proton, CachyOS ή DroidDeck-Proton από τη Ρύθμιση.</string>
+    <string name="comp_no_proton">Δεν έχει εγκατασταθεί Proton ακόμα. Εκκινήστε το Steam μία φορά για λήψη του ARM64 Proton του, ή προσθέστε GE-Proton, CachyOS ή ShieldDeck-Proton από τη Ρύθμιση.</string>
     <string name="comp_original">Πρωτότυπο · %1$s</string>
     <string name="comp_this_build">%1$s · αυτό το build</string>
     <string name="comp_earlier_build">%1$s · προηγούμενο build</string>
@@ -691,13 +691,13 @@
     <string name="setup_language_system">Προεπιλογή συστήματος (%1$s)</string>
     <string name="setup_language_system_short">Προεπιλογή συστήματος</string>
     <string name="setup_app_scale">Κλίμακα εφαρμογής</string>
-    <string name="setup_app_scale_hint">Κείμενο και χειριστήρια του DroidDeck</string>
+    <string name="setup_app_scale_hint">Κείμενο και χειριστήρια του ShieldDeck</string>
     <string name="setup_app_scale_default">%1$d%% (Προεπιλογή)</string>
     <string name="setup_theme">Θέμα</string>
     <string name="setup_theme_hint">Εμφάνιση εκκινητή</string>
     <string name="setup_home">Χρήση ως αρχική οθόνη</string>
-    <string name="setup_home_on">Το DroidDeck μπορεί να είναι η εφαρμογή αρχικής οθόνης</string>
-    <string name="setup_home_off">Το DroidDeck δεν προτείνεται ποτέ ως εφαρμογή αρχικής οθόνης</string>
+    <string name="setup_home_on">Το ShieldDeck μπορεί να είναι η εφαρμογή αρχικής οθόνης</string>
+    <string name="setup_home_off">Το ShieldDeck δεν προτείνεται ποτέ ως εφαρμογή αρχικής οθόνης</string>
     <string name="setup_orientation">Προσανατολισμός</string>
     <string name="setup_orientation_auto">Αυτόματος οριζόντιος προσανατολισμός</string>
     <string name="setup_orientation_landscape">Οριζόντιος προσανατολισμός</string>
@@ -776,16 +776,16 @@
     <string name="store_website">Ιστότοπος</string>
     <string name="store_verified">Επιβεβαιωμένο</string>
     <string name="upd_title">Ενημερώσεις</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">Ελέγχθηκε %1$s</string>
     <string name="upd_not_checked">Δεν έχει ελεγχθεί ακόμα</string>
-    <string name="upd_perm_title">Επιτρέψτε στο DroidDeck να ενημερωθεί μόνο του</string>
+    <string name="upd_perm_title">Επιτρέψτε στο ShieldDeck να ενημερωθεί μόνο του</string>
     <string name="upd_perm_text">Στην επόμενη οθόνη, ενεργοποιήστε την Αποδοχή από αυτή την πηγή και επιστρέψτε εδώ. Η ενημέρωση συνεχίζεται μόνη της.</string>
     <string name="upd_open_settings">Άνοιγμα ρυθμίσεων</string>
     <string name="upd_not_now">Όχι τώρα</string>
     <string name="upd_signed_status">Υπογεγραμμένο διαφορετικά</string>
     <string name="upd_signed_headline">Δεν γίνεται ενημέρωση επί τόπου</string>
-    <string name="upd_signed_detail">Αυτή η έκδοση δεν είναι υπογεγραμμένη με το κλειδί κυκλοφορίας του DroidDeck, οπότε οι ενημερώσεις δεν μπορούν να εγκατασταθούν πάνω της. Απεγκαταστήστε την για να αλλάξετε.</string>
+    <string name="upd_signed_detail">Αυτή η έκδοση δεν είναι υπογεγραμμένη με το κλειδί κυκλοφορίας του ShieldDeck, οπότε οι ενημερώσεις δεν μπορούν να εγκατασταθούν πάνω της. Απεγκαταστήστε την για να αλλάξετε.</string>
     <string name="upd_available">Υπάρχει ενημέρωση</string>
     <string name="upd_blocked_status">Δεν γίνεται εγκατάσταση</string>
     <string name="upd_switch">Έτοιμο για αλλαγή</string>
@@ -807,7 +807,7 @@
     <string name="upd_stop_session">Διακόψτε την τρέχουσα συνεδρία για ενημέρωση.</string>
     <string name="upd_less">Λιγότερα</string>
     <string name="upd_more">Περισσότερα</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">Νέο build Preview</string>
     <string name="upd_new_test">Δοκιμαστικό build PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -822,7 +822,7 @@
     <string name="upd_tests_hint">Δοκιμάστε μια διόρθωση πριν κυκλοφορήσει</string>
     <string name="upd_tests_none">Κανένα προς το παρόν</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Δεν έχει κατασκευαστεί για αυτή την έκδοση του DroidDeck</string>
+    <string name="upd_not_built">Δεν έχει κατασκευαστεί για αυτή την έκδοση του ShieldDeck</string>
     <string name="upd_updated">Ενημερώθηκε %1$s</string>
     <string name="upd_test_name">η δοκιμή PR #%1$d</string>
     <string name="upd_while_ago">πριν από λίγο</string>
@@ -845,13 +845,13 @@
     <string name="gate_fix_for_me">Διόρθωσέ το για εμένα</string>
     <string name="gate_toggle_steps">Ενεργοποιήστε «Απενεργοποίηση περιορισμών θυγατρικών διαδικασιών» και επιστρέψτε εδώ. Αφήστε τις Επιλογές προγραμματιστή ενεργές, διαφορετικά ο διακόπτης απενεργοποιείται ξανά.</string>
     <string name="gate_open_dev">Άνοιγμα Επιλογών προγραμματιστή</string>
-    <string name="gate_no_toggle">Αυτή η έκδοση Android δεν έχει διακόπτη για αυτό, οπότε το DroidDeck το αλλάζει μέσω Ασύρματου εντοπισμού σφαλμάτων. Διαρκεί περίπου ένα λεπτό, χωρίς υπολογιστή.</string>
+    <string name="gate_no_toggle">Αυτή η έκδοση Android δεν έχει διακόπτη για αυτό, οπότε το ShieldDeck το αλλάζει μέσω Ασύρματου εντοπισμού σφαλμάτων. Διαρκεί περίπου ένα λεπτό, χωρίς υπολογιστή.</string>
     <string name="gate_needs_wifi">Ο Ασύρματος εντοπισμός σφαλμάτων απαιτεί Wi-Fi. Οποιοδήποτε δίκτυο λειτουργεί· δεν απαιτείται σύνδεση στο διαδίκτυο.</string>
-    <string name="gate_needs_notifications">Ο κωδικός σύζευξης εμφανίζεται σε ειδοποίηση. Επιτρέψτε ειδοποιήσεις για το DroidDeck, ή χρησιμοποιήστε Άλλοι τρόποι.</string>
+    <string name="gate_needs_notifications">Ο κωδικός σύζευξης εμφανίζεται σε ειδοποίηση. Επιτρέψτε ειδοποιήσεις για το ShieldDeck, ή χρησιμοποιήστε Άλλοι τρόποι.</string>
     <string name="gate_allow_notifications">Αποδοχή ειδοποιήσεων</string>
     <string name="gate_step1">Ανοίξτε Ρυθμίσεις → Επιλογές προγραμματιστή → Ασύρματος εντοπισμός σφαλμάτων και ενεργοποιήστε τον</string>
     <string name="gate_step2">Πατήστε «Σύζευξη συσκευής με κωδικό σύζευξης»</string>
-    <string name="gate_step3">Πληκτρολογήστε τον κωδικό στην ειδοποίηση του DroidDeck</string>
+    <string name="gate_step3">Πληκτρολογήστε τον κωδικό στην ειδοποίηση του ShieldDeck</string>
     <string name="gate_waiting">Αναμονή για το αναδυόμενο παράθυρο σύζευξης…</string>
     <string name="gate_code_needed">Βρέθηκε αναδυόμενο παράθυρο. Εισαγάγετε τον κωδικό του στην ειδοποίηση.</string>
     <string name="gate_status">Κατάσταση</string>
@@ -967,7 +967,7 @@
     <string name="desktop_removing">Αφαίρεση επιφάνειας εργασίας</string>
     <string name="desktop_removed">Η επιφάνεια εργασίας αφαιρέθηκε</string>
     <string name="desktop_cleaning_legacy">Αφαίρεση παλιών αρχείων LXQt</string>
-    <string name="desktop_removal_unknown">Ενημερώστε το DroidDeck πριν αφαιρέσετε αυτή την έκδοση επιφάνειας εργασίας.</string>
+    <string name="desktop_removal_unknown">Ενημερώστε το ShieldDeck πριν αφαιρέσετε αυτή την έκδοση επιφάνειας εργασίας.</string>
     <string name="content_linux_desktop">Επιφάνεια εργασίας Linux</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox και οι προσομοιωτές σας</string>
     <string name="games_empty">Τα παιχνίδια που εγκαθιστάτε στο Steam εμφανίζονται εδώ μετά τη συνεδρία.</string>
@@ -1009,11 +1009,11 @@
     <string name="gpu_set_with_runtime">Ορίζεται μαζί με το πρόγραμμα οδήγησης runtime: το %1$s φέρει και τα δύο.</string>
     <string name="gpu_runtime_hint">Χρησιμοποιείται από παιχνίδια και την επιφάνεια εργασίας.</string>
     <string name="gpu_runtime_default">Προεπιλογή runtime</string>
-    <string name="gpu_display_hint">Σχεδιάζει καρέ στην οθόνη. Εφαρμόζεται μετά την επανεκκίνηση του DroidDeck.</string>
+    <string name="gpu_display_hint">Σχεδιάζει καρέ στην οθόνη. Εφαρμόζεται μετά την επανεκκίνηση του ShieldDeck.</string>
     <string name="gpu_auto_by_gpu">Αυτόματο - επιλέγεται από τη GPU</string>
     <string name="gpu_manage">Λήψη, εισαγωγή ή διαγραφή…</string>
     <string name="gpu_in_use_caps">ΣΕ ΧΡΗΣΗ</string>
-    <string name="gpu_builtin">Τα προγράμματα οδήγησης ενσωματωμένα στο DroidDeck</string>
+    <string name="gpu_builtin">Τα προγράμματα οδήγησης ενσωματωμένα στο ShieldDeck</string>
     <string name="gpu_matched_pair">Τα προγράμματα οδήγησης runtime και οθόνης ορίζονται μαζί ως αντιστοιχισμένο ζεύγος.</string>
     <string name="gpu_recommended_for">Προτείνεται για αυτή τη GPU: %1$s.</string>
     <string name="gpu_refresh_hint">Ανανεώστε για να αναζητήσετε προγράμματα οδήγησης για αυτή τη GPU.</string>
@@ -1116,7 +1116,7 @@
     <string name="unfolded_controls_hint">Ξεδιπλωμένη, το παιχνίδι βρίσκεται πάνω από τις πινακίδες αφής και τις πίσω λαβές του Steam Deck. Διπλωμένη, το παιχνίδι καταλαμβάνει όλη την οθόνη.</string>
     <string name="pip_suspended">Σε αναστολή</string>
     <string name="pip_not_ready">Η λειτουργία εικόνας εντός εικόνας είναι διαθέσιμη μόλις η συνεδρία είναι έτοιμη.</string>
-    <string name="pip_permission">Επιτρέψτε την εικόνα εντός εικόνας για το DroidDeck στις ρυθμίσεις Android.</string>
+    <string name="pip_permission">Επιτρέψτε την εικόνα εντός εικόνας για το ShieldDeck στις ρυθμίσεις Android.</string>
     <string name="pip_unavailable">Το Android δεν μπόρεσε να ανοίξει τη λειτουργία εικόνας εντός εικόνας.</string>
     <string name="game_shortcut">Συντόμευση</string>
     <string name="game_shortcut_add">Προσθήκη στην αρχική οθόνη</string>
@@ -1126,7 +1126,7 @@
     <string name="game_link_copied">Ο σύνδεσμος εκκίνησης αντιγράφηκε</string>
     <string name="game_shortcut_unsupported">Αυτό το πρόγραμμα εκκίνησης δεν μπορεί να προσθέσει συντομεύσεις. Χρησιμοποιήστε την Αντιγραφή συνδέσμου εκκίνησης.</string>
     <string name="game_link_invalid">Μη έγκυρος σύνδεσμος εκκίνησης παιχνιδιού.</string>
-    <string name="game_link_missing">Αυτό το παιχνίδι δεν βρίσκεται πλέον στη βιβλιοθήκη DroidDeck σας.</string>
+    <string name="game_link_missing">Αυτό το παιχνίδι δεν βρίσκεται πλέον στη βιβλιοθήκη ShieldDeck σας.</string>
     <string name="game_link_session_busy">Διακόψτε την τρέχουσα συνεδρία πριν εκκινήσετε ένα παιχνίδι Steam.</string>
     <string name="game_link_failed">Δεν ήταν δυνατή η αποστολή του παιχνιδιού στο Steam. Δοκιμάστε να το εκκινήσετε ξανά.</string>
     <string name="setup_retry_removal">Επανάληψη κατάργησης</string>
@@ -1150,8 +1150,8 @@
         <item quantity="other">Έγινε εισαγωγή %1$d αρχείων από το %2$s στο %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">Έγινε εισαγωγή %1$d αρχείου από το %2$s στο %3$s. Τα παλιά αρχεία αποθήκευσης κρατήθηκαν ως αντίγραφο ασφαλείας στο Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">Έγινε εισαγωγή %1$d αρχείων από το %2$s στο %3$s. Τα παλιά αρχεία αποθήκευσης κρατήθηκαν ως αντίγραφο ασφαλείας στο Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">Έγινε εισαγωγή %1$d αρχείου από το %2$s στο %3$s. Τα παλιά αρχεία αποθήκευσης κρατήθηκαν ως αντίγραφο ασφαλείας στο Download/ShieldDeck/Saves/backups</item>
+        <item quantity="other">Έγινε εισαγωγή %1$d αρχείων από το %2$s στο %3$s. Τα παλιά αρχεία αποθήκευσης κρατήθηκαν ως αντίγραφο ασφαλείας στο Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">Επιλέξτε ένα zip αποθηκευμένων αρχείων για το %1$s</string>
     <string name="main_saves_exporting">Εξαγωγή %1$s</string>
@@ -1209,7 +1209,7 @@
 
     <string name="upd_unknown_apps_failed">Δεν ήταν δυνατό το άνοιγμα της ρύθμισης του Android «Εγκατάσταση άγνωστων εφαρμογών»</string>
     <string name="upd_couldnt_check">Δεν ήταν δυνατός ο έλεγχος: %1$s</string>
-    <string name="upd_no_download">Αυτή η έκδοση δεν έχει λήψη για αυτό το αντίγραφο του DroidDeck</string>
+    <string name="upd_no_download">Αυτή η έκδοση δεν έχει λήψη για αυτό το αντίγραφο του ShieldDeck</string>
     <string name="upd_stop_first">Διακόψτε πρώτα την τρέχουσα συνεδρία και μετά ενημερώστε</string>
     <string name="upd_stage_downloading">Λήψη</string>
     <string name="upd_stage_installing">Εγκατάσταση</string>
@@ -1238,16 +1238,16 @@
     <string name="drivers_recommended_unpublished">Τα προτεινόμενα προγράμματα οδήγησης δεν είναι δημοσιευμένα αυτή τη στιγμή</string>
     <string name="drivers_downloading_pair">Λήψη %1$s %2$s…</string>
     <string name="drivers_updated_to">Ενημερώθηκε σε %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Ενημερώθηκε σε %1$s %2$s. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του DroidDeck.</string>
+    <string name="drivers_updated_to_restart">Ενημερώθηκε σε %1$s %2$s. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του ShieldDeck.</string>
     <string name="drivers_switched_to">Έγινε αλλαγή σε %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Έγινε αλλαγή σε %1$s %2$s. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του DroidDeck.</string>
+    <string name="drivers_switched_to_restart">Έγινε αλλαγή σε %1$s %2$s. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του ShieldDeck.</string>
     <string name="drivers_using">Χρήση %1$s %2$s.</string>
-    <string name="drivers_using_restart">Χρήση %1$s %2$s. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του DroidDeck.</string>
+    <string name="drivers_using_restart">Χρήση %1$s %2$s. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του ShieldDeck.</string>
     <string name="drivers_not_a_driver">Δεν είναι zip προγράμματος οδήγησης: ούτε πρόγραμμα οδήγησης AdrenoTools, ούτε -Linux Turnip, ούτε πακέτο Android + Linux</string>
     <string name="drivers_import_failed">Η εισαγωγή απέτυχε: %1$s</string>
     <string name="drivers_imported_unnamed">Έγινε εισαγωγή προγράμματος οδήγησης</string>
     <string name="drivers_using_bundle">Χρήση %1$s ως πρόγραμμα οδήγησης runtime και οθόνης.</string>
-    <string name="drivers_using_bundle_restart">Χρήση %1$s ως πρόγραμμα οδήγησης runtime και οθόνης. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του DroidDeck.</string>
+    <string name="drivers_using_bundle_restart">Χρήση %1$s ως πρόγραμμα οδήγησης runtime και οθόνης. Το πρόγραμμα οδήγησης οθόνης εφαρμόζεται μετά την επανεκκίνηση του ShieldDeck.</string>
     <string name="drivers_deleted_bundle">Διαγράφηκε %1$s (και τα δύο προγράμματα οδήγησης)</string>
     <string name="drivers_deleted">Διαγράφηκε %1$s</string>
     <string name="drivers_release_status">Πιο πρόσφατο: %1$s · έλεγχος %2$s</string>
@@ -1264,7 +1264,7 @@
         <item quantity="one">%1$d ημέρα πριν</item>
         <item quantity="other">%1$d ημέρες πριν</item>
     </plurals>
-    <string name="drivers_checking_sources">Έλεγχος Banners-Turnip, WinNative και DroidDeck…</string>
+    <string name="drivers_checking_sources">Έλεγχος Banners-Turnip, WinNative και ShieldDeck…</string>
     <string name="drivers_check_failed">ο έλεγχος απέτυχε</string>
     <string name="drivers_installed_pick_either">Εγκατεστημένο %1$s - επιλέξτε το σε οποιαδήποτε λίστα για να ορίσετε και τα δύο προγράμματα οδήγησης</string>
     <string name="drivers_installed_pick">Εγκατεστημένο %1$s - επιλέξτε το στο μενού</string>
@@ -1639,7 +1639,7 @@
     <string name="adbfix_no_pairing">Δεν υπάρχει αποθηκευμένη σύζευξη ασύρματου εντοπισμού σφαλμάτων</string>
     <string name="adbfix_enter_address">Εισαγάγετε την τρέχουσα διεύθυνση IP &amp; θύρα του ασύρματου εντοπισμού σφαλμάτων</string>
 
-    <string name="adbpair_timed_out">Λήξη χρόνου αναμονής για το αναδυόμενο παράθυρο σύζευξης. Δοκιμάστε ξανά από το DroidDeck.</string>
+    <string name="adbpair_timed_out">Λήξη χρόνου αναμονής για το αναδυόμενο παράθυρο σύζευξης. Δοκιμάστε ξανά από το ShieldDeck.</string>
     <string name="adbpair_discovery_failed_code">Δεν ήταν δυνατή η αναζήτηση του αναδυόμενου παραθύρου σύζευξης (%1$d). Ελέγξτε ότι το Wi-Fi είναι ενεργό.</string>
     <string name="adbpair_discovery_failed">Δεν ήταν δυνατή η αναζήτηση του αναδυόμενου παραθύρου σύζευξης: %1$s</string>
     <string name="adbpair_six_digits">Εισαγάγετε όλα τα 6 ψηφία του κωδικού</string>
@@ -1661,20 +1661,20 @@
     <string name="adbpair_enter_code">Εισαγωγή κωδικού</string>
     <string name="adbpair_title_working">Ρύθμιση του Steam</string>
     <string name="adbpair_title_done">Το Steam είναι έτοιμο</string>
-    <string name="adbpair_done_text">Πατήστε για να επιστρέψετε στο DroidDeck. Μπορείτε να απενεργοποιήσετε τον ασύρματο εντοπισμό σφαλμάτων τώρα.</string>
+    <string name="adbpair_done_text">Πατήστε για να επιστρέψετε στο ShieldDeck. Μπορείτε να απενεργοποιήσετε τον ασύρματο εντοπισμό σφαλμάτων τώρα.</string>
     <string name="adbpair_title_failed">Η ρύθμιση ασύρματου εντοπισμού σφαλμάτων διακόπηκε</string>
 
     <string name="selfinst_http">Η λήψη απάντησε με HTTP %1$d</string>
     <string name="selfinst_size_mismatch">Το μέγεθος της λήψης δεν ταίριαζε με το δημοσιευμένο APK και απορρίφθηκε - δοκιμάστε ξανά</string>
     <string name="selfinst_checksum_mismatch">Η λήψη δεν ταίριαζε με το άθροισμα ελέγχου της και απορρίφθηκε - δοκιμάστε ξανά</string>
     <string name="selfinst_wrong_package">Η ενημέρωση είναι για το πακέτο Android %1$s, όχι για το %2$s</string>
-    <string name="selfinst_metadata_signer">Τα μεταδεδομένα της ενημέρωσης δεν αναφέρουν το κλειδί υπογραφής κυκλοφορίας του DroidDeck</string>
+    <string name="selfinst_metadata_signer">Τα μεταδεδομένα της ενημέρωσης δεν αναφέρουν το κλειδί υπογραφής κυκλοφορίας του ShieldDeck</string>
     <string name="selfinst_unreadable">Το Android δεν μπόρεσε να διαβάσει το ληφθέν APK</string>
     <string name="selfinst_apk_wrong_package">Το ληφθέν APK είναι για το %1$s, όχι για το %2$s</string>
     <string name="selfinst_version_mismatch">Το ληφθέν APK αναφέρει versionCode %1$d, όχι το δημοσιευμένο %2$d</string>
     <string name="selfinst_downgrade">Το Android δεν θα εγκαταστήσει το versionCode %1$d πάνω από το εγκατεστημένο %2$d</string>
     <string name="selfinst_no_signing">Το ληφθέν APK δεν έχει πληροφορίες υπογραφής</string>
-    <string name="selfinst_wrong_signer">Το ληφθέν APK δεν είναι υπογεγραμμένο με το κλειδί κυκλοφορίας του DroidDeck</string>
+    <string name="selfinst_wrong_signer">Το ληφθέν APK δεν είναι υπογεγραμμένο με το κλειδί κυκλοφορίας του ShieldDeck</string>
     <string name="appupd_http">Ο κατάλογος ενημερώσεων απάντησε με HTTP %1$d</string>
 
     <string name="loadstate_starting">Εκκίνηση της συνεδρίας…</string>
@@ -1758,7 +1758,7 @@
     <string name="gpuinfo_supported">Υποστηρίζεται</string>
     <string name="gpuinfo_experimental">Πειραματικό: τα προγράμματα οδήγησής του είναι δοκιμαστικές εκδόσεις</string>
     <string name="gpuinfo_below_tested">Κάτω από το δοκιμασμένο υλικό (Adreno 725 και νεότερα): ίσως να μην εκτελεστεί</string>
-    <string name="gpuinfo_unsupported">Δεν υποστηρίζεται: το DroidDeck χρειάζεται GPU Adreno (Snapdragon)</string>
+    <string name="gpuinfo_unsupported">Δεν υποστηρίζεται: το ShieldDeck χρειάζεται GPU Adreno (Snapdragon)</string>
 
     <string name="turnip_rate_limited">Το όριο ρυθμού του GitHub ξεπεράστηκε - δοκιμάστε ξανά αργότερα</string>
     <string name="turnip_github_http">Το GitHub απάντησε με HTTP %1$d</string>
@@ -1801,10 +1801,10 @@
     <string name="phantom_instructions_not_applicable">Αυτή η έκδοση Android δεν χρησιμοποιεί αυτό το όριο.</string>
     <string name="phantom_fix_toggle">Ενεργοποιήστε την «Απενεργοποίηση περιορισμών θυγατρικών διαδικασιών» στις Επιλογές προγραμματιστή και αφήστε τις Επιλογές προγραμματιστή ενεργές μετά.</string>
     <string name="phantom_fix_no_toggle">Αυτή η έκδοση Android δεν έχει διακόπτη για αυτό. Χρησιμοποιήστε τον ασύρματο εντοπισμό σφαλμάτων για να το αλλάξετε από αυτή τη συσκευή.</string>
-    <string name="upd_block_no_apk">Αυτή η έκδοση δεν έχει λήψη για αυτό το αντίγραφο του DroidDeck.</string>
+    <string name="upd_block_no_apk">Αυτή η έκδοση δεν έχει λήψη για αυτό το αντίγραφο του ShieldDeck.</string>
     <string name="upd_block_version_code">Το Android δεν θα το εγκαταστήσει πάνω από αυτήν την έκδοση επειδή το versionCode %1$d είναι μικρότερο από το εγκατεστημένο %2$d.</string>
     <string name="upd_fail_downgrade">Το Android δεν θα εγκαταστήσει μια παλιότερη έκδοση πάνω από μια νεότερη. Παραμείνετε σε αυτή την έκδοση μέχρι να την προφτάσει το κανάλι.</string>
-    <string name="upd_fail_signature">Αυτό το αντίγραφο του DroidDeck είναι υπογεγραμμένο διαφορετικά (τοπική έκδοση;), οπότε το Android δεν θα το ενημερώσει επί τόπου.</string>
+    <string name="upd_fail_signature">Αυτό το αντίγραφο του ShieldDeck είναι υπογεγραμμένο διαφορετικά (τοπική έκδοση;), οπότε το Android δεν θα το ενημερώσει επί τόπου.</string>
     <string name="upd_fail_storage">Δεν υπάρχει αρκετός ελεύθερος χώρος για την ενημέρωση.</string>
     <string name="upd_fail_aborted">Η ενημέρωση ακυρώθηκε.</string>
     <string name="upd_fail_with_message">Η ενημέρωση δεν εγκαταστάθηκε: %1$s</string>
@@ -1829,7 +1829,7 @@
     <string name="gstore_volume_free">%1$s · %2$s ελεύθερα</string>
     <string name="mode_storage_auto_short">Αυτόματο</string>
     <string name="appupd_catalog_rejected">Ο κατάλογος ενημερώσεων απέτυχε στους ελέγχους του (%1$s)</string>
-    <string name="main_adb_clip_label">Ρύθμιση θυγατρικών διαδικασιών DroidDeck</string>
+    <string name="main_adb_clip_label">Ρύθμιση θυγατρικών διαδικασιών ShieldDeck</string>
     <string name="setup_signed_in_offline_unnamed">Συνδεδεμένος · λειτουργία εκτός σύνδεσης</string>
     <string name="setup_signed_in_unnamed">Συνδεδεμένος</string>
     <string name="driver_tag_bundled">ΣΕ ΠΑΚΕΤΟ</string>
@@ -2145,7 +2145,7 @@
     <string name="touch_speed_normal">Κανονική</string>
     <string name="touch_speed_fast">Ταχεία</string>
     <string name="touch_edit_layout">Επεξεργασία διάταξης</string>
-    <string name="touch_droiddeck_menu">Μενού DroidDeck</string>
+    <string name="touch_droiddeck_menu">Μενού ShieldDeck</string>
     <string name="touch_drag_hint">Σύρετε τα χειριστήρια στην οθόνη</string>
     <string name="touch_arrange">Διάταξη</string>
     <string name="touch_discard">Απόρριψη</string>

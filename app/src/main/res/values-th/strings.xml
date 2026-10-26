@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>การเริ่มใช้งานครั้งแรกจะดาวน์โหลด Steam ซึ่งอาจใช้เวลาสักครู่</item>
         <item>ตามค่าเริ่มต้น การออกจากแอปจะหยุด Steam ไว้ชั่วคราว แล้วกลับมาทำงานต่อจากจุดเดิมเมื่อคุณเปิดแอปอีกครั้ง</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">กดอีกครั้งเพื่อลบ</string>
     <string name="user_apps_stop_session">หยุดเซสชันก่อนเพื่อลบ</string>
     <string name="user_apps_script_linked">เรียกใช้ %1$s จากโฟลเดอร์ของมัน โดยเชื่อมโยงเข้าสู่เซสชันในตำแหน่งเดิม การลบแอปจะไม่กระทบโฟลเดอร์นั้น</string>
-    <string name="user_apps_script_copied">เรียกใช้ %1$s จากสำเนาโฟลเดอร์ของมันภายใน DroidDeck การลบแอปจะลบสำเนานี้ ไม่ใช่ต้นฉบับ</string>
+    <string name="user_apps_script_copied">เรียกใช้ %1$s จากสำเนาโฟลเดอร์ของมันภายใน ShieldDeck การลบแอปจะลบสำเนานี้ ไม่ใช่ต้นฉบับ</string>
     <string name="user_apps_runtime_required">ติดตั้งรันไทม์ Linux ก่อน</string>
     <string name="user_apps_file_gone">ไฟล์หายไปแล้ว</string>
     <string name="user_apps_no_space">พื้นที่ว่างไม่พอ: การคัดลอกโฟลเดอร์ต้องใช้ %1$s</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">ปิด</string>
     <string name="app_fex_hint">FEX รันโปรแกรม Linux x86 บนอุปกรณ์ ARM64 นี้ อัตโนมัติจะใช้งานเมื่อโปรแกรมถูกสร้างมาสำหรับ x86</string>
     <string name="app_fex_x86">%1$s ผ่าน FEX</string>
-    <string name="app_fex_not_ready">โปรแกรมนี้สร้างมาสำหรับพีซี %1$s และรันผ่าน FEX ซึ่งยังไม่ได้ตั้งค่า เปิด Steam สักครั้งขณะลงชื่อเข้าใช้: DroidDeck จะดาวน์โหลด FEX และ Steam Linux Runtime ที่จำเป็น จากนั้นโปรแกรมนี้จะเปิดขึ้น</string>
+    <string name="app_fex_not_ready">โปรแกรมนี้สร้างมาสำหรับพีซี %1$s และรันผ่าน FEX ซึ่งยังไม่ได้ตั้งค่า เปิด Steam สักครั้งขณะลงชื่อเข้าใช้: ShieldDeck จะดาวน์โหลด FEX และ Steam Linux Runtime ที่จำเป็น จากนั้นโปรแกรมนี้จะเปิดขึ้น</string>
     <string name="session_end_program">โปรแกรมนี้</string>
     <string name="session_end_fex_missing">%1$s สร้างมาสำหรับพีซี x86 และรันผ่าน FEX ซึ่งยังไม่ได้ติดตั้ง เริ่ม Steam สักครั้งขณะลงชื่อเข้าใช้และให้ดาวน์โหลด FEX และ Steam Linux Runtime จากนั้นเริ่มโปรแกรมนี้อีกครั้ง</string>
     <string name="add_app_flatpak_hint">รหัสแอป Flathub หรือหน้า Flathub ของมัน จะตั้งค่า Flatpak ก่อนหากยังไม่ได้ตั้งค่า</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">บันทึก</string>
     <string name="add_app_checking_folder">กำลังตรวจสอบโฟลเดอร์…</string>
     <string name="add_app_folder_linked">โฟลเดอร์ของมันเชื่อมโยงเข้าสู่เซสชัน: %1$s</string>
-    <string name="add_app_folder_copied">โฟลเดอร์ของมันมีโปรแกรม Linux ซึ่งพื้นที่จัดเก็บที่ใช้ร่วมกันไม่สามารถรันได้ จึงถูกคัดลอกเข้าสู่ DroidDeck (%1$s)</string>
+    <string name="add_app_folder_copied">โฟลเดอร์ของมันมีโปรแกรม Linux ซึ่งพื้นที่จัดเก็บที่ใช้ร่วมกันไม่สามารถรันได้ จึงถูกคัดลอกเข้าสู่ ShieldDeck (%1$s)</string>
     <string name="add_app_confirm">เพิ่ม</string>
     <string name="add_app_cancel">ยกเลิก</string>
     <string name="add_app_runtime_required">ติดตั้งรันไทม์ Linux จากการตั้งค่าก่อน</string>
     <string name="add_app_busy">รอให้ %1$s เสร็จก่อน</string>
     <string name="steam_compat_label">เข้ากันได้</string>
-    <string name="proton_compatible_note">บิลด์ที่มีเครื่องหมาย “%1$s” ในเมนู Compatibility ของ Steam มีการแก้ไข prefix ของ DroidDeck และสามารถเริ่มเกมบนอุปกรณ์นี้ได้ ค่าเริ่มต้นคือ Proton Experimental ARM64 (%1$s) หรือ Proton 11.0 ARM64 (%1$s) เมื่อติดตั้งบิลด์ใหม่กว่านั้นแล้ว รายการ Proton ของ Valve เองที่ไม่มีเครื่องหมายนี้ไม่สามารถเริ่มเกมบนอุปกรณ์นี้ได้</string>
+    <string name="proton_compatible_note">บิลด์ที่มีเครื่องหมาย “%1$s” ในเมนู Compatibility ของ Steam มีการแก้ไข prefix ของ ShieldDeck และสามารถเริ่มเกมบนอุปกรณ์นี้ได้ ค่าเริ่มต้นคือ Proton Experimental ARM64 (%1$s) หรือ Proton 11.0 ARM64 (%1$s) เมื่อติดตั้งบิลด์ใหม่กว่านั้นแล้ว รายการ Proton ของ Valve เองที่ไม่มีเครื่องหมายนี้ไม่สามารถเริ่มเกมบนอุปกรณ์นี้ได้</string>
     <string name="proton_installed_compatible">ติดตั้งแล้ว %1$s · %2$s</string>
     <string name="common_cancel">ยกเลิก</string>
     <string name="common_auto">อัตโนมัติ</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">เลื่อนการหยุดพื้นหลังชั่วคราวออกไปขณะ Steam กำลังดาวน์โหลดอยู่</string>
     <string name="mode_suspend_note">อัตโนมัติจะหยุดชั่วคราวเมื่ออยู่ในพื้นหลังและดำเนินการต่อเมื่อแสดงผล กำหนดเองรอการกดดำเนินการต่อ ไม่มีวันทำงานต่อเนื่องตลอด</string>
     <string name="mode_startup">การเริ่มทำงาน</string>
-    <string name="mode_steam_startup">เริ่ม Steam พร้อมกับ DroidDeck</string>
-    <string name="mode_steam_startup_hint">เปิดเซสชัน Steam เมื่อ DroidDeck เริ่มทำงาน</string>
+    <string name="mode_steam_startup">เริ่ม Steam พร้อมกับ ShieldDeck</string>
+    <string name="mode_steam_startup_hint">เปิดเซสชัน Steam เมื่อ ShieldDeck เริ่มทำงาน</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">กำลังค้นหารุ่นที่เผยแพร่…</string>
     <string name="mode_decky_ready">พร้อมติดตั้ง %1$s</string>
@@ -372,7 +372,7 @@
     <string name="mode_wifi_open_settings">เปิดการตั้งค่า</string>
     <string name="mode_wifi_continue">ดำเนินการต่อ</string>
     <string name="mode_wifi_explain_title">เปิดการค้นหา Wi-Fi?</string>
-    <string name="mode_wifi_explain_text">Android กำหนดให้ต้องมีสิทธิ์ตำแหน่งเพื่ออ่านชื่อ Wi-Fi และค้นหาเครือข่ายใกล้เคียง DroidDeck ใช้สิทธิ์นี้เพื่อแสดงเครือข่ายเหล่านั้นใน Steam เราไม่ติดตามตำแหน่งของคุณ การเข้าถึงอินเทอร์เน็ตทำงานได้โดยไม่ต้องมีสิทธิ์นี้</string>
+    <string name="mode_wifi_explain_text">Android กำหนดให้ต้องมีสิทธิ์ตำแหน่งเพื่ออ่านชื่อ Wi-Fi และค้นหาเครือข่ายใกล้เคียง ShieldDeck ใช้สิทธิ์นี้เพื่อแสดงเครือข่ายเหล่านั้นใน Steam เราไม่ติดตามตำแหน่งของคุณ การเข้าถึงอินเทอร์เน็ตทำงานได้โดยไม่ต้องมีสิทธิ์นี้</string>
     <string name="mode_storage">พื้นที่จัดเก็บเกม</string>
     <string name="mode_storage_auto">อัตโนมัติ - การ์ด SD เมื่อมีอยู่ รวมกับโฟลเดอร์ Games ของคุณ</string>
     <string name="mode_storage_auto_none">อัตโนมัติ - โฟลเดอร์ Games ของคุณ รวมกับการ์ด SD เมื่อมีอยู่ (ยังไม่มีในขณะนี้)</string>
@@ -467,7 +467,7 @@
     <string name="comp_applies_next_game">จะมีผลในครั้งถัดไปที่เกมเริ่มทำงาน</string>
     <string name="comp_import_zip">นำเข้า .zip</string>
     <string name="comp_reading">กำลังอ่าน Proton…</string>
-    <string name="comp_no_proton">ยังไม่มี Proton ติดตั้งอยู่ เริ่ม Steam สักครั้งเพื่อดาวน์โหลด Proton ARM64 ของมัน หรือเพิ่ม GE-Proton, CachyOS หรือ DroidDeck-Proton จากการตั้งค่า</string>
+    <string name="comp_no_proton">ยังไม่มี Proton ติดตั้งอยู่ เริ่ม Steam สักครั้งเพื่อดาวน์โหลด Proton ARM64 ของมัน หรือเพิ่ม GE-Proton, CachyOS หรือ ShieldDeck-Proton จากการตั้งค่า</string>
     <string name="comp_original">ต้นฉบับ · %1$s</string>
     <string name="comp_this_build">%1$s · บิลด์นี้</string>
     <string name="comp_earlier_build">%1$s · บิลด์ก่อนหน้า</string>
@@ -688,13 +688,13 @@
     <string name="setup_language_system">ค่าเริ่มต้นของระบบ (%1$s)</string>
     <string name="setup_language_system_short">ค่าเริ่มต้นของระบบ</string>
     <string name="setup_app_scale">ขนาดแอป</string>
-    <string name="setup_app_scale_hint">ข้อความและการควบคุมของ DroidDeck</string>
+    <string name="setup_app_scale_hint">ข้อความและการควบคุมของ ShieldDeck</string>
     <string name="setup_app_scale_default">%1$d%% (ค่าเริ่มต้น)</string>
     <string name="setup_theme">ธีม</string>
     <string name="setup_theme_hint">รูปลักษณ์ของตัวเปิดแอป</string>
     <string name="setup_home">ใช้เป็นหน้าจอหลัก</string>
-    <string name="setup_home_on">DroidDeck สามารถเป็นแอปหน้าจอหลักได้</string>
-    <string name="setup_home_off">DroidDeck จะไม่ถูกเสนอให้เป็นแอปหน้าจอหลัก</string>
+    <string name="setup_home_on">ShieldDeck สามารถเป็นแอปหน้าจอหลักได้</string>
+    <string name="setup_home_off">ShieldDeck จะไม่ถูกเสนอให้เป็นแอปหน้าจอหลัก</string>
     <string name="setup_orientation">การวางแนว</string>
     <string name="setup_orientation_auto">แนวนอนอัตโนมัติ</string>
     <string name="setup_orientation_landscape">แนวนอน</string>
@@ -773,16 +773,16 @@
     <string name="store_website">เว็บไซต์</string>
     <string name="store_verified">ยืนยันแล้ว</string>
     <string name="upd_title">การอัปเดต</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">ตรวจสอบล่าสุด %1$s</string>
     <string name="upd_not_checked">ยังไม่ตรวจสอบ</string>
-    <string name="upd_perm_title">ให้ DroidDeck อัปเดตตัวเองได้</string>
+    <string name="upd_perm_title">ให้ ShieldDeck อัปเดตตัวเองได้</string>
     <string name="upd_perm_text">ในหน้าจอถัดไป เปิด “อนุญาตจากแหล่งนี้” แล้วกลับมาที่นี่ การอัปเดตจะดำเนินต่อไปเอง</string>
     <string name="upd_open_settings">เปิดการตั้งค่า</string>
     <string name="upd_not_now">ไม่ใช่ตอนนี้</string>
     <string name="upd_signed_status">ลงนามต่างกัน</string>
     <string name="upd_signed_headline">อัปเดตทับไม่ได้</string>
-    <string name="upd_signed_detail">สำเนานี้ไม่ได้ลงนามด้วยคีย์รุ่นวางจำหน่ายของ DroidDeck จึงไม่สามารถติดตั้งอัปเดตทับได้ ถอนการติดตั้งเพื่อเปลี่ยน</string>
+    <string name="upd_signed_detail">สำเนานี้ไม่ได้ลงนามด้วยคีย์รุ่นวางจำหน่ายของ ShieldDeck จึงไม่สามารถติดตั้งอัปเดตทับได้ ถอนการติดตั้งเพื่อเปลี่ยน</string>
     <string name="upd_available">มีอัปเดต</string>
     <string name="upd_blocked_status">ติดตั้งไม่ได้</string>
     <string name="upd_switch">พร้อมเปลี่ยน</string>
@@ -804,7 +804,7 @@
     <string name="upd_stop_session">หยุดเซสชันที่กำลังทำงานอยู่เพื่ออัปเดต</string>
     <string name="upd_less">น้อยลง</string>
     <string name="upd_more">เพิ่มเติม</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">บิลด์ Preview ใหม่</string>
     <string name="upd_new_test">บิลด์ทดสอบ PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -819,7 +819,7 @@
     <string name="upd_tests_hint">ลองการแก้ไขก่อนเผยแพร่จริง</string>
     <string name="upd_tests_none">ไม่มีในขณะนี้</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">ไม่ได้สร้างไว้สำหรับสำเนานี้ของ DroidDeck</string>
+    <string name="upd_not_built">ไม่ได้สร้างไว้สำหรับสำเนานี้ของ ShieldDeck</string>
     <string name="upd_updated">อัปเดตแล้ว %1$s</string>
     <string name="upd_test_name">การทดสอบ PR #%1$d</string>
     <string name="upd_while_ago">สักพักที่แล้ว</string>
@@ -839,13 +839,13 @@
     <string name="gate_fix_for_me">แก้ให้ฉันเลย</string>
     <string name="gate_toggle_steps">เปิด “Disable child process restrictions” แล้วกลับมาที่นี่ เปิดตัวเลือกสำหรับนักพัฒนาไว้เสมอ ไม่เช่นนั้นสวิตช์จะปิดลงอีก</string>
     <string name="gate_open_dev">เปิดตัวเลือกสำหรับนักพัฒนา</string>
-    <string name="gate_no_toggle">Android รุ่นนี้ไม่มีสวิตช์สำหรับสิ่งนี้ ดังนั้น DroidDeck จะเปลี่ยนค่าผ่าน Wireless debugging ใช้เวลาประมาณหนึ่งนาที ไม่ต้องใช้คอมพิวเตอร์</string>
+    <string name="gate_no_toggle">Android รุ่นนี้ไม่มีสวิตช์สำหรับสิ่งนี้ ดังนั้น ShieldDeck จะเปลี่ยนค่าผ่าน Wireless debugging ใช้เวลาประมาณหนึ่งนาที ไม่ต้องใช้คอมพิวเตอร์</string>
     <string name="gate_needs_wifi">Wireless debugging ต้องใช้ Wi-Fi เครือข่ายใดก็ได้ ไม่จำเป็นต้องมีอินเทอร์เน็ต</string>
-    <string name="gate_needs_notifications">รหัสจับคู่จะแสดงในการแจ้งเตือน อนุญาตการแจ้งเตือนสำหรับ DroidDeck หรือใช้วิธีอื่น</string>
+    <string name="gate_needs_notifications">รหัสจับคู่จะแสดงในการแจ้งเตือน อนุญาตการแจ้งเตือนสำหรับ ShieldDeck หรือใช้วิธีอื่น</string>
     <string name="gate_allow_notifications">อนุญาตการแจ้งเตือน</string>
     <string name="gate_step1">เปิดการตั้งค่า → ตัวเลือกสำหรับนักพัฒนา → Wireless debugging แล้วเปิดใช้งาน</string>
     <string name="gate_step2">แตะ “Pair device with pairing code”</string>
-    <string name="gate_step3">พิมพ์รหัสลงในการแจ้งเตือนของ DroidDeck</string>
+    <string name="gate_step3">พิมพ์รหัสลงในการแจ้งเตือนของ ShieldDeck</string>
     <string name="gate_waiting">กำลังรอป๊อปอัปการจับคู่…</string>
     <string name="gate_code_needed">พบป๊อปอัปแล้ว กรอกรหัสในการแจ้งเตือน</string>
     <string name="gate_status">สถานะ</string>
@@ -961,7 +961,7 @@
     <string name="desktop_removing">กำลังลบเดสก์ท็อป</string>
     <string name="desktop_removed">ลบเดสก์ท็อปแล้ว</string>
     <string name="desktop_cleaning_legacy">กำลังลบไฟล์ LXQt เก่า</string>
-    <string name="desktop_removal_unknown">อัปเดต DroidDeck ก่อนลบเดสก์ท็อปรุ่นนี้</string>
+    <string name="desktop_removal_unknown">อัปเดต ShieldDeck ก่อนลบเดสก์ท็อปรุ่นนี้</string>
     <string name="content_linux_desktop">เดสก์ท็อป Linux</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox และโปรแกรมจำลองของคุณ</string>
     <string name="games_empty">เกมที่คุณติดตั้งใน Steam จะปรากฏที่นี่หลังจากจบเซสชัน</string>
@@ -1003,11 +1003,11 @@
     <string name="gpu_set_with_runtime">ตั้งค่าร่วมกับไดรเวอร์รันไทม์: %1$s รวมทั้งสองอย่าง</string>
     <string name="gpu_runtime_hint">ใช้โดยเกมและเดสก์ท็อป</string>
     <string name="gpu_runtime_default">ค่าเริ่มต้นของรันไทม์</string>
-    <string name="gpu_display_hint">วาดเฟรมบนหน้าจอ จะมีผลหลัง DroidDeck รีสตาร์ท</string>
+    <string name="gpu_display_hint">วาดเฟรมบนหน้าจอ จะมีผลหลัง ShieldDeck รีสตาร์ท</string>
     <string name="gpu_auto_by_gpu">อัตโนมัติ - เลือกตาม GPU</string>
     <string name="gpu_manage">ดาวน์โหลด นำเข้า หรือลบ…</string>
     <string name="gpu_in_use_caps">กำลังใช้งาน</string>
-    <string name="gpu_builtin">ไดรเวอร์ที่มีในตัว DroidDeck</string>
+    <string name="gpu_builtin">ไดรเวอร์ที่มีในตัว ShieldDeck</string>
     <string name="gpu_matched_pair">ไดรเวอร์รันไทม์และแสดงผลตั้งค่าร่วมกันเป็นคู่ที่เข้ากัน</string>
     <string name="gpu_recommended_for">แนะนำสำหรับ GPU นี้: %1$s</string>
     <string name="gpu_refresh_hint">รีเฟรชเพื่อค้นหาไดรเวอร์สำหรับ GPU นี้</string>
@@ -1110,7 +1110,7 @@
     <string name="unfolded_controls_hint">เมื่อกางออก เกมจะอยู่เหนือแทร็กแพดและปุ่มด้านหลังของ Steam Deck เมื่อพับ เกมจะแสดงเต็มจอ</string>
     <string name="pip_suspended">หยุดชั่วคราว</string>
     <string name="pip_not_ready">ภาพซ้อนภาพจะพร้อมใช้งานเมื่อเซสชันพร้อม</string>
-    <string name="pip_permission">อนุญาตภาพซ้อนภาพสำหรับ DroidDeck ในการตั้งค่า Android</string>
+    <string name="pip_permission">อนุญาตภาพซ้อนภาพสำหรับ ShieldDeck ในการตั้งค่า Android</string>
     <string name="pip_unavailable">Android ไม่สามารถเปิดภาพซ้อนภาพได้</string>
     <string name="game_shortcut">ช็อตคัต</string>
     <string name="game_shortcut_add">เพิ่มไปยังหน้าจอหลัก</string>
@@ -1120,7 +1120,7 @@
     <string name="game_link_copied">คัดลอกลิงก์เปิดเกมแล้ว</string>
     <string name="game_shortcut_unsupported">ตัวเปิดแอปนี้ไม่สามารถเพิ่มช็อตคัตได้ ใช้คัดลอกลิงก์เปิดเกมแทน</string>
     <string name="game_link_invalid">ลิงก์เปิดเกมไม่ถูกต้อง</string>
-    <string name="game_link_missing">เกมนี้ไม่มีอยู่ในไลบรารี DroidDeck ของคุณแล้ว</string>
+    <string name="game_link_missing">เกมนี้ไม่มีอยู่ในไลบรารี ShieldDeck ของคุณแล้ว</string>
     <string name="game_link_session_busy">หยุดเซสชันปัจจุบันก่อนเปิดเกม Steam</string>
     <string name="game_link_failed">ไม่สามารถส่งเกมไปยัง Steam ได้ ลองเปิดอีกครั้ง</string>
     <string name="setup_retry_removal">ลองลบใหม่</string>
@@ -1143,7 +1143,7 @@
         <item quantity="other">นำเข้า %1$d ไฟล์จาก %2$s สู่ %3$s แล้ว</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="other">นำเข้า %1$d ไฟล์จาก %2$s สู่ %3$s แล้ว เซฟเก่าสำรองไว้ที่ Download/DroidDeck/Saves/backups</item>
+        <item quantity="other">นำเข้า %1$d ไฟล์จาก %2$s สู่ %3$s แล้ว เซฟเก่าสำรองไว้ที่ Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">เลือกไฟล์ zip เซฟสำหรับ %1$s</string>
     <string name="main_saves_exporting">กำลังส่งออก %1$s</string>
@@ -1199,7 +1199,7 @@
 
     <string name="upd_unknown_apps_failed">ไม่สามารถเปิดการตั้งค่า “Install unknown apps” ของ Android ได้</string>
     <string name="upd_couldnt_check">ไม่สามารถตรวจสอบได้: %1$s</string>
-    <string name="upd_no_download">บิลด์นี้ไม่มีให้ดาวน์โหลดสำหรับสำเนานี้ของ DroidDeck</string>
+    <string name="upd_no_download">บิลด์นี้ไม่มีให้ดาวน์โหลดสำหรับสำเนานี้ของ ShieldDeck</string>
     <string name="upd_stop_first">หยุดเซสชันที่กำลังทำงานก่อน แล้วจึงอัปเดต</string>
     <string name="upd_stage_downloading">กำลังดาวน์โหลด</string>
     <string name="upd_stage_installing">กำลังติดตั้ง</string>
@@ -1228,16 +1228,16 @@
     <string name="drivers_recommended_unpublished">ไดรเวอร์ที่แนะนำยังไม่ได้เผยแพร่ในขณะนี้</string>
     <string name="drivers_downloading_pair">กำลังดาวน์โหลด %1$s %2$s…</string>
     <string name="drivers_updated_to">อัปเดตเป็น %1$s %2$s แล้ว</string>
-    <string name="drivers_updated_to_restart">อัปเดตเป็น %1$s %2$s แล้ว ไดรเวอร์แสดงผลจะมีผลหลัง DroidDeck รีสตาร์ท</string>
+    <string name="drivers_updated_to_restart">อัปเดตเป็น %1$s %2$s แล้ว ไดรเวอร์แสดงผลจะมีผลหลัง ShieldDeck รีสตาร์ท</string>
     <string name="drivers_switched_to">สลับเป็น %1$s %2$s แล้ว</string>
-    <string name="drivers_switched_to_restart">สลับเป็น %1$s %2$s แล้ว ไดรเวอร์แสดงผลจะมีผลหลัง DroidDeck รีสตาร์ท</string>
+    <string name="drivers_switched_to_restart">สลับเป็น %1$s %2$s แล้ว ไดรเวอร์แสดงผลจะมีผลหลัง ShieldDeck รีสตาร์ท</string>
     <string name="drivers_using">กำลังใช้ %1$s %2$s</string>
-    <string name="drivers_using_restart">กำลังใช้ %1$s %2$s ไดรเวอร์แสดงผลจะมีผลหลัง DroidDeck รีสตาร์ท</string>
+    <string name="drivers_using_restart">กำลังใช้ %1$s %2$s ไดรเวอร์แสดงผลจะมีผลหลัง ShieldDeck รีสตาร์ท</string>
     <string name="drivers_not_a_driver">ไม่ใช่ไฟล์ zip ไดรเวอร์: ไม่ใช่ไดรเวอร์ AdrenoTools, Turnip -Linux หรือแพ็ก Android + Linux</string>
     <string name="drivers_import_failed">นำเข้าล้มเหลว: %1$s</string>
     <string name="drivers_imported_unnamed">นำเข้าไดรเวอร์แล้ว</string>
     <string name="drivers_using_bundle">กำลังใช้ %1$s เป็นทั้งไดรเวอร์รันไทม์และแสดงผล</string>
-    <string name="drivers_using_bundle_restart">กำลังใช้ %1$s เป็นทั้งไดรเวอร์รันไทม์และแสดงผล ไดรเวอร์แสดงผลจะมีผลหลัง DroidDeck รีสตาร์ท</string>
+    <string name="drivers_using_bundle_restart">กำลังใช้ %1$s เป็นทั้งไดรเวอร์รันไทม์และแสดงผล ไดรเวอร์แสดงผลจะมีผลหลัง ShieldDeck รีสตาร์ท</string>
     <string name="drivers_deleted_bundle">ลบ %1$s แล้ว (ไดรเวอร์ทั้งสอง)</string>
     <string name="drivers_deleted">ลบ %1$s แล้ว</string>
     <string name="drivers_release_status">ล่าสุด: %1$s · ตรวจสอบเมื่อ %2$s</string>
@@ -1251,7 +1251,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d วันที่แล้ว</item>
     </plurals>
-    <string name="drivers_checking_sources">กำลังตรวจสอบ Banners-Turnip, WinNative และ DroidDeck…</string>
+    <string name="drivers_checking_sources">กำลังตรวจสอบ Banners-Turnip, WinNative และ ShieldDeck…</string>
     <string name="drivers_check_failed">ตรวจสอบล้มเหลว</string>
     <string name="drivers_installed_pick_either">ติดตั้ง %1$s แล้ว - เลือกจากรายการใดก็ได้เพื่อตั้งค่าไดรเวอร์ทั้งสอง</string>
     <string name="drivers_installed_pick">ติดตั้ง %1$s แล้ว - เลือกจากเมนู</string>
@@ -1618,7 +1618,7 @@
     <string name="adbfix_no_pairing">ไม่มีการจับคู่ Wireless debugging ที่บันทึกไว้</string>
     <string name="adbfix_enter_address">กรอกที่อยู่ IP และพอร์ตปัจจุบันของ Wireless debugging</string>
 
-    <string name="adbpair_timed_out">รอป๊อปอัปการจับคู่หมดเวลา ลองใหม่จาก DroidDeck</string>
+    <string name="adbpair_timed_out">รอป๊อปอัปการจับคู่หมดเวลา ลองใหม่จาก ShieldDeck</string>
     <string name="adbpair_discovery_failed_code">ไม่สามารถค้นหาป๊อปอัปการจับคู่ได้ (%1$d) ตรวจสอบว่าเปิด Wi-Fi อยู่</string>
     <string name="adbpair_discovery_failed">ไม่สามารถค้นหาป๊อปอัปการจับคู่ได้: %1$s</string>
     <string name="adbpair_six_digits">กรอกรหัสให้ครบทั้ง 6 หลัก</string>
@@ -1640,20 +1640,20 @@
     <string name="adbpair_enter_code">กรอกรหัส</string>
     <string name="adbpair_title_working">กำลังตั้งค่า Steam</string>
     <string name="adbpair_title_done">Steam พร้อมแล้ว</string>
-    <string name="adbpair_done_text">แตะเพื่อกลับไปที่ DroidDeck คุณสามารถปิด Wireless debugging ได้แล้วตอนนี้</string>
+    <string name="adbpair_done_text">แตะเพื่อกลับไปที่ ShieldDeck คุณสามารถปิด Wireless debugging ได้แล้วตอนนี้</string>
     <string name="adbpair_title_failed">การตั้งค่า Wireless debugging หยุดแล้ว</string>
 
     <string name="selfinst_http">การดาวน์โหลดตอบกลับด้วย HTTP %1$d</string>
     <string name="selfinst_size_mismatch">ขนาดการดาวน์โหลดไม่ตรงกับ APK ที่เผยแพร่และถูกยกเลิก - ลองใหม่</string>
     <string name="selfinst_checksum_mismatch">การดาวน์โหลดไม่ตรงกับค่าตรวจสอบและถูกยกเลิก - ลองใหม่</string>
     <string name="selfinst_wrong_package">อัปเดตนี้สำหรับแพ็กเกจ Android %1$s ไม่ใช่ %2$s</string>
-    <string name="selfinst_metadata_signer">ข้อมูลเมตาของอัปเดตไม่ได้ระบุคีย์ลงนามรุ่นวางจำหน่ายของ DroidDeck</string>
+    <string name="selfinst_metadata_signer">ข้อมูลเมตาของอัปเดตไม่ได้ระบุคีย์ลงนามรุ่นวางจำหน่ายของ ShieldDeck</string>
     <string name="selfinst_unreadable">Android ไม่สามารถอ่าน APK ที่ดาวน์โหลดได้</string>
     <string name="selfinst_apk_wrong_package">APK ที่ดาวน์โหลดสำหรับ %1$s ไม่ใช่ %2$s</string>
     <string name="selfinst_version_mismatch">APK ที่ดาวน์โหลดระบุ versionCode %1$d ไม่ใช่ %2$d ที่เผยแพร่</string>
     <string name="selfinst_downgrade">Android จะไม่ติดตั้ง versionCode %1$d ทับ %2$d ที่ติดตั้งอยู่</string>
     <string name="selfinst_no_signing">APK ที่ดาวน์โหลดไม่มีข้อมูลการลงนาม</string>
-    <string name="selfinst_wrong_signer">APK ที่ดาวน์โหลดไม่ได้ลงนามด้วยคีย์รุ่นวางจำหน่ายของ DroidDeck</string>
+    <string name="selfinst_wrong_signer">APK ที่ดาวน์โหลดไม่ได้ลงนามด้วยคีย์รุ่นวางจำหน่ายของ ShieldDeck</string>
     <string name="appupd_http">แคตตาล็อกอัปเดตตอบกลับด้วย HTTP %1$d</string>
 
     <string name="loadstate_starting">กำลังเริ่มเซสชัน…</string>
@@ -1737,7 +1737,7 @@
     <string name="gpuinfo_supported">รองรับ</string>
     <string name="gpuinfo_experimental">ทดลอง: ไดรเวอร์เป็นบิลด์ทดสอบ</string>
     <string name="gpuinfo_below_tested">ต่ำกว่าฮาร์ดแวร์ที่ทดสอบแล้ว (Adreno 725 และรุ่นใหม่กว่า): อาจรันไม่ได้</string>
-    <string name="gpuinfo_unsupported">ไม่รองรับ: DroidDeck ต้องใช้ GPU Adreno (Snapdragon)</string>
+    <string name="gpuinfo_unsupported">ไม่รองรับ: ShieldDeck ต้องใช้ GPU Adreno (Snapdragon)</string>
 
     <string name="turnip_rate_limited">ติดขีดจำกัดอัตราของ GitHub - ลองใหม่ในหลัง</string>
     <string name="turnip_github_http">GitHub ตอบกลับด้วย HTTP %1$d</string>
@@ -1780,10 +1780,10 @@
     <string name="phantom_instructions_not_applicable">Android รุ่นนี้ไม่ใช้ขีดจำกัดนี้</string>
     <string name="phantom_fix_toggle">เปิด “Disable child process restrictions” ในตัวเลือกสำหรับนักพัฒนา และเปิดตัวเลือกสำหรับนักพัฒนาไว้ต่อไปหลังจากนั้น</string>
     <string name="phantom_fix_no_toggle">Android รุ่นนี้ไม่มีสวิตช์สำหรับสิ่งนี้ ใช้ Wireless debugging เพื่อเปลี่ยนค่าจากอุปกรณ์นี้</string>
-    <string name="upd_block_no_apk">บิลด์นี้ไม่มีให้ดาวน์โหลดสำหรับสำเนานี้ของ DroidDeck</string>
+    <string name="upd_block_no_apk">บิลด์นี้ไม่มีให้ดาวน์โหลดสำหรับสำเนานี้ของ ShieldDeck</string>
     <string name="upd_block_version_code">Android จะไม่ติดตั้งทับบิลด์นี้ เพราะ versionCode %1$d ต่ำกว่า %2$d ที่ติดตั้งอยู่</string>
     <string name="upd_fail_downgrade">Android จะไม่ติดตั้งรุ่นเก่าทับรุ่นใหม่ ใช้บิลด์นี้ต่อไปจนกว่าช่องทางนี้จะตามทัน</string>
-    <string name="upd_fail_signature">สำเนานี้ของ DroidDeck ลงนามต่างกัน (อาจเป็นบิลด์ที่สร้างเอง) จึง Android จะไม่อัปเดตทับให้</string>
+    <string name="upd_fail_signature">สำเนานี้ของ ShieldDeck ลงนามต่างกัน (อาจเป็นบิลด์ที่สร้างเอง) จึง Android จะไม่อัปเดตทับให้</string>
     <string name="upd_fail_storage">มีพื้นที่ว่างไม่พอสำหรับการอัปเดต</string>
     <string name="upd_fail_aborted">การอัปเดตถูกยกเลิก</string>
     <string name="upd_fail_with_message">อัปเดตไม่สามารถติดตั้งได้: %1$s</string>
@@ -1808,7 +1808,7 @@
     <string name="gstore_volume_free">%1$s · เหลือ %2$s</string>
     <string name="mode_storage_auto_short">อัตโนมัติ</string>
     <string name="appupd_catalog_rejected">แคตตาล็อกอัปเดตไม่ผ่านการตรวจสอบ (%1$s)</string>
-    <string name="main_adb_clip_label">การตั้งค่าโพรเซสลูกของ DroidDeck</string>
+    <string name="main_adb_clip_label">การตั้งค่าโพรเซสลูกของ ShieldDeck</string>
     <string name="setup_signed_in_offline_unnamed">ลงชื่อเข้าใช้แล้ว · โหมดออฟไลน์</string>
     <string name="setup_signed_in_unnamed">ลงชื่อเข้าใช้แล้ว</string>
     <string name="driver_tag_bundled">มีในตัว</string>
@@ -2122,7 +2122,7 @@
     <string name="touch_speed_normal">ปกติ</string>
     <string name="touch_speed_fast">เร็ว</string>
     <string name="touch_edit_layout">แก้ไขเค้าโครง</string>
-    <string name="touch_droiddeck_menu">เมนู DroidDeck</string>
+    <string name="touch_droiddeck_menu">เมนู ShieldDeck</string>
     <string name="touch_drag_hint">ลากปุ่มควบคุมไปวางบนหน้าจอ</string>
     <string name="touch_arrange">จัดเรียง</string>
     <string name="touch_discard">ละทิ้ง</string>

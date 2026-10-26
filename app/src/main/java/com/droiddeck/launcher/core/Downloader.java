@@ -92,7 +92,7 @@ public final class Downloader {
         connection.setConnectTimeout(TIMEOUT_MS);
         connection.setReadTimeout(TIMEOUT_MS);
         connection.setInstanceFollowRedirects(true);
-        connection.setRequestProperty("User-Agent", "DroidDeck-Android");
+        connection.setRequestProperty("User-Agent", "ShieldDeck-Android");
         return connection;
     }
 }

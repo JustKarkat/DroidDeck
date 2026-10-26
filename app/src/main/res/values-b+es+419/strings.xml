@@ -42,7 +42,7 @@
     <string name="setup_tool_files_hint">Explorar y administrar archivos</string>
     <string name="store_setup_text">Agrega Flatpak y lo conecta a Flathub (unos 20 MB). La primera app también descarga su runtime.</string>
     <string name="store_press_again">Presiona de nuevo para quitar</string>
-    <string name="gate_no_toggle">Esta versión de Android no tiene un interruptor para ello, así que DroidDeck lo cambia mediante la Depuración inalámbrica. Tarda un minuto y no necesitas una computadora.</string>
+    <string name="gate_no_toggle">Esta versión de Android no tiene un interruptor para ello, así que ShieldDeck lo cambia mediante la Depuración inalámbrica. Tarda un minuto y no necesitas una computadora.</string>
     <string name="gate_code_needed">Ventana encontrada. Ingresa su código en la notificación.</string>
     <string name="gate_other_toggle">Depuración inalámbrica, dirección manual, ADB desde una computadora</string>
     <string name="gate_other_no_toggle">Dirección manual, ADB desde una computadora, Opciones de desarrollador</string>

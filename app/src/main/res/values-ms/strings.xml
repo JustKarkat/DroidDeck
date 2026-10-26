@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>Larian pertama memuat turun Steam. Ini mungkin mengambil beberapa minit.</item>
         <item>Secara lalai, meninggalkan apl ini menjedakan Steam; ia menyambung semula dari tempat ia berhenti apabila anda kembali.</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">Tekan sekali lagi untuk alih keluar</string>
     <string name="user_apps_stop_session">Hentikan sesi untuk alih keluar</string>
     <string name="user_apps_script_linked">Menjalankan %1$s daripada folder asalnya, dipautkan ke dalam sesi di tempat ia berada. Mengalih keluar apl ini tidak mengubah folder tersebut.</string>
-    <string name="user_apps_script_copied">Menjalankan %1$s daripada salinan foldernya dalam DroidDeck. Mengalih keluar apl ini memadam salinan tersebut, bukan yang asal.</string>
+    <string name="user_apps_script_copied">Menjalankan %1$s daripada salinan foldernya dalam ShieldDeck. Mengalih keluar apl ini memadam salinan tersebut, bukan yang asal.</string>
     <string name="user_apps_runtime_required">Pasang runtime Linux dahulu</string>
     <string name="user_apps_file_gone">Fail itu sudah tiada</string>
     <string name="user_apps_no_space">Ruang kosong tidak mencukupi: menyalin folder memerlukan %1$s</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">Mati</string>
     <string name="app_fex_hint">FEX menjalankan program Linux x86 pada peranti ARM64 ini. Auto menggunakannya apabila program dibina untuk x86.</string>
     <string name="app_fex_x86">%1$s melalui FEX</string>
-    <string name="app_fex_not_ready">Program ini dibina untuk PC %1$s dan berjalan melalui FEX, yang belum disediakan lagi. Buka Steam sekali semasa anda log masuk: DroidDeck akan memuat turun FEX dan Steam Linux Runtime yang diperlukan, kemudian ini akan dibuka.</string>
+    <string name="app_fex_not_ready">Program ini dibina untuk PC %1$s dan berjalan melalui FEX, yang belum disediakan lagi. Buka Steam sekali semasa anda log masuk: ShieldDeck akan memuat turun FEX dan Steam Linux Runtime yang diperlukan, kemudian ini akan dibuka.</string>
     <string name="session_end_program">Program ini</string>
     <string name="session_end_fex_missing">%1$s dibina untuk PC x86 dan berjalan melalui FEX, yang belum dipasang lagi. Mulakan Steam sekali semasa anda log masuk dan biarkan ia memuat turun FEX dan Steam Linux Runtime, kemudian mulakan ini semula.</string>
     <string name="add_app_flatpak_hint">ID apl Flathub atau halaman Flathubnya. Flatpak akan disediakan dahulu jika belum lagi.</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">Simpan</string>
     <string name="add_app_checking_folder">Menyemak folder…</string>
     <string name="add_app_folder_linked">Foldernya dipautkan ke dalam sesi: %1$s</string>
-    <string name="add_app_folder_copied">Foldernya menyimpan program Linux, yang tidak dapat dijalankan oleh storan kongsi, jadi ia disalin ke dalam DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Foldernya menyimpan program Linux, yang tidak dapat dijalankan oleh storan kongsi, jadi ia disalin ke dalam ShieldDeck (%1$s).</string>
     <string name="add_app_confirm">Tambah</string>
     <string name="add_app_cancel">Batal</string>
     <string name="add_app_runtime_required">Pasang runtime Linux daripada Persediaan dahulu.</string>
     <string name="add_app_busy">Tunggu %1$s selesai.</string>
     <string name="steam_compat_label">Serasi</string>
-    <string name="proton_compatible_note">Binaan yang ditanda “%1$s” dalam menu Compatibility Steam mempunyai pembaikan prefix DroidDeck dan boleh memulakan permainan di sini. Lalai adalah Proton Experimental ARM64 (%1$s), atau Proton 11.0 ARM64 (%1$s) sebaik sahaja binaan terbaharu itu dipasang. Entri Proton asal Valve tanpa tanda ini tidak boleh memulakan permainan pada peranti ini.</string>
+    <string name="proton_compatible_note">Binaan yang ditanda “%1$s” dalam menu Compatibility Steam mempunyai pembaikan prefix ShieldDeck dan boleh memulakan permainan di sini. Lalai adalah Proton Experimental ARM64 (%1$s), atau Proton 11.0 ARM64 (%1$s) sebaik sahaja binaan terbaharu itu dipasang. Entri Proton asal Valve tanpa tanda ini tidak boleh memulakan permainan pada peranti ini.</string>
     <string name="proton_installed_compatible">Dipasang %1$s · %2$s</string>
     <string name="common_cancel">Batal</string>
     <string name="common_auto">Auto</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">Lambatkan penjedaan latar belakang semasa Steam aktif memuat turun.</string>
     <string name="mode_suspend_note">Auto menjeda di latar belakang dan menyambung semula apabila dipaparkan. Manual menunggu Sambung. Jangan sekali-kali terus berjalan.</string>
     <string name="mode_startup">Permulaan</string>
-    <string name="mode_steam_startup">Mulakan Steam bersama DroidDeck</string>
-    <string name="mode_steam_startup_hint">Membuka sesi Steam apabila DroidDeck dilancarkan.</string>
+    <string name="mode_steam_startup">Mulakan Steam bersama ShieldDeck</string>
+    <string name="mode_steam_startup_hint">Membuka sesi Steam apabila ShieldDeck dilancarkan.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Menyemak keluaran…</string>
     <string name="mode_decky_ready">Sedia untuk memasang %1$s.</string>
@@ -372,7 +372,7 @@
     <string name="mode_wifi_open_settings">Buka tetapan</string>
     <string name="mode_wifi_continue">Teruskan</string>
     <string name="mode_wifi_explain_title">Aktifkan penemuan Wi-Fi?</string>
-    <string name="mode_wifi_explain_text">Android memerlukan kebenaran Lokasi untuk membaca nama Wi-Fi dan menemui rangkaian berdekatan. DroidDeck menggunakan akses ini untuk menunjukkan rangkaian tersebut dalam Steam. Kami tidak menjejaki lokasi anda. Akses internet berfungsi tanpa kebenaran ini.</string>
+    <string name="mode_wifi_explain_text">Android memerlukan kebenaran Lokasi untuk membaca nama Wi-Fi dan menemui rangkaian berdekatan. ShieldDeck menggunakan akses ini untuk menunjukkan rangkaian tersebut dalam Steam. Kami tidak menjejaki lokasi anda. Akses internet berfungsi tanpa kebenaran ini.</string>
     <string name="mode_storage">Storan permainan</string>
     <string name="mode_storage_auto">Automatik - kad SD jika ada, serta folder Games anda</string>
     <string name="mode_storage_auto_none">Automatik - folder Games anda, serta kad SD jika ada (tiada sekarang)</string>
@@ -467,7 +467,7 @@
     <string name="comp_applies_next_game">Berkuat kuasa pada permulaan permainan seterusnya</string>
     <string name="comp_import_zip">Import .zip</string>
     <string name="comp_reading">Membaca Proton…</string>
-    <string name="comp_no_proton">Tiada Proton dipasang lagi. Mulakan Steam sekali untuk memuat turun Proton ARM64-nya, atau tambah GE-Proton, CachyOS atau DroidDeck-Proton daripada Persediaan.</string>
+    <string name="comp_no_proton">Tiada Proton dipasang lagi. Mulakan Steam sekali untuk memuat turun Proton ARM64-nya, atau tambah GE-Proton, CachyOS atau ShieldDeck-Proton daripada Persediaan.</string>
     <string name="comp_original">Asal · %1$s</string>
     <string name="comp_this_build">%1$s · binaan ini</string>
     <string name="comp_earlier_build">%1$s · binaan terdahulu</string>
@@ -688,13 +688,13 @@
     <string name="setup_language_system">Lalai sistem (%1$s)</string>
     <string name="setup_language_system_short">Lalai sistem</string>
     <string name="setup_app_scale">Skala apl</string>
-    <string name="setup_app_scale_hint">Teks dan kawalan DroidDeck</string>
+    <string name="setup_app_scale_hint">Teks dan kawalan ShieldDeck</string>
     <string name="setup_app_scale_default">%1$d%% (Lalai)</string>
     <string name="setup_theme">Tema</string>
     <string name="setup_theme_hint">Rupa pelancar</string>
     <string name="setup_home">Gunakan sebagai skrin Utama</string>
-    <string name="setup_home_on">DroidDeck boleh menjadi apl Utama</string>
-    <string name="setup_home_off">DroidDeck tidak sekali-kali ditawarkan sebagai apl Utama</string>
+    <string name="setup_home_on">ShieldDeck boleh menjadi apl Utama</string>
+    <string name="setup_home_off">ShieldDeck tidak sekali-kali ditawarkan sebagai apl Utama</string>
     <string name="setup_orientation">Orientasi</string>
     <string name="setup_orientation_auto">Lanskap automatik</string>
     <string name="setup_orientation_landscape">Lanskap</string>
@@ -773,16 +773,16 @@
     <string name="store_website">Laman web</string>
     <string name="store_verified">Disahkan</string>
     <string name="upd_title">Kemas kini</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">Disemak %1$s</string>
     <string name="upd_not_checked">Belum disemak</string>
-    <string name="upd_perm_title">Benarkan DroidDeck mengemas kini sendiri</string>
+    <string name="upd_perm_title">Benarkan ShieldDeck mengemas kini sendiri</string>
     <string name="upd_perm_text">Pada skrin seterusnya, hidupkan Benarkan daripada sumber ini, kemudian kembali semula. Kemas kini akan diteruskan secara automatik.</string>
     <string name="upd_open_settings">Buka tetapan</string>
     <string name="upd_not_now">Bukan sekarang</string>
     <string name="upd_signed_status">Ditandatangani berbeza</string>
     <string name="upd_signed_headline">Tidak boleh dikemas kini di tempat</string>
-    <string name="upd_signed_detail">Salinan ini tidak ditandatangani dengan kunci keluaran DroidDeck, jadi kemas kini tidak boleh dipasang menggantikannya. Nyahpasang untuk bertukar.</string>
+    <string name="upd_signed_detail">Salinan ini tidak ditandatangani dengan kunci keluaran ShieldDeck, jadi kemas kini tidak boleh dipasang menggantikannya. Nyahpasang untuk bertukar.</string>
     <string name="upd_available">Kemas kini tersedia</string>
     <string name="upd_blocked_status">Tidak boleh dipasang</string>
     <string name="upd_switch">Sedia untuk bertukar</string>
@@ -804,7 +804,7 @@
     <string name="upd_stop_session">Hentikan sesi yang berjalan untuk mengemas kini.</string>
     <string name="upd_less">Kurang</string>
     <string name="upd_more">Lagi</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">Binaan Preview baharu</string>
     <string name="upd_new_test">Binaan ujian PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -819,7 +819,7 @@
     <string name="upd_tests_hint">Cuba pembetulan sebelum dikeluarkan</string>
     <string name="upd_tests_none">Tiada pada masa ini</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Tidak dibina untuk salinan DroidDeck ini</string>
+    <string name="upd_not_built">Tidak dibina untuk salinan ShieldDeck ini</string>
     <string name="upd_updated">Dikemas kini %1$s</string>
     <string name="upd_test_name">ujian PR #%1$d</string>
     <string name="upd_while_ago">beberapa ketika dahulu</string>
@@ -839,13 +839,13 @@
     <string name="gate_fix_for_me">Betulkan untuk saya</string>
     <string name="gate_toggle_steps">Hidupkan “Lumpuhkan sekatan proses anak”, kemudian kembali semula. Biarkan Pilihan pembangun hidup, atau suis itu akan mati semula.</string>
     <string name="gate_open_dev">Buka Pilihan pembangun</string>
-    <string name="gate_no_toggle">Versi Android ini tidak mempunyai suis untuknya, jadi DroidDeck menukarnya melalui Debugging Wayarles. Mengambil masa kira-kira seminit, tanpa komputer diperlukan.</string>
+    <string name="gate_no_toggle">Versi Android ini tidak mempunyai suis untuknya, jadi ShieldDeck menukarnya melalui Debugging Wayarles. Mengambil masa kira-kira seminit, tanpa komputer diperlukan.</string>
     <string name="gate_needs_wifi">Debugging Wayarles memerlukan Wi-Fi. Mana-mana rangkaian berfungsi; ia tidak memerlukan internet.</string>
-    <string name="gate_needs_notifications">Kod gandingan dihantar dalam pemberitahuan. Benarkan pemberitahuan untuk DroidDeck, atau gunakan Cara lain.</string>
+    <string name="gate_needs_notifications">Kod gandingan dihantar dalam pemberitahuan. Benarkan pemberitahuan untuk ShieldDeck, atau gunakan Cara lain.</string>
     <string name="gate_allow_notifications">Benarkan pemberitahuan</string>
     <string name="gate_step1">Buka Tetapan → Pilihan pembangun → Debugging Wayarles dan hidupkannya</string>
     <string name="gate_step2">Ketik “Gandingkan peranti dengan kod gandingan”</string>
-    <string name="gate_step3">Taip kod itu ke dalam pemberitahuan DroidDeck</string>
+    <string name="gate_step3">Taip kod itu ke dalam pemberitahuan ShieldDeck</string>
     <string name="gate_waiting">Menunggu tetingkap timbul gandingan…</string>
     <string name="gate_code_needed">Tetingkap timbul dijumpai. Masukkan kodnya dalam pemberitahuan.</string>
     <string name="gate_status">Status</string>
@@ -961,7 +961,7 @@
     <string name="desktop_removing">Mengalih keluar desktop</string>
     <string name="desktop_removed">Desktop dialih keluar</string>
     <string name="desktop_cleaning_legacy">Mengalih keluar fail LXQt lama</string>
-    <string name="desktop_removal_unknown">Kemas kini DroidDeck sebelum mengalih keluar versi desktop ini.</string>
+    <string name="desktop_removal_unknown">Kemas kini ShieldDeck sebelum mengalih keluar versi desktop ini.</string>
     <string name="content_linux_desktop">Desktop Linux</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox dan emulator anda</string>
     <string name="games_empty">Permainan yang anda pasang dalam Steam muncul di sini selepas sesi.</string>
@@ -1003,11 +1003,11 @@
     <string name="gpu_set_with_runtime">Ditetapkan bersama pemacu masa jalan: %1$s membawa kedua-duanya.</string>
     <string name="gpu_runtime_hint">Digunakan oleh permainan dan desktop.</string>
     <string name="gpu_runtime_default">Lalai masa jalan</string>
-    <string name="gpu_display_hint">Melukis bingkai ke skrin. Berkuat kuasa selepas DroidDeck dimulakan semula.</string>
+    <string name="gpu_display_hint">Melukis bingkai ke skrin. Berkuat kuasa selepas ShieldDeck dimulakan semula.</string>
     <string name="gpu_auto_by_gpu">Auto - dipilih mengikut GPU</string>
     <string name="gpu_manage">Muat turun, import atau padam…</string>
     <string name="gpu_in_use_caps">SEDANG DIGUNAKAN</string>
-    <string name="gpu_builtin">Pemacu terbina dalam DroidDeck</string>
+    <string name="gpu_builtin">Pemacu terbina dalam ShieldDeck</string>
     <string name="gpu_matched_pair">Pemacu masa jalan dan paparan ditetapkan bersama sebagai pasangan sepadan.</string>
     <string name="gpu_recommended_for">Disyorkan untuk GPU ini: %1$s.</string>
     <string name="gpu_refresh_hint">Segarkan untuk mencari pemacu bagi GPU ini.</string>
@@ -1110,7 +1110,7 @@
     <string name="unfolded_controls_hint">Terbuka, permainan terletak di atas trackpad dan pemegang belakang Steam Deck. Dilipat, permainan menjadi skrin penuh.</string>
     <string name="pip_suspended">Digantung</string>
     <string name="pip_not_ready">Gambar dalam gambar tersedia sebaik sahaja sesi sedia.</string>
-    <string name="pip_permission">Benarkan gambar dalam gambar untuk DroidDeck dalam tetapan Android.</string>
+    <string name="pip_permission">Benarkan gambar dalam gambar untuk ShieldDeck dalam tetapan Android.</string>
     <string name="pip_unavailable">Android tidak dapat membuka gambar dalam gambar.</string>
     <string name="game_shortcut">Pintasan</string>
     <string name="game_shortcut_add">Tambah ke skrin utama</string>
@@ -1120,7 +1120,7 @@
     <string name="game_link_copied">Pautan pelancaran disalin</string>
     <string name="game_shortcut_unsupported">Pelancar ini tidak dapat menambah pintasan. Gunakan Salin pautan pelancaran sebaliknya.</string>
     <string name="game_link_invalid">Pautan pelancaran permainan tidak sah.</string>
-    <string name="game_link_missing">Permainan ini tidak lagi berada dalam pustaka DroidDeck anda.</string>
+    <string name="game_link_missing">Permainan ini tidak lagi berada dalam pustaka ShieldDeck anda.</string>
     <string name="game_link_session_busy">Hentikan sesi semasa sebelum melancarkan permainan Steam.</string>
     <string name="game_link_failed">Tidak dapat menghantar permainan ke Steam. Cuba lancarkan semula.</string>
     <string name="setup_retry_removal">Cuba semula pengalihan keluar</string>
@@ -1143,7 +1143,7 @@
         <item quantity="other">Mengimport %1$d fail daripada %2$s ke %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="other">Mengimport %1$d fail daripada %2$s ke %3$s. Simpanan lama disandarkan ke Download/DroidDeck/Saves/backups</item>
+        <item quantity="other">Mengimport %1$d fail daripada %2$s ke %3$s. Simpanan lama disandarkan ke Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">Pilih zip simpanan untuk %1$s</string>
     <string name="main_saves_exporting">Mengeksport %1$s</string>
@@ -1199,7 +1199,7 @@
 
     <string name="upd_unknown_apps_failed">Tidak dapat membuka tetapan “Pasang apl tidak diketahui” Android</string>
     <string name="upd_couldnt_check">Tidak dapat menyemak: %1$s</string>
-    <string name="upd_no_download">Binaan ini tidak mempunyai muat turun untuk salinan DroidDeck ini</string>
+    <string name="upd_no_download">Binaan ini tidak mempunyai muat turun untuk salinan ShieldDeck ini</string>
     <string name="upd_stop_first">Hentikan sesi yang berjalan dahulu, kemudian kemas kini</string>
     <string name="upd_stage_downloading">Memuat turun</string>
     <string name="upd_stage_installing">Memasang</string>
@@ -1228,16 +1228,16 @@
     <string name="drivers_recommended_unpublished">Pemacu yang disyorkan tidak diterbitkan sekarang</string>
     <string name="drivers_downloading_pair">Memuat turun %1$s %2$s…</string>
     <string name="drivers_updated_to">Dikemas kini ke %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Dikemas kini ke %1$s %2$s. Pemacu paparan berkuat kuasa selepas DroidDeck dimulakan semula.</string>
+    <string name="drivers_updated_to_restart">Dikemas kini ke %1$s %2$s. Pemacu paparan berkuat kuasa selepas ShieldDeck dimulakan semula.</string>
     <string name="drivers_switched_to">Ditukar ke %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Ditukar ke %1$s %2$s. Pemacu paparan berkuat kuasa selepas DroidDeck dimulakan semula.</string>
+    <string name="drivers_switched_to_restart">Ditukar ke %1$s %2$s. Pemacu paparan berkuat kuasa selepas ShieldDeck dimulakan semula.</string>
     <string name="drivers_using">Menggunakan %1$s %2$s.</string>
-    <string name="drivers_using_restart">Menggunakan %1$s %2$s. Pemacu paparan berkuat kuasa selepas DroidDeck dimulakan semula.</string>
+    <string name="drivers_using_restart">Menggunakan %1$s %2$s. Pemacu paparan berkuat kuasa selepas ShieldDeck dimulakan semula.</string>
     <string name="drivers_not_a_driver">Bukan zip pemacu: bukan pemacu AdrenoTools, Turnip -Linux, atau gabungan Android + Linux</string>
     <string name="drivers_import_failed">Import gagal: %1$s</string>
     <string name="drivers_imported_unnamed">Pemacu diimport</string>
     <string name="drivers_using_bundle">Menggunakan %1$s sebagai pemacu masa jalan dan paparan.</string>
-    <string name="drivers_using_bundle_restart">Menggunakan %1$s sebagai pemacu masa jalan dan paparan. Pemacu paparan berkuat kuasa selepas DroidDeck dimulakan semula.</string>
+    <string name="drivers_using_bundle_restart">Menggunakan %1$s sebagai pemacu masa jalan dan paparan. Pemacu paparan berkuat kuasa selepas ShieldDeck dimulakan semula.</string>
     <string name="drivers_deleted_bundle">%1$s dipadam (kedua-dua pemacu)</string>
     <string name="drivers_deleted">%1$s dipadam</string>
     <string name="drivers_release_status">Terkini: %1$s · disemak %2$s</string>
@@ -1251,7 +1251,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d hari lalu</item>
     </plurals>
-    <string name="drivers_checking_sources">Menyemak Banners-Turnip, WinNative dan DroidDeck…</string>
+    <string name="drivers_checking_sources">Menyemak Banners-Turnip, WinNative dan ShieldDeck…</string>
     <string name="drivers_check_failed">semakan gagal</string>
     <string name="drivers_installed_pick_either">%1$s dipasang - pilih dalam mana-mana senarai untuk menetapkan kedua-dua pemacu</string>
     <string name="drivers_installed_pick">%1$s dipasang - pilih dalam menu</string>
@@ -1618,7 +1618,7 @@
     <string name="adbfix_no_pairing">Tiada gandingan Debugging Wayarles disimpan</string>
     <string name="adbfix_enter_address">Masukkan alamat IP &amp; Port Debugging Wayarles semasa</string>
 
-    <string name="adbpair_timed_out">Masa tamat menunggu tetingkap timbul gandingan. Cuba lagi daripada DroidDeck.</string>
+    <string name="adbpair_timed_out">Masa tamat menunggu tetingkap timbul gandingan. Cuba lagi daripada ShieldDeck.</string>
     <string name="adbpair_discovery_failed_code">Tidak dapat mencari tetingkap timbul gandingan (%1$d). Semak Wi-Fi dihidupkan.</string>
     <string name="adbpair_discovery_failed">Tidak dapat mencari tetingkap timbul gandingan: %1$s</string>
     <string name="adbpair_six_digits">Masukkan kesemua 6 digit kod</string>
@@ -1640,20 +1640,20 @@
     <string name="adbpair_enter_code">Masukkan kod</string>
     <string name="adbpair_title_working">Menyediakan Steam</string>
     <string name="adbpair_title_done">Steam sedia</string>
-    <string name="adbpair_done_text">Ketik untuk kembali ke DroidDeck. Anda boleh matikan Debugging Wayarles sekarang.</string>
+    <string name="adbpair_done_text">Ketik untuk kembali ke ShieldDeck. Anda boleh matikan Debugging Wayarles sekarang.</string>
     <string name="adbpair_title_failed">Persediaan Debugging Wayarles terhenti</string>
 
     <string name="selfinst_http">Muat turun menjawab HTTP %1$d</string>
     <string name="selfinst_size_mismatch">Saiz muat turun tidak sepadan dengan APK yang diterbitkan dan telah dibuang - cuba lagi</string>
     <string name="selfinst_checksum_mismatch">Muat turun tidak sepadan dengan checksumnya dan telah dibuang - cuba lagi</string>
     <string name="selfinst_wrong_package">Kemas kini ini untuk pakej Android %1$s, bukan %2$s</string>
-    <string name="selfinst_metadata_signer">Metadata kemas kini tidak menamakan kunci tandatangan keluaran DroidDeck</string>
+    <string name="selfinst_metadata_signer">Metadata kemas kini tidak menamakan kunci tandatangan keluaran ShieldDeck</string>
     <string name="selfinst_unreadable">Android tidak dapat membaca APK yang dimuat turun</string>
     <string name="selfinst_apk_wrong_package">APK yang dimuat turun untuk %1$s, bukan %2$s</string>
     <string name="selfinst_version_mismatch">APK yang dimuat turun menyatakan versionCode %1$d, bukan %2$d yang diterbitkan</string>
     <string name="selfinst_downgrade">Android tidak akan memasang versionCode %1$d menggantikan %2$d yang dipasang</string>
     <string name="selfinst_no_signing">APK yang dimuat turun tidak mempunyai maklumat tandatangan</string>
-    <string name="selfinst_wrong_signer">APK yang dimuat turun tidak ditandatangani dengan kunci keluaran DroidDeck</string>
+    <string name="selfinst_wrong_signer">APK yang dimuat turun tidak ditandatangani dengan kunci keluaran ShieldDeck</string>
     <string name="appupd_http">Katalog kemas kini menjawab HTTP %1$d</string>
 
     <string name="loadstate_starting">Memulakan sesi…</string>
@@ -1737,7 +1737,7 @@
     <string name="gpuinfo_supported">Disokong</string>
     <string name="gpuinfo_experimental">Eksperimen: pemacunya ialah binaan ujian</string>
     <string name="gpuinfo_below_tested">Di bawah perkakasan yang diuji (Adreno 725 dan lebih baharu): mungkin tidak dapat berjalan</string>
-    <string name="gpuinfo_unsupported">Tidak disokong: DroidDeck memerlukan GPU Adreno (Snapdragon)</string>
+    <string name="gpuinfo_unsupported">Tidak disokong: ShieldDeck memerlukan GPU Adreno (Snapdragon)</string>
 
     <string name="turnip_rate_limited">Had kadar GitHub dicapai - cuba lagi kemudian</string>
     <string name="turnip_github_http">GitHub menjawab HTTP %1$d</string>
@@ -1780,10 +1780,10 @@
     <string name="phantom_instructions_not_applicable">Versi Android ini tidak menggunakan had ini.</string>
     <string name="phantom_fix_toggle">Hidupkan “Lumpuhkan sekatan proses anak” dalam Pilihan pembangun, dan biarkan Pilihan pembangun hidup selepas itu.</string>
     <string name="phantom_fix_no_toggle">Versi Android ini tidak mempunyai suis untuknya. Gunakan Debugging Wayarles untuk menukarnya daripada peranti ini.</string>
-    <string name="upd_block_no_apk">Binaan ini tidak mempunyai muat turun untuk salinan DroidDeck ini.</string>
+    <string name="upd_block_no_apk">Binaan ini tidak mempunyai muat turun untuk salinan ShieldDeck ini.</string>
     <string name="upd_block_version_code">Android tidak akan memasangnya menggantikan binaan ini kerana versionCode %1$d lebih rendah daripada %2$d yang dipasang.</string>
     <string name="upd_fail_downgrade">Android tidak akan memasang versi lama menggantikan versi baharu. Kekal pada binaan ini sehingga saluran menyusul.</string>
-    <string name="upd_fail_signature">Salinan DroidDeck ini ditandatangani secara berbeza (binaan tempatan?), jadi Android tidak akan mengemas kininya di tempat.</string>
+    <string name="upd_fail_signature">Salinan ShieldDeck ini ditandatangani secara berbeza (binaan tempatan?), jadi Android tidak akan mengemas kininya di tempat.</string>
     <string name="upd_fail_storage">Tidak cukup ruang bebas untuk kemas kini.</string>
     <string name="upd_fail_aborted">Kemas kini telah dibatalkan.</string>
     <string name="upd_fail_with_message">Kemas kini tidak terpasang: %1$s</string>
@@ -1808,7 +1808,7 @@
     <string name="gstore_volume_free">%1$s · %2$s bebas</string>
     <string name="mode_storage_auto_short">Automatik</string>
     <string name="appupd_catalog_rejected">Katalog kemas kini gagal semakannya (%1$s)</string>
-    <string name="main_adb_clip_label">Tetapan proses anak DroidDeck</string>
+    <string name="main_adb_clip_label">Tetapan proses anak ShieldDeck</string>
     <string name="setup_signed_in_offline_unnamed">Dilog masuk · mod luar talian</string>
     <string name="setup_signed_in_unnamed">Dilog masuk</string>
     <string name="driver_tag_bundled">TERBUNDLE</string>
@@ -2122,7 +2122,7 @@
     <string name="touch_speed_normal">Biasa</string>
     <string name="touch_speed_fast">Pantas</string>
     <string name="touch_edit_layout">Edit susun atur</string>
-    <string name="touch_droiddeck_menu">Menu DroidDeck</string>
+    <string name="touch_droiddeck_menu">Menu ShieldDeck</string>
     <string name="touch_drag_hint">Seret kawalan ke skrin</string>
     <string name="touch_arrange">Susun</string>
     <string name="touch_discard">Buang</string>

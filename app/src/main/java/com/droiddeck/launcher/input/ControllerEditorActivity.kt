@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.droiddeck.launcher.R
-import com.droiddeck.launcher.ui.DroidDeckTheme
+import com.droiddeck.launcher.ui.ShieldDeckTheme
 import com.droiddeck.launcher.ui.onSignal
 import com.droiddeck.launcher.ui.LocalPalette
 
@@ -55,7 +55,7 @@ class ControllerEditorActivity : ComponentActivity() {
         root.addView(controls, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         val bar = ComposeView(this).apply {
             setContent {
-                DroidDeckTheme {
+                ShieldDeckTheme {
                     var snap by remember { mutableStateOf(ControllerPrefs.read(context).snap) }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,

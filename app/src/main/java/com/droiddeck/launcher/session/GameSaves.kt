@@ -33,7 +33,7 @@ object GameSaves {
 
     private const val USER = "steamuser"
 
-    fun savesDir(): File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "DroidDeck/Saves")
+    fun savesDir(): File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "ShieldDeck/Saves")
     private fun backupsDir(): File = File(savesDir(), "backups")
 
     fun game(game: Library.SteamGame): Game = Game(game, game.protonPrefix, game.protonPrefix?.let { locate(it, game) } ?: emptyList())

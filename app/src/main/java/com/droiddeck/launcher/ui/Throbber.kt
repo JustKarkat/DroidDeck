@@ -2,6 +2,7 @@ package com.droiddeck.launcher.ui
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.rotate
 import kotlin.math.atan2
@@ -22,47 +24,24 @@ import kotlin.math.sqrt
 
 @Composable
 internal fun LogoThrobber(modifier: Modifier = Modifier, running: Boolean = true) {
-    val ink = MaterialTheme.colorScheme.onBackground
-    val ball = LocalPalette.current.signal
-    val loop = rememberInfiniteTransition(label = "throbber")
-        .animateFloat(0f, 1f, infiniteRepeatable(tween(LOOP_MS, easing = LinearEasing)), label = "loop")
+    val pulse = rememberInfiniteTransition(label = "throbber")
+        .animateFloat(0.97f, 1.03f, infiniteRepeatable(tween(1400, easing = Settle), RepeatMode.Reverse), label = "pulse")
     val still = !running || Motion.scale == 0f
-    val left = remember { Path() }
-    val right = remember { Path() }
-    Canvas(modifier.aspectRatio(LogoShape.WIDTH / LogoShape.HEIGHT)) {
-        val p = if (still) 0f else loop.value
-        val bend = when {
-            p < 0.10f -> 0f
-            p < 0.24f -> Settle.transform((p - 0.10f) / 0.14f)
-            p < 0.76f -> 1f
-            p < 0.90f -> 1f - Settle.transform((p - 0.76f) / 0.14f)
-            else -> 0f
-        }
-        val turn = if (p < 0.16f || p > 0.84f) 0f else Turn.transform((p - 0.16f) / 0.68f) * 360f
-        val ballScale = when {
-            p < 0.12f -> 1f
-            p < 0.30f -> 1f - 0.2f * Settle.transform((p - 0.12f) / 0.18f)
-            p < 0.70f -> 0.8f
-            p < 0.88f -> 0.8f + 0.2f * Settle.transform((p - 0.70f) / 0.18f)
-            else -> 1f
-        }
-        val s = size.width / LogoShape.WIDTH
-        fun px(x: Float, y: Float) = Offset((x - LogoShape.LEFT) * s, y * s)
-        val centre = px(LogoShape.CX, LogoShape.CY)
-        LogoShape.left(left, bend, ::px)
-        LogoShape.right(right, ::px)
-        rotate(turn, centre) {
-            drawPath(left, ink)
-            drawPath(right, ink)
-        }
-        drawCircle(ball, radius = LogoShape.BALL * s * ballScale, center = centre)
-    }
+    androidx.compose.foundation.Image(
+        painter = androidx.compose.ui.res.painterResource(com.droiddeck.launcher.R.drawable.logo),
+        contentDescription = null,
+        modifier = modifier
+            .aspectRatio(1f)
+            .graphicsLayer {
+                val s = if (still) 1f else pulse.value
+                scaleX = s
+                scaleY = s
+            },
+    )
 }
 
-internal fun throbberBall(bounds: androidx.compose.ui.geometry.Rect): Pair<Offset, Float> {
-    val s = bounds.width / LogoShape.WIDTH
-    return Offset(bounds.left + (LogoShape.CX - LogoShape.LEFT) * s, bounds.top + LogoShape.CY * s) to LogoShape.BALL * s
-}
+internal fun throbberBall(bounds: androidx.compose.ui.geometry.Rect): Pair<Offset, Float> =
+    bounds.center to bounds.width * 0.29f
 
 private const val LOOP_MS = 1900
 private val Settle = CubicBezierEasing(0.5f, 0f, 0.3f, 1f)

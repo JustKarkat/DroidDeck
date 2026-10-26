@@ -123,7 +123,7 @@ object SteamGridDb {
         val c = URL(url).openConnection() as HttpURLConnection
         c.connectTimeout = 10_000
         c.readTimeout = 15_000
-        c.setRequestProperty("User-Agent", "DroidDeck-launcher")
+        c.setRequestProperty("User-Agent", "ShieldDeck-launcher")
         c.setRequestProperty("Authorization", "Bearer $key")
         return try {
             if (c.responseCode != 200) { Log.w(TAG, "${URL(url).path}: HTTP ${c.responseCode}"); null }

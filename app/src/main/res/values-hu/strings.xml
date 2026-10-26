@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>Az első indítás letölti a Steamet. Ez néhány percet vehet igénybe.</item>
         <item>Alapértelmezés szerint az alkalmazás elhagyása szünetelteti a Steamet; visszatéréskor ott folytatja, ahol abbahagyta.</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">Nyomja meg újra az eltávolításhoz</string>
     <string name="user_apps_stop_session">Állítsa le a munkamenetet az eltávolításhoz</string>
     <string name="user_apps_script_linked">A %1$s a saját mappájából fut, amely a helyén csatolva van a munkamenetbe. Az alkalmazás eltávolítása nem érinti azt a mappát.</string>
-    <string name="user_apps_script_copied">A %1$s a mappájának egy, a DroidDecken belüli másolatából fut. Az alkalmazás eltávolítása törli a másolatot, az eredetit nem.</string>
+    <string name="user_apps_script_copied">A %1$s a mappájának egy, a ShieldDecken belüli másolatából fut. Az alkalmazás eltávolítása törli a másolatot, az eredetit nem.</string>
     <string name="user_apps_runtime_required">Előbb telepítse a Linux futtatókörnyezetet</string>
     <string name="user_apps_file_gone">A fájl már nincs meg</string>
     <string name="user_apps_no_space">Nincs elég szabad hely: a mappa másolásához %1$s szükséges</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">Ki</string>
     <string name="app_fex_hint">A FEX x86-os Linux-programokat futtat ezen az ARM64-es eszközön. Az Automatikus akkor használja, ha a program x86-ra készült.</string>
     <string name="app_fex_x86">%1$s a FEX-en keresztül</string>
-    <string name="app_fex_not_ready">Ez a program %1$s PC-khez készült, és a FEX-en keresztül fut, amely még nincs beállítva. Nyissa meg egyszer a Steamet bejelentkezve: a DroidDeck ekkor letölti a FEX-et és a szükséges Steam Linux Runtime-ot, majd ez megnyílik.</string>
+    <string name="app_fex_not_ready">Ez a program %1$s PC-khez készült, és a FEX-en keresztül fut, amely még nincs beállítva. Nyissa meg egyszer a Steamet bejelentkezve: a ShieldDeck ekkor letölti a FEX-et és a szükséges Steam Linux Runtime-ot, majd ez megnyílik.</string>
     <string name="session_end_program">Ez a program</string>
     <string name="session_end_fex_missing">A %1$s x86 PC-khez készült, és a FEX-en keresztül fut, amely még nincs telepítve. Indítsa el egyszer a Steamet bejelentkezve, és hagyja letölteni a FEX-et és a Steam Linux Runtime-ot, majd indítsa el ezt újra.</string>
     <string name="add_app_flatpak_hint">Egy Flathub-alkalmazásazonosító vagy a Flathub-oldala. A Flatpak előbb beállításra kerül, ha még nincs beállítva.</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">Mentés</string>
     <string name="add_app_checking_folder">A mappa ellenőrzése…</string>
     <string name="add_app_folder_linked">A mappája a munkamenetbe van csatolva: %1$s</string>
-    <string name="add_app_folder_copied">A mappája Linux-programokat tartalmaz, amelyeket a megosztott tárhely nem tud futtatni, ezért átkerül a DroidDeckbe (%1$s).</string>
+    <string name="add_app_folder_copied">A mappája Linux-programokat tartalmaz, amelyeket a megosztott tárhely nem tud futtatni, ezért átkerül a ShieldDeckbe (%1$s).</string>
     <string name="add_app_confirm">Hozzáadás</string>
     <string name="add_app_cancel">Mégse</string>
     <string name="add_app_runtime_required">Előbb telepítse a Linux futtatókörnyezetet a Beállításból.</string>
     <string name="add_app_busy">Várja meg, amíg a(z) %1$s befejeződik.</string>
     <string name="steam_compat_label">Kompatibilis</string>
-    <string name="proton_compatible_note">A Steam Kompatibilitás menüjében „%1$s” jelölésű buildek tartalmazzák a DroidDeck prefixjavításait, és ezeken itt elindulnak a játékok. Az alapértelmezett a Proton Experimental ARM64 (%1$s), vagy a Proton 11.0 ARM64 (%1$s), ha az az újabb build telepítve van. A Valve saját, jelölés nélküli Proton-bejegyzései nem tudnak játékot elindítani ezen az eszközön.</string>
+    <string name="proton_compatible_note">A Steam Kompatibilitás menüjében „%1$s” jelölésű buildek tartalmazzák a ShieldDeck prefixjavításait, és ezeken itt elindulnak a játékok. Az alapértelmezett a Proton Experimental ARM64 (%1$s), vagy a Proton 11.0 ARM64 (%1$s), ha az az újabb build telepítve van. A Valve saját, jelölés nélküli Proton-bejegyzései nem tudnak játékot elindítani ezen az eszközön.</string>
     <string name="proton_installed_compatible">%1$s telepítve · %2$s</string>
     <string name="common_cancel">Mégse</string>
     <string name="common_auto">Automatikus</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">Elhalasztja a háttérbeli felfüggesztést, amíg a Steam aktívan letölt.</string>
     <string name="mode_suspend_note">Az Automatikus szüneteltet a háttérben, és megjelenéskor folytatja. A Manuális megvárja a Folytatást. A Soha mindig futva tartja.</string>
     <string name="mode_startup">Indítás</string>
-    <string name="mode_steam_startup">Steam indítása a DroidDeckkel</string>
-    <string name="mode_steam_startup_hint">Megnyitja a Steam-munkamenetet a DroidDeck indulásakor.</string>
+    <string name="mode_steam_startup">Steam indítása a ShieldDeckkel</string>
+    <string name="mode_steam_startup_hint">Megnyitja a Steam-munkamenetet a ShieldDeck indulásakor.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Kiadások keresése…</string>
     <string name="mode_decky_ready">Készen áll a %1$s telepítésére.</string>
@@ -373,7 +373,7 @@
     <string name="mode_wifi_open_settings">Beállítások megnyitása</string>
     <string name="mode_wifi_continue">Folytatás</string>
     <string name="mode_wifi_explain_title">Bekapcsolja a Wi-Fi felderítést?</string>
-    <string name="mode_wifi_explain_text">Az Android helymeghatározási engedélyt igényel a Wi-Fi nevek beolvasásához és a közeli hálózatok felderítéséhez. A DroidDeck ezt a hozzáférést arra használja, hogy megjelenítse ezeket a hálózatokat a Steamben. Nem követjük a helyadatait. Az internet-hozzáférés ezen engedély nélkül is működik.</string>
+    <string name="mode_wifi_explain_text">Az Android helymeghatározási engedélyt igényel a Wi-Fi nevek beolvasásához és a közeli hálózatok felderítéséhez. A ShieldDeck ezt a hozzáférést arra használja, hogy megjelenítse ezeket a hálózatokat a Steamben. Nem követjük a helyadatait. Az internet-hozzáférés ezen engedély nélkül is működik.</string>
     <string name="mode_storage">Játéktárhely</string>
     <string name="mode_storage_auto">Automatikus – az SD-kártya, ha van, és a Játékok mappái</string>
     <string name="mode_storage_auto_none">Automatikus – a Játékok mappái, és az SD-kártya, ha van (jelenleg nincs)</string>
@@ -469,7 +469,7 @@
     <string name="comp_applies_next_game">A következő játékindítástól érvényes</string>
     <string name="comp_import_zip">.zip importálása</string>
     <string name="comp_reading">Protonok beolvasása…</string>
-    <string name="comp_no_proton">Még nincs telepítve Proton. Indítsa el egyszer a Steamet az ARM64 Protonjának letöltéséhez, vagy adjon hozzá GE-Protont, CachyOS-t vagy DroidDeck-Protont a Beállításból.</string>
+    <string name="comp_no_proton">Még nincs telepítve Proton. Indítsa el egyszer a Steamet az ARM64 Protonjának letöltéséhez, vagy adjon hozzá GE-Protont, CachyOS-t vagy ShieldDeck-Protont a Beállításból.</string>
     <string name="comp_original">Eredeti · %1$s</string>
     <string name="comp_this_build">%1$s · ez a build</string>
     <string name="comp_earlier_build">%1$s · korábbi build</string>
@@ -691,13 +691,13 @@
     <string name="setup_language_system">Rendszer alapértelmezett (%1$s)</string>
     <string name="setup_language_system_short">Rendszer alapértelmezett</string>
     <string name="setup_app_scale">Alkalmazásméret</string>
-    <string name="setup_app_scale_hint">A DroidDeck szövege és vezérlői</string>
+    <string name="setup_app_scale_hint">A ShieldDeck szövege és vezérlői</string>
     <string name="setup_app_scale_default">%1$d%% (Alapértelmezett)</string>
     <string name="setup_theme">Téma</string>
     <string name="setup_theme_hint">Az indítóalkalmazás megjelenése</string>
     <string name="setup_home">Használat kezdőképernyőként</string>
-    <string name="setup_home_on">A DroidDeck lehet a kezdőképernyő alkalmazás</string>
-    <string name="setup_home_off">A DroidDeck soha nem jelenik meg kezdőképernyő alkalmazásként</string>
+    <string name="setup_home_on">A ShieldDeck lehet a kezdőképernyő alkalmazás</string>
+    <string name="setup_home_off">A ShieldDeck soha nem jelenik meg kezdőképernyő alkalmazásként</string>
     <string name="setup_orientation">Tájolás</string>
     <string name="setup_orientation_auto">Automatikus fekvő</string>
     <string name="setup_orientation_landscape">Fekvő</string>
@@ -776,16 +776,16 @@
     <string name="store_website">Weboldal</string>
     <string name="store_verified">Ellenőrzött</string>
     <string name="upd_title">Frissítések</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">Ellenőrizve: %1$s</string>
     <string name="upd_not_checked">Még nincs ellenőrizve</string>
-    <string name="upd_perm_title">Engedélyezze, hogy a DroidDeck magát frissítse</string>
+    <string name="upd_perm_title">Engedélyezze, hogy a ShieldDeck magát frissítse</string>
     <string name="upd_perm_text">A következő képernyőn kapcsolja be az „Engedélyezés ebből a forrásból” lehetőséget, majd térjen vissza. A frissítés önműködően folytatódik.</string>
     <string name="upd_open_settings">Beállítások megnyitása</string>
     <string name="upd_not_now">Most nem</string>
     <string name="upd_signed_status">Másként aláírva</string>
     <string name="upd_signed_headline">Nem frissíthető a helyén</string>
-    <string name="upd_signed_detail">Ez a másolat nincs a DroidDeck kiadási kulcsával aláírva, így a frissítések nem telepíthetők rá. Távolítsa el az átváltáshoz.</string>
+    <string name="upd_signed_detail">Ez a másolat nincs a ShieldDeck kiadási kulcsával aláírva, így a frissítések nem telepíthetők rá. Távolítsa el az átváltáshoz.</string>
     <string name="upd_available">Elérhető frissítés</string>
     <string name="upd_blocked_status">Nem telepíthető</string>
     <string name="upd_switch">Kész az átváltásra</string>
@@ -807,7 +807,7 @@
     <string name="upd_stop_session">Állítsa le a futó munkamenetet a frissítéshez.</string>
     <string name="upd_less">Kevesebb</string>
     <string name="upd_more">Több</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">Új Preview build</string>
     <string name="upd_new_test">PR #%1$d teszt build</string>
     <string name="upd_mb">%1$d MB</string>
@@ -822,7 +822,7 @@
     <string name="upd_tests_hint">Próbáljon ki egy javítást a kiadása előtt</string>
     <string name="upd_tests_none">Jelenleg nincs</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Nincs buildelve ehhez a DroidDeck-másolathoz</string>
+    <string name="upd_not_built">Nincs buildelve ehhez a ShieldDeck-másolathoz</string>
     <string name="upd_updated">Frissítve: %1$s</string>
     <string name="upd_test_name">a PR #%1$d teszt</string>
     <string name="upd_while_ago">egy ideje</string>
@@ -845,13 +845,13 @@
     <string name="gate_fix_for_me">Javítsa ezt helyettem</string>
     <string name="gate_toggle_steps">Kapcsolja be a „Gyermekfolyamat-korlátozások letiltása” kapcsolót, majd térjen vissza. Hagyja bekapcsolva a Fejlesztői beállításokat, különben a kapcsoló visszakapcsol.</string>
     <string name="gate_open_dev">Fejlesztői beállítások megnyitása</string>
-    <string name="gate_no_toggle">Ehhez az Android-verzióhoz nincs kapcsoló, ezért a DroidDeck a vezeték nélküli hibakeresésen keresztül módosítja. Körülbelül egy percet vesz igénybe, számítógép nélkül.</string>
+    <string name="gate_no_toggle">Ehhez az Android-verzióhoz nincs kapcsoló, ezért a ShieldDeck a vezeték nélküli hibakeresésen keresztül módosítja. Körülbelül egy percet vesz igénybe, számítógép nélkül.</string>
     <string name="gate_needs_wifi">A vezeték nélküli hibakereséshez Wi-Fi szükséges. Bármelyik hálózat megfelel; internetkapcsolat nem szükséges.</string>
-    <string name="gate_needs_notifications">A párosítási kód egy értesítésben jelenik meg. Engedélyezze az értesítéseket a DroidDecknek, vagy használja az Egyéb módokat.</string>
+    <string name="gate_needs_notifications">A párosítási kód egy értesítésben jelenik meg. Engedélyezze az értesítéseket a ShieldDecknek, vagy használja az Egyéb módokat.</string>
     <string name="gate_allow_notifications">Értesítések engedélyezése</string>
     <string name="gate_step1">Nyissa meg: Beállítások → Fejlesztői beállítások → Vezeték nélküli hibakeresés, és kapcsolja be</string>
     <string name="gate_step2">Koppintson az „Eszköz párosítása párosítási kóddal” lehetőségre</string>
-    <string name="gate_step3">Írja be a kódot a DroidDeck értesítésébe</string>
+    <string name="gate_step3">Írja be a kódot a ShieldDeck értesítésébe</string>
     <string name="gate_waiting">Várakozás a párosítási felugró ablakra…</string>
     <string name="gate_code_needed">Felugró ablak megtalálva. Írja be a kódját az értesítésbe.</string>
     <string name="gate_status">Állapot</string>
@@ -967,7 +967,7 @@
     <string name="desktop_removing">Asztal eltávolítása</string>
     <string name="desktop_removed">Asztal eltávolítva</string>
     <string name="desktop_cleaning_legacy">Régi LXQt-fájlok eltávolítása</string>
-    <string name="desktop_removal_unknown">Frissítse a DroidDecket, mielőtt eltávolítja ezt az asztali verziót.</string>
+    <string name="desktop_removal_unknown">Frissítse a ShieldDecket, mielőtt eltávolítja ezt az asztali verziót.</string>
     <string name="content_linux_desktop">Linux-asztal</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox és az emulátorai</string>
     <string name="games_empty">A Steamben telepített játékok a munkamenet után itt jelennek meg.</string>
@@ -1009,11 +1009,11 @@
     <string name="gpu_set_with_runtime">A futtatókörnyezet-illesztőprogrammal együtt beállítva: a %1$s mindkettőt tartalmazza.</string>
     <string name="gpu_runtime_hint">A játékok és az asztal használja.</string>
     <string name="gpu_runtime_default">Futtatókörnyezet alapértelmezése</string>
-    <string name="gpu_display_hint">A képkockákat rajzolja a képernyőre. A DroidDeck újraindítása után lép érvénybe.</string>
+    <string name="gpu_display_hint">A képkockákat rajzolja a képernyőre. A ShieldDeck újraindítása után lép érvénybe.</string>
     <string name="gpu_auto_by_gpu">Automatikus – GPU szerint kiválasztva</string>
     <string name="gpu_manage">Letöltés, importálás vagy törlés…</string>
     <string name="gpu_in_use_caps">HASZNÁLATBAN</string>
-    <string name="gpu_builtin">A DroidDeckbe épített illesztőprogramok</string>
+    <string name="gpu_builtin">A ShieldDeckbe épített illesztőprogramok</string>
     <string name="gpu_matched_pair">A futtatókörnyezet- és megjelenítő-illesztőprogramok együtt, párként beállítva.</string>
     <string name="gpu_recommended_for">Ehhez a GPU-hoz ajánlott: %1$s.</string>
     <string name="gpu_refresh_hint">Frissítsen az ehhez a GPU-hoz tartozó illesztőprogramok kereséséhez.</string>
@@ -1116,7 +1116,7 @@
     <string name="unfolded_controls_hint">Kinyitva a játék a Steam Deck érintőpadjai és hátsó fogói fölött jelenik meg. Összecsukva a játék teljes képernyős.</string>
     <string name="pip_suspended">Felfüggesztve</string>
     <string name="pip_not_ready">A kép a képben mód csak a munkamenet elkészülése után érhető el.</string>
-    <string name="pip_permission">Engedélyezze a kép a képben módot a DroidDeck számára az Android beállításaiban.</string>
+    <string name="pip_permission">Engedélyezze a kép a képben módot a ShieldDeck számára az Android beállításaiban.</string>
     <string name="pip_unavailable">Az Android nem tudta megnyitni a kép a képben módot.</string>
     <string name="game_shortcut">Parancsikon</string>
     <string name="game_shortcut_add">Hozzáadás a kezdőképernyőhöz</string>
@@ -1126,7 +1126,7 @@
     <string name="game_link_copied">Indítási link másolva</string>
     <string name="game_shortcut_unsupported">Ez az indítóalkalmazás nem tud parancsikont hozzáadni. Használja helyette az „Indítási link másolása” lehetőséget.</string>
     <string name="game_link_invalid">Érvénytelen játékindítási link.</string>
-    <string name="game_link_missing">Ez a játék már nincs a DroidDeck könyvtárában.</string>
+    <string name="game_link_missing">Ez a játék már nincs a ShieldDeck könyvtárában.</string>
     <string name="game_link_session_busy">Állítsa le a jelenlegi munkamenetet, mielőtt elindít egy Steam-játékot.</string>
     <string name="game_link_failed">Nem sikerült elküldeni a játékot a Steamnek. Próbálja újra elindítani.</string>
     <string name="setup_retry_removal">Eltávolítás újra</string>
@@ -1150,8 +1150,8 @@
         <item quantity="other">%1$d fájl importálva innen: %2$s, ide: %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">%1$d fájl importálva innen: %2$s, ide: %3$s. A régi mentések mentve itt: Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">%1$d fájl importálva innen: %2$s, ide: %3$s. A régi mentések mentve itt: Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">%1$d fájl importálva innen: %2$s, ide: %3$s. A régi mentések mentve itt: Download/ShieldDeck/Saves/backups</item>
+        <item quantity="other">%1$d fájl importálva innen: %2$s, ide: %3$s. A régi mentések mentve itt: Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">Válasszon mentés zip fájlt ehhez: %1$s</string>
     <string name="main_saves_exporting">%1$s exportálása</string>
@@ -1209,7 +1209,7 @@
 
     <string name="upd_unknown_apps_failed">Nem sikerült megnyitni az Android „Ismeretlen alkalmazások telepítése” beállítását</string>
     <string name="upd_couldnt_check">Nem sikerült ellenőrizni: %1$s</string>
-    <string name="upd_no_download">Ez a build nem rendelkezik letöltéssel a DroidDeck ezen másolatához</string>
+    <string name="upd_no_download">Ez a build nem rendelkezik letöltéssel a ShieldDeck ezen másolatához</string>
     <string name="upd_stop_first">Előbb állítsa le a futó munkamenetet, majd frissítsen</string>
     <string name="upd_stage_downloading">Letöltés</string>
     <string name="upd_stage_installing">Telepítés</string>
@@ -1238,16 +1238,16 @@
     <string name="drivers_recommended_unpublished">Az ajánlott illesztőprogramok jelenleg nincsenek kiadva</string>
     <string name="drivers_downloading_pair">%1$s %2$s letöltése…</string>
     <string name="drivers_updated_to">Frissítve erre: %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Frissítve erre: %1$s %2$s. A megjelenítő-illesztőprogram a DroidDeck újraindítása után lép érvénybe.</string>
+    <string name="drivers_updated_to_restart">Frissítve erre: %1$s %2$s. A megjelenítő-illesztőprogram a ShieldDeck újraindítása után lép érvénybe.</string>
     <string name="drivers_switched_to">Átváltva erre: %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Átváltva erre: %1$s %2$s. A megjelenítő-illesztőprogram a DroidDeck újraindítása után lép érvénybe.</string>
+    <string name="drivers_switched_to_restart">Átváltva erre: %1$s %2$s. A megjelenítő-illesztőprogram a ShieldDeck újraindítása után lép érvénybe.</string>
     <string name="drivers_using">%1$s %2$s használatban.</string>
-    <string name="drivers_using_restart">%1$s %2$s használatban. A megjelenítő-illesztőprogram a DroidDeck újraindítása után lép érvénybe.</string>
+    <string name="drivers_using_restart">%1$s %2$s használatban. A megjelenítő-illesztőprogram a ShieldDeck újraindítása után lép érvénybe.</string>
     <string name="drivers_not_a_driver">Nem illesztőprogram zip: nem AdrenoTools-illesztőprogram, nem -Linux Turnip és nem Android + Linux csomag</string>
     <string name="drivers_import_failed">Importálás sikertelen: %1$s</string>
     <string name="drivers_imported_unnamed">Illesztőprogram importálva</string>
     <string name="drivers_using_bundle">%1$s használatban mind futtatókörnyezet-, mind megjelenítő-illesztőprogramként.</string>
-    <string name="drivers_using_bundle_restart">%1$s használatban mind futtatókörnyezet-, mind megjelenítő-illesztőprogramként. A megjelenítő-illesztőprogram a DroidDeck újraindítása után lép érvénybe.</string>
+    <string name="drivers_using_bundle_restart">%1$s használatban mind futtatókörnyezet-, mind megjelenítő-illesztőprogramként. A megjelenítő-illesztőprogram a ShieldDeck újraindítása után lép érvénybe.</string>
     <string name="drivers_deleted_bundle">%1$s törölve (mindkét illesztőprogram)</string>
     <string name="drivers_deleted">%1$s törölve</string>
     <string name="drivers_release_status">Legújabb: %1$s · ellenőrizve: %2$s</string>
@@ -1264,7 +1264,7 @@
         <item quantity="one">%1$d napja</item>
         <item quantity="other">%1$d napja</item>
     </plurals>
-    <string name="drivers_checking_sources">A Banners-Turnip, a WinNative és a DroidDeck ellenőrzése…</string>
+    <string name="drivers_checking_sources">A Banners-Turnip, a WinNative és a ShieldDeck ellenőrzése…</string>
     <string name="drivers_check_failed">ellenőrzés sikertelen</string>
     <string name="drivers_installed_pick_either">%1$s telepítve – válassza ki bármelyik listában mindkét illesztőprogram beállításához</string>
     <string name="drivers_installed_pick">%1$s telepítve – válassza ki a menüben</string>
@@ -1639,7 +1639,7 @@
     <string name="adbfix_no_pairing">Nincs mentett vezeték nélküli hibakeresés-párosítás</string>
     <string name="adbfix_enter_address">Adja meg a vezeték nélküli hibakeresés jelenlegi IP-címét és portját</string>
 
-    <string name="adbpair_timed_out">Időtúllépés a párosítási felugró ablakra várva. Próbálja újra a DroidDeckből.</string>
+    <string name="adbpair_timed_out">Időtúllépés a párosítási felugró ablakra várva. Próbálja újra a ShieldDeckből.</string>
     <string name="adbpair_discovery_failed_code">Nem sikerült megkeresni a párosítási felugró ablakot (%1$d). Ellenőrizze, hogy a Wi-Fi be van kapcsolva.</string>
     <string name="adbpair_discovery_failed">Nem sikerült megkeresni a párosítási felugró ablakot: %1$s</string>
     <string name="adbpair_six_digits">Írja be a kód mind a 6 számjegyét</string>
@@ -1661,20 +1661,20 @@
     <string name="adbpair_enter_code">Kód megadása</string>
     <string name="adbpair_title_working">A Steam beállítása</string>
     <string name="adbpair_title_done">A Steam készen áll</string>
-    <string name="adbpair_done_text">Koppintson a DroidDeckhez való visszatéréshez. A vezeték nélküli hibakeresést most kikapcsolhatja.</string>
+    <string name="adbpair_done_text">Koppintson a ShieldDeckhez való visszatéréshez. A vezeték nélküli hibakeresést most kikapcsolhatja.</string>
     <string name="adbpair_title_failed">A vezeték nélküli hibakeresés beállítása megállt</string>
 
     <string name="selfinst_http">A letöltés HTTP %1$d választ adott</string>
     <string name="selfinst_size_mismatch">A letöltés mérete nem egyezett a közzétett APK-val, és elvetésre került – próbálja újra</string>
     <string name="selfinst_checksum_mismatch">A letöltés nem egyezett az ellenőrzőösszegével, és elvetésre került – próbálja újra</string>
     <string name="selfinst_wrong_package">A frissítés a %1$s Android-csomaghoz tartozik, nem a %2$s-hez</string>
-    <string name="selfinst_metadata_signer">A frissítés metaadatai nem nevezik meg a DroidDeck kiadási aláírókulcsát</string>
+    <string name="selfinst_metadata_signer">A frissítés metaadatai nem nevezik meg a ShieldDeck kiadási aláírókulcsát</string>
     <string name="selfinst_unreadable">Az Android nem tudta beolvasni a letöltött APK-t</string>
     <string name="selfinst_apk_wrong_package">A letöltött APK a %1$s-hez tartozik, nem a %2$s-hez</string>
     <string name="selfinst_version_mismatch">A letöltött APK %1$d versionCode-ot ad meg, nem a közzétett %2$d-t</string>
     <string name="selfinst_downgrade">Az Android nem telepíti a %1$d versionCode-ot a telepített %2$d fölé</string>
     <string name="selfinst_no_signing">A letöltött APK nem tartalmaz aláírási információt</string>
-    <string name="selfinst_wrong_signer">A letöltött APK nincs aláírva a DroidDeck kiadási kulcsával</string>
+    <string name="selfinst_wrong_signer">A letöltött APK nincs aláírva a ShieldDeck kiadási kulcsával</string>
     <string name="appupd_http">A frissítési katalógus HTTP %1$d választ adott</string>
 
     <string name="loadstate_starting">A munkamenet indítása…</string>
@@ -1758,7 +1758,7 @@
     <string name="gpuinfo_supported">Támogatott</string>
     <string name="gpuinfo_experimental">Kísérleti: az illesztőprogramjai teszt buildek</string>
     <string name="gpuinfo_below_tested">A tesztelt hardver alatt (Adreno 725 és újabb): lehet, hogy nem fut</string>
-    <string name="gpuinfo_unsupported">Nem támogatott: a DroidDecknek Adreno (Snapdragon) GPU szükséges</string>
+    <string name="gpuinfo_unsupported">Nem támogatott: a ShieldDecknek Adreno (Snapdragon) GPU szükséges</string>
 
     <string name="turnip_rate_limited">A GitHub korlátja elérve – próbálja újra később</string>
     <string name="turnip_github_http">A GitHub HTTP %1$d választ adott</string>
@@ -1801,10 +1801,10 @@
     <string name="phantom_instructions_not_applicable">Ez az Android-verzió nem használja ezt a korlátot.</string>
     <string name="phantom_fix_toggle">Kapcsolja be a „Gyermekfolyamat-korlátozások letiltása” lehetőséget a Fejlesztői beállításokban, és utána hagyja bekapcsolva a Fejlesztői beállításokat.</string>
     <string name="phantom_fix_no_toggle">Ehhez az Android-verzióhoz nincs kapcsoló. Használja a vezeték nélküli hibakeresést a módosításához erről az eszközről.</string>
-    <string name="upd_block_no_apk">Ehhez a buildhez nincs letöltés a DroidDeck ezen másolatához.</string>
+    <string name="upd_block_no_apk">Ehhez a buildhez nincs letöltés a ShieldDeck ezen másolatához.</string>
     <string name="upd_block_version_code">Az Android nem telepíti ezt a buildet fölé, mert a %1$d versionCode-ja a telepített %2$d alatt van.</string>
     <string name="upd_fail_downgrade">Az Android nem telepít régebbi verziót egy újabb fölé. Maradjon ezen a buildon, amíg a csatorna felzárkózik.</string>
-    <string name="upd_fail_signature">Ez a DroidDeck-másolat másként van aláírva (talán egy helyi build?), így az Android nem frissíti a helyén.</string>
+    <string name="upd_fail_signature">Ez a ShieldDeck-másolat másként van aláírva (talán egy helyi build?), így az Android nem frissíti a helyén.</string>
     <string name="upd_fail_storage">Nincs elég szabad hely a frissítéshez.</string>
     <string name="upd_fail_aborted">A frissítés megszakítva.</string>
     <string name="upd_fail_with_message">A frissítés nem települt: %1$s</string>
@@ -1829,7 +1829,7 @@
     <string name="gstore_volume_free">%1$s · %2$s szabad</string>
     <string name="mode_storage_auto_short">Automatikus</string>
     <string name="appupd_catalog_rejected">A frissítési katalógus nem ment át az ellenőrzéseken (%1$s)</string>
-    <string name="main_adb_clip_label">DroidDeck gyermekfolyamat-beállítás</string>
+    <string name="main_adb_clip_label">ShieldDeck gyermekfolyamat-beállítás</string>
     <string name="setup_signed_in_offline_unnamed">Bejelentkezve · offline mód</string>
     <string name="setup_signed_in_unnamed">Bejelentkezve</string>
     <string name="driver_tag_bundled">CSOMAGOLT</string>
@@ -2145,7 +2145,7 @@
     <string name="touch_speed_normal">Normál</string>
     <string name="touch_speed_fast">Gyors</string>
     <string name="touch_edit_layout">Elrendezés szerkesztése</string>
-    <string name="touch_droiddeck_menu">DroidDeck menü</string>
+    <string name="touch_droiddeck_menu">ShieldDeck menü</string>
     <string name="touch_drag_hint">Húzd a vezérlőket a képernyőre</string>
     <string name="touch_arrange">Elrendezés</string>
     <string name="touch_discard">Elvetés</string>

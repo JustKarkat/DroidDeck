@@ -118,8 +118,8 @@ object PhantomProcessLimit {
     fun reportValue(status: PhantomProcessStatus): String = when (status) {
         PhantomProcessStatus.DISABLED -> "disabled (good - the OS will not kill the session's children)"
         PhantomProcessStatus.ENABLED -> "ENABLED (the OS may kill the session with no log; turn off Restrict child processes)"
-        PhantomProcessStatus.UNSET -> "not set (ROM default applies; DroidDeck requires an explicit disabled value)"
-        PhantomProcessStatus.UNREADABLE -> "unreadable (DroidDeck could not verify the setting)"
+        PhantomProcessStatus.UNSET -> "not set (ROM default applies; ShieldDeck requires an explicit disabled value)"
+        PhantomProcessStatus.UNREADABLE -> "unreadable (ShieldDeck could not verify the setting)"
         PhantomProcessStatus.NOT_APPLICABLE -> "not applicable before Android 12"
     }
 }

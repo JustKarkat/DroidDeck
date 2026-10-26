@@ -35,7 +35,7 @@ extern volatile int g_no_render_node;
 extern volatile int g_output_refresh_mhz;
 extern volatile int g_output_w, g_output_h;
 
-#define TAG "DroidDeckWayland"
+#define TAG "ShieldDeckWayland"
 
 static JavaVM *g_jvm;
 static volatile pid_t g_comp_tid;

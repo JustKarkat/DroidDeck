@@ -69,7 +69,7 @@ val LocalPalette = staticCompositionLocalOf { Themes.byId(Themes.GRAPHITE) }
 val Palette.onSignal: Color get() = if (signal.luminance() > 0.18f) Color(0xFF03111F) else Color.White
 
 @Composable
-fun DroidDeckTheme(theme: String? = null, appScale: Int = AppUiPrefs.DEFAULT_SCALE, content: @Composable () -> Unit) {
+fun ShieldDeckTheme(theme: String? = null, appScale: Int = AppUiPrefs.DEFAULT_SCALE, content: @Composable () -> Unit) {
     val id = theme ?: SessionPrefs.theme(LocalContext.current)
     val p = Themes.byId(id)
     val scheme = darkColorScheme(

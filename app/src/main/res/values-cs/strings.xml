@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>První spuštění stáhne Steam. Může to trvat několik minut.</item>
         <item>Ve výchozím nastavení se po opuštění aplikace Steam pozastaví; po návratu pokračuje, kde skončil.</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">Pro odebrání stiskněte znovu</string>
     <string name="user_apps_stop_session">Pro odebrání ukončete relaci</string>
     <string name="user_apps_script_linked">Spouští %1$s ze své složky, propojené do relace tam, kde se nachází. Odebráním aplikace zůstane tato složka nedotčena.</string>
-    <string name="user_apps_script_copied">Spouští %1$s z kopie své složky uvnitř DroidDeck. Odebráním aplikace se smaže kopie, ne originál.</string>
+    <string name="user_apps_script_copied">Spouští %1$s z kopie své složky uvnitř ShieldDeck. Odebráním aplikace se smaže kopie, ne originál.</string>
     <string name="user_apps_runtime_required">Nejprve nainstalujte běhové prostředí Linuxu</string>
     <string name="user_apps_file_gone">Soubor zmizel</string>
     <string name="user_apps_no_space">Nedostatek volného místa: zkopírování složky vyžaduje %1$s</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">Vypnuto</string>
     <string name="app_fex_hint">FEX spouští programy pro x86 Linux na tomto zařízení ARM64. Automaticky ho použije, když je program sestaven pro x86.</string>
     <string name="app_fex_x86">%1$s přes FEX</string>
-    <string name="app_fex_not_ready">Tento program je sestaven pro PC %1$s a běží přes FEX, který ještě není nastaven. Jednou spusťte přihlášený Steam: DroidDeck tím stáhne FEX a Steam Linux Runtime, který potřebuje, a pak se tento program otevře.</string>
+    <string name="app_fex_not_ready">Tento program je sestaven pro PC %1$s a běží přes FEX, který ještě není nastaven. Jednou spusťte přihlášený Steam: ShieldDeck tím stáhne FEX a Steam Linux Runtime, který potřebuje, a pak se tento program otevře.</string>
     <string name="session_end_program">Tento program</string>
     <string name="session_end_fex_missing">%1$s je sestaven pro PC x86 a běží přes FEX, který ještě není nainstalován. Jednou spusťte přihlášený Steam a nechte ho stáhnout FEX a Steam Linux Runtime, pak to spusťte znovu.</string>
     <string name="add_app_flatpak_hint">ID aplikace Flathub nebo její stránka na Flathub. Flatpak se nejprve nastaví, pokud ještě není.</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">Uložit</string>
     <string name="add_app_checking_folder">Kontrola složky…</string>
     <string name="add_app_folder_linked">Její složka je propojena do relace: %1$s</string>
-    <string name="add_app_folder_copied">Její složka obsahuje programy pro Linux, které sdílené úložiště nemůže spustit, proto se zkopíruje do DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Její složka obsahuje programy pro Linux, které sdílené úložiště nemůže spustit, proto se zkopíruje do ShieldDeck (%1$s).</string>
     <string name="add_app_confirm">Přidat</string>
     <string name="add_app_cancel">Zrušit</string>
     <string name="add_app_runtime_required">Nejprve nainstalujte běhové prostředí Linuxu v Nastavení.</string>
     <string name="add_app_busy">Počkejte, až %1$s skončí.</string>
     <string name="steam_compat_label">Kompatibilní</string>
-    <string name="proton_compatible_note">Sestavení označená „%1$s“ v nabídce Kompatibilita Steamu mají opravy prefixu od DroidDeck a hry z nich zde spustíte. Výchozí je Proton Experimental ARM64 (%1$s), nebo Proton 11.0 ARM64 (%1$s), jakmile se nainstaluje tato novější verze. Vlastní položky Protonu od Valve bez tohoto označení nemohou na tomto zařízení spustit hru.</string>
+    <string name="proton_compatible_note">Sestavení označená „%1$s“ v nabídce Kompatibilita Steamu mají opravy prefixu od ShieldDeck a hry z nich zde spustíte. Výchozí je Proton Experimental ARM64 (%1$s), nebo Proton 11.0 ARM64 (%1$s), jakmile se nainstaluje tato novější verze. Vlastní položky Protonu od Valve bez tohoto označení nemohou na tomto zařízení spustit hru.</string>
     <string name="proton_installed_compatible">Nainstalováno %1$s · %2$s</string>
     <string name="common_cancel">Zrušit</string>
     <string name="common_auto">Automaticky</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">Oddálí pozastavení na pozadí, pokud Steam aktivně stahuje.</string>
     <string name="mode_suspend_note">Automaticky pozastaví na pozadí a obnoví při zobrazení. Manuálně čeká na Obnovit. Nikdy běh nezastavuje.</string>
     <string name="mode_startup">Spouštění</string>
-    <string name="mode_steam_startup">Spustit Steam s DroidDeck</string>
-    <string name="mode_steam_startup_hint">Otevře relaci Steamu při spuštění DroidDeck.</string>
+    <string name="mode_steam_startup">Spustit Steam s ShieldDeck</string>
+    <string name="mode_steam_startup_hint">Otevře relaci Steamu při spuštění ShieldDeck.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Hledání vydání…</string>
     <string name="mode_decky_ready">Připraveno k instalaci %1$s.</string>
@@ -375,7 +375,7 @@
     <string name="mode_wifi_open_settings">Otevřít nastavení</string>
     <string name="mode_wifi_continue">Pokračovat</string>
     <string name="mode_wifi_explain_title">Povolit vyhledávání Wi-Fi?</string>
-    <string name="mode_wifi_explain_text">Android vyžaduje oprávnění k poloze pro čtení názvů Wi-Fi a vyhledávání okolních sítí. DroidDeck tento přístup využívá k zobrazení těchto sítí ve Steamu. Vaši polohu nesledujeme. Přístup k internetu funguje i bez tohoto oprávnění.</string>
+    <string name="mode_wifi_explain_text">Android vyžaduje oprávnění k poloze pro čtení názvů Wi-Fi a vyhledávání okolních sítí. ShieldDeck tento přístup využívá k zobrazení těchto sítí ve Steamu. Vaši polohu nesledujeme. Přístup k internetu funguje i bez tohoto oprávnění.</string>
     <string name="mode_storage">Úložiště her</string>
     <string name="mode_storage_auto">Automaticky – karta SD, pokud je k dispozici, a vaše složky Games</string>
     <string name="mode_storage_auto_none">Automaticky – vaše složky Games a karta SD, pokud je k dispozici (nyní žádná)</string>
@@ -473,7 +473,7 @@
     <string name="comp_applies_next_game">Použije se při dalším spuštění hry</string>
     <string name="comp_import_zip">Importovat .zip</string>
     <string name="comp_reading">Čtení Protonů…</string>
-    <string name="comp_no_proton">Zatím není nainstalován žádný Proton. Jednou spusťte Steam a stáhněte jeho Proton pro ARM64, nebo přidejte GE-Proton, CachyOS nebo DroidDeck-Proton v Nastavení.</string>
+    <string name="comp_no_proton">Zatím není nainstalován žádný Proton. Jednou spusťte Steam a stáhněte jeho Proton pro ARM64, nebo přidejte GE-Proton, CachyOS nebo ShieldDeck-Proton v Nastavení.</string>
     <string name="comp_original">Originál · %1$s</string>
     <string name="comp_this_build">%1$s · toto sestavení</string>
     <string name="comp_earlier_build">%1$s · dřívější sestavení</string>
@@ -697,13 +697,13 @@
     <string name="setup_language_system">Výchozí systémový (%1$s)</string>
     <string name="setup_language_system_short">Výchozí systémový</string>
     <string name="setup_app_scale">Měřítko aplikace</string>
-    <string name="setup_app_scale_hint">Text a ovládání DroidDeck</string>
+    <string name="setup_app_scale_hint">Text a ovládání ShieldDeck</string>
     <string name="setup_app_scale_default">%1$d %% (výchozí)</string>
     <string name="setup_theme">Téma</string>
     <string name="setup_theme_hint">Vzhled spouštěče</string>
     <string name="setup_home">Použít jako domovskou obrazovku</string>
-    <string name="setup_home_on">DroidDeck může být domovská aplikace</string>
-    <string name="setup_home_off">DroidDeck se nikdy nenabízí jako domovská aplikace</string>
+    <string name="setup_home_on">ShieldDeck může být domovská aplikace</string>
+    <string name="setup_home_off">ShieldDeck se nikdy nenabízí jako domovská aplikace</string>
     <string name="setup_orientation">Orientace</string>
     <string name="setup_orientation_auto">Automaticky na šířku</string>
     <string name="setup_orientation_landscape">Na šířku</string>
@@ -782,16 +782,16 @@
     <string name="store_website">Web</string>
     <string name="store_verified">Ověřeno</string>
     <string name="upd_title">Aktualizace</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">Zkontrolováno %1$s</string>
     <string name="upd_not_checked">Zatím nezkontrolováno</string>
-    <string name="upd_perm_title">Povolit DroidDecku aktualizovat se sám</string>
+    <string name="upd_perm_title">Povolit ShieldDecku aktualizovat se sám</string>
     <string name="upd_perm_text">Na další obrazovce zapněte Povolit z tohoto zdroje a vraťte se zpět. Aktualizace pak pokračuje sama.</string>
     <string name="upd_open_settings">Otevřít nastavení</string>
     <string name="upd_not_now">Teď ne</string>
     <string name="upd_signed_status">Jinak podepsáno</string>
     <string name="upd_signed_headline">Nelze aktualizovat na místě</string>
-    <string name="upd_signed_detail">Tato kopie není podepsána vydávacím klíčem DroidDecku, proto se přes ni aktualizace nedají nainstalovat. Odinstalujte ji, abyste mohli přejít.</string>
+    <string name="upd_signed_detail">Tato kopie není podepsána vydávacím klíčem ShieldDecku, proto se přes ni aktualizace nedají nainstalovat. Odinstalujte ji, abyste mohli přejít.</string>
     <string name="upd_available">Aktualizace k dispozici</string>
     <string name="upd_blocked_status">Nelze instalovat</string>
     <string name="upd_switch">Připraveno k přechodu</string>
@@ -813,7 +813,7 @@
     <string name="upd_stop_session">Pro aktualizaci zastavte běžící relaci.</string>
     <string name="upd_less">Méně</string>
     <string name="upd_more">Více</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">Nová sestava Preview</string>
     <string name="upd_new_test">Testovací sestava PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -828,7 +828,7 @@
     <string name="upd_tests_hint">Vyzkoušejte opravu před jejím vydáním</string>
     <string name="upd_tests_none">Momentálně žádné</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Pro tuto kopii DroidDecku není sestavena</string>
+    <string name="upd_not_built">Pro tuto kopii ShieldDecku není sestavena</string>
     <string name="upd_updated">Aktualizováno %1$s</string>
     <string name="upd_test_name">test PR #%1$d</string>
     <string name="upd_while_ago">před chvílí</string>
@@ -857,13 +857,13 @@
     <string name="gate_fix_for_me">Oprav to za mě</string>
     <string name="gate_toggle_steps">Zapněte „Disable child process restrictions“ a vraťte se zpět. Nechte Možnosti pro vývojáře zapnuté, jinak se přepínač znovu vypne.</string>
     <string name="gate_open_dev">Otevřít Možnosti pro vývojáře</string>
-    <string name="gate_no_toggle">Tato verze Androidu pro to nemá přepínač, proto to DroidDeck změní přes Bezdrátové ladění. Zabere to asi minutu, počítač není potřeba.</string>
+    <string name="gate_no_toggle">Tato verze Androidu pro to nemá přepínač, proto to ShieldDeck změní přes Bezdrátové ladění. Zabere to asi minutu, počítač není potřeba.</string>
     <string name="gate_needs_wifi">Bezdrátové ladění potřebuje Wi-Fi. Funguje jakákoli síť, internet není nutný.</string>
-    <string name="gate_needs_notifications">Párovací kód se zobrazí v oznámení. Povolte oznámení pro DroidDeck, nebo použijte Jiné způsoby.</string>
+    <string name="gate_needs_notifications">Párovací kód se zobrazí v oznámení. Povolte oznámení pro ShieldDeck, nebo použijte Jiné způsoby.</string>
     <string name="gate_allow_notifications">Povolit oznámení</string>
     <string name="gate_step1">Otevřete Nastavení → Možnosti pro vývojáře → Bezdrátové ladění a zapněte ho</string>
     <string name="gate_step2">Klepněte na „Spárovat zařízení pomocí párovacího kódu“</string>
-    <string name="gate_step3">Zadejte kód do oznámení DroidDecku</string>
+    <string name="gate_step3">Zadejte kód do oznámení ShieldDecku</string>
     <string name="gate_waiting">Čekání na párovací okno…</string>
     <string name="gate_code_needed">Okno nalezeno. Zadejte jeho kód do oznámení.</string>
     <string name="gate_status">Stav</string>
@@ -979,7 +979,7 @@
     <string name="desktop_removing">Odstraňování desktopu</string>
     <string name="desktop_removed">Desktop odstraněn</string>
     <string name="desktop_cleaning_legacy">Odstraňování starých souborů LXQt</string>
-    <string name="desktop_removal_unknown">Před odstraněním této verze desktopu aktualizujte DroidDeck.</string>
+    <string name="desktop_removal_unknown">Před odstraněním této verze desktopu aktualizujte ShieldDeck.</string>
     <string name="content_linux_desktop">Linuxový desktop</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox a vaše emulátory</string>
     <string name="games_empty">Hry, které nainstalujete ve Steamu, se zde zobrazí po relaci.</string>
@@ -1021,11 +1021,11 @@
     <string name="gpu_set_with_runtime">Nastaveno společně s ovladačem runtime: %1$s obsahuje oba.</string>
     <string name="gpu_runtime_hint">Používají hry a desktop.</string>
     <string name="gpu_runtime_default">Výchozí runtime</string>
-    <string name="gpu_display_hint">Vykresluje snímky na obrazovku. Použije se po restartu DroidDecku.</string>
+    <string name="gpu_display_hint">Vykresluje snímky na obrazovku. Použije se po restartu ShieldDecku.</string>
     <string name="gpu_auto_by_gpu">Automaticky - podle GPU</string>
     <string name="gpu_manage">Stáhnout, importovat nebo smazat…</string>
     <string name="gpu_in_use_caps">POUŽÍVÁ SE</string>
-    <string name="gpu_builtin">Ovladače vestavěné v DroidDecku</string>
+    <string name="gpu_builtin">Ovladače vestavěné v ShieldDecku</string>
     <string name="gpu_matched_pair">Ovladače runtime a displeje nastaveny společně jako sladěná dvojice.</string>
     <string name="gpu_recommended_for">Doporučeno pro tento GPU: %1$s.</string>
     <string name="gpu_refresh_hint">Obnovte, aby se vyhledaly ovladače pro tento GPU.</string>
@@ -1128,7 +1128,7 @@
     <string name="unfolded_controls_hint">Po rozložení je hra zobrazena nad trackpady a zadními rukojeťmi Steam Decku. Po složení je hra na celou obrazovku.</string>
     <string name="pip_suspended">Pozastaveno</string>
     <string name="pip_not_ready">Obraz v obraze bude dostupný, jakmile bude relace připravena.</string>
-    <string name="pip_permission">Povolte obraz v obraze pro DroidDeck v nastavení Androidu.</string>
+    <string name="pip_permission">Povolte obraz v obraze pro ShieldDeck v nastavení Androidu.</string>
     <string name="pip_unavailable">Android nemohl otevřít obraz v obraze.</string>
     <string name="game_shortcut">Zkratka</string>
     <string name="game_shortcut_add">Přidat na domovskou obrazovku</string>
@@ -1138,7 +1138,7 @@
     <string name="game_link_copied">Odkaz pro spuštění zkopírován</string>
     <string name="game_shortcut_unsupported">Tento spouštěč neumí přidávat zkratky. Použijte místo toho Kopírovat odkaz pro spuštění.</string>
     <string name="game_link_invalid">Neplatný odkaz pro spuštění hry.</string>
-    <string name="game_link_missing">Tato hra už není ve vaší knihovně DroidDeck.</string>
+    <string name="game_link_missing">Tato hra už není ve vaší knihovně ShieldDeck.</string>
     <string name="game_link_session_busy">Před spuštěním hry ze Steamu zastavte aktuální relaci.</string>
     <string name="game_link_failed">Hru se nepodařilo odeslat do Steamu. Zkuste ji spustit znovu.</string>
     <string name="setup_retry_removal">Zkusit odstranění znovu</string>
@@ -1164,10 +1164,10 @@
         <item quantity="other">Importováno %1$d souborů z %2$s do %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">Importován %1$d soubor z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/DroidDeck/Saves/backups</item>
-        <item quantity="few">Importovány %1$d soubory z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/DroidDeck/Saves/backups</item>
-        <item quantity="many">Importováno %1$d souborů z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">Importováno %1$d souborů z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">Importován %1$d soubor z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/ShieldDeck/Saves/backups</item>
+        <item quantity="few">Importovány %1$d soubory z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/ShieldDeck/Saves/backups</item>
+        <item quantity="many">Importováno %1$d souborů z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/ShieldDeck/Saves/backups</item>
+        <item quantity="other">Importováno %1$d souborů z %2$s do %3$s. Staré uložené pozice byly zálohovány do Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">Vyberte ZIP s uloženou pozicí pro %1$s</string>
     <string name="main_saves_exporting">Exportování %1$s</string>
@@ -1229,7 +1229,7 @@
 
     <string name="upd_unknown_apps_failed">Nepodařilo se otevřít nastavení Androidu „Instalace neznámých aplikací“</string>
     <string name="upd_couldnt_check">Nepodařilo se zkontrolovat: %1$s</string>
-    <string name="upd_no_download">Toto sestavení nemá stažení pro tuto kopii DroidDecku</string>
+    <string name="upd_no_download">Toto sestavení nemá stažení pro tuto kopii ShieldDecku</string>
     <string name="upd_stop_first">Nejprve zastavte běžící relaci, pak aktualizujte</string>
     <string name="upd_stage_downloading">Stahování</string>
     <string name="upd_stage_installing">Instalování</string>
@@ -1258,16 +1258,16 @@
     <string name="drivers_recommended_unpublished">Doporučené ovladače nejsou právě zveřejněné</string>
     <string name="drivers_downloading_pair">Stahování %1$s %2$s…</string>
     <string name="drivers_updated_to">Aktualizováno na %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Aktualizováno na %1$s %2$s. Ovladač zobrazení se použije po restartu DroidDecku.</string>
+    <string name="drivers_updated_to_restart">Aktualizováno na %1$s %2$s. Ovladač zobrazení se použije po restartu ShieldDecku.</string>
     <string name="drivers_switched_to">Přepnuto na %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Přepnuto na %1$s %2$s. Ovladač zobrazení se použije po restartu DroidDecku.</string>
+    <string name="drivers_switched_to_restart">Přepnuto na %1$s %2$s. Ovladač zobrazení se použije po restartu ShieldDecku.</string>
     <string name="drivers_using">Používá se %1$s %2$s.</string>
-    <string name="drivers_using_restart">Používá se %1$s %2$s. Ovladač zobrazení se použije po restartu DroidDecku.</string>
+    <string name="drivers_using_restart">Používá se %1$s %2$s. Ovladač zobrazení se použije po restartu ShieldDecku.</string>
     <string name="drivers_not_a_driver">Toto není ZIP s ovladačem: ani ovladač AdrenoTools, ani Turnip -Linux, ani balíček Android + Linux</string>
     <string name="drivers_import_failed">Import se nezdařil: %1$s</string>
     <string name="drivers_imported_unnamed">Importovaný ovladač</string>
     <string name="drivers_using_bundle">%1$s se používá jako ovladač runtime i zobrazení.</string>
-    <string name="drivers_using_bundle_restart">%1$s se používá jako ovladač runtime i zobrazení. Ovladač zobrazení se použije po restartu DroidDecku.</string>
+    <string name="drivers_using_bundle_restart">%1$s se používá jako ovladač runtime i zobrazení. Ovladač zobrazení se použije po restartu ShieldDecku.</string>
     <string name="drivers_deleted_bundle">Odstraněno %1$s (oba ovladače)</string>
     <string name="drivers_deleted">Odstraněno %1$s</string>
     <string name="drivers_release_status">Nejnovější: %1$s · zkontrolováno %2$s</string>
@@ -1290,7 +1290,7 @@
         <item quantity="many">před %1$d dny</item>
         <item quantity="other">před %1$d dny</item>
     </plurals>
-    <string name="drivers_checking_sources">Kontrola Banners-Turnip, WinNative a DroidDeck…</string>
+    <string name="drivers_checking_sources">Kontrola Banners-Turnip, WinNative a ShieldDeck…</string>
     <string name="drivers_check_failed">kontrola se nezdařila</string>
     <string name="drivers_installed_pick_either">Nainstalováno %1$s - vyberte ho v kterémkoli seznamu pro nastavení obou ovladačů</string>
     <string name="drivers_installed_pick">Nainstalováno %1$s - vyberte ho v nabídce</string>
@@ -1681,7 +1681,7 @@
     <string name="adbfix_no_pairing">Není uloženo žádné párování bezdrátového ladění</string>
     <string name="adbfix_enter_address">Zadejte aktuální IP adresu a port bezdrátového ladění</string>
 
-    <string name="adbpair_timed_out">Čekání na vyskakovací okno pro párování vypršelo. Zkuste to znovu z DroidDecku.</string>
+    <string name="adbpair_timed_out">Čekání na vyskakovací okno pro párování vypršelo. Zkuste to znovu z ShieldDecku.</string>
     <string name="adbpair_discovery_failed_code">Nepodařilo se vyhledat vyskakovací okno pro párování (%1$d). Zkontrolujte, že je zapnutá Wi-Fi.</string>
     <string name="adbpair_discovery_failed">Nepodařilo se vyhledat vyskakovací okno pro párování: %1$s</string>
     <string name="adbpair_six_digits">Zadejte všech 6 číslic kódu</string>
@@ -1703,20 +1703,20 @@
     <string name="adbpair_enter_code">Zadat kód</string>
     <string name="adbpair_title_working">Nastavování Steamu</string>
     <string name="adbpair_title_done">Steam je připraven</string>
-    <string name="adbpair_done_text">Klepnutím se vrátíte do DroidDecku. Bezdrátové ladění teď můžete vypnout.</string>
+    <string name="adbpair_done_text">Klepnutím se vrátíte do ShieldDecku. Bezdrátové ladění teď můžete vypnout.</string>
     <string name="adbpair_title_failed">Nastavení bezdrátového ladění bylo zastaveno</string>
 
     <string name="selfinst_http">Stahování odpovědělo HTTP %1$d</string>
     <string name="selfinst_size_mismatch">Velikost stahování neodpovídala zveřejněnému APK a bylo zahozeno - zkuste to znovu</string>
     <string name="selfinst_checksum_mismatch">Stahování neodpovídalo svému kontrolnímu součtu a bylo zahozeno - zkuste to znovu</string>
     <string name="selfinst_wrong_package">Aktualizace je pro balíček Androidu %1$s, ne %2$s</string>
-    <string name="selfinst_metadata_signer">Metadata aktualizace neuvádějí podpisový klíč vydání DroidDecku</string>
+    <string name="selfinst_metadata_signer">Metadata aktualizace neuvádějí podpisový klíč vydání ShieldDecku</string>
     <string name="selfinst_unreadable">Android nemohl přečíst stažené APK</string>
     <string name="selfinst_apk_wrong_package">Stažené APK je pro %1$s, ne %2$s</string>
     <string name="selfinst_version_mismatch">Stažené APK uvádí versionCode %1$d, ne zveřejněný %2$d</string>
     <string name="selfinst_downgrade">Android nenainstaluje versionCode %1$d přes nainstalovaný %2$d</string>
     <string name="selfinst_no_signing">Stažené APK nemá žádné informace o podpisu</string>
-    <string name="selfinst_wrong_signer">Stažené APK není podepsáno vydávacím klíčem DroidDecku</string>
+    <string name="selfinst_wrong_signer">Stažené APK není podepsáno vydávacím klíčem ShieldDecku</string>
     <string name="appupd_http">Katalog aktualizací odpověděl HTTP %1$d</string>
 
     <string name="loadstate_starting">Spouštění relace…</string>
@@ -1800,7 +1800,7 @@
     <string name="gpuinfo_supported">Podporováno</string>
     <string name="gpuinfo_experimental">Experimentální: jeho ovladače jsou testovací sestavení</string>
     <string name="gpuinfo_below_tested">Pod testovaným hardwarem (Adreno 725 a novější): nemusí fungovat</string>
-    <string name="gpuinfo_unsupported">Není podporováno: DroidDeck potřebuje GPU Adreno (Snapdragon)</string>
+    <string name="gpuinfo_unsupported">Není podporováno: ShieldDeck potřebuje GPU Adreno (Snapdragon)</string>
 
     <string name="turnip_rate_limited">Byl dosažen limit požadavků GitHubu - zkuste to později</string>
     <string name="turnip_github_http">GitHub odpověděl HTTP %1$d</string>
@@ -1843,10 +1843,10 @@
     <string name="phantom_instructions_not_applicable">Tato verze Androidu tento limit nepoužívá.</string>
     <string name="phantom_fix_toggle">Zapněte „Zakázat omezení procesů potomků“ v Možnostech pro vývojáře a pak je nechte zapnuté.</string>
     <string name="phantom_fix_no_toggle">Tato verze Androidu pro to nemá přepínač. Použijte bezdrátové ladění a změňte to z tohoto zařízení.</string>
-    <string name="upd_block_no_apk">Toto sestavení nemá stažení pro tuto kopii DroidDecku.</string>
+    <string name="upd_block_no_apk">Toto sestavení nemá stažení pro tuto kopii ShieldDecku.</string>
     <string name="upd_block_version_code">Android to nenainstaluje přes toto sestavení, protože jeho versionCode %1$d je nižší než nainstalovaný %2$d.</string>
     <string name="upd_fail_downgrade">Android nenainstaluje starší verzi přes novější. Zůstaňte na tomto sestavení, dokud kanál nedohoní.</string>
-    <string name="upd_fail_signature">Tato kopie DroidDecku je podepsána jinak (lokální sestavení?), takže ji Android nemůže aktualizovat na místě.</string>
+    <string name="upd_fail_signature">Tato kopie ShieldDecku je podepsána jinak (lokální sestavení?), takže ji Android nemůže aktualizovat na místě.</string>
     <string name="upd_fail_storage">Na aktualizaci není dostatek volného místa.</string>
     <string name="upd_fail_aborted">Aktualizace byla zrušena.</string>
     <string name="upd_fail_with_message">Aktualizace se nenainstalovala: %1$s</string>
@@ -1871,7 +1871,7 @@
     <string name="gstore_volume_free">%1$s · %2$s volných</string>
     <string name="mode_storage_auto_short">Automaticky</string>
     <string name="appupd_catalog_rejected">Katalog aktualizací neprošel kontrolou (%1$s)</string>
-    <string name="main_adb_clip_label">Nastavení procesů potomků DroidDecku</string>
+    <string name="main_adb_clip_label">Nastavení procesů potomků ShieldDecku</string>
     <string name="setup_signed_in_offline_unnamed">Přihlášeno · offline režim</string>
     <string name="setup_signed_in_unnamed">Přihlášeno</string>
     <string name="driver_tag_bundled">PŘIBALENÝ</string>
@@ -2191,7 +2191,7 @@
     <string name="touch_speed_normal">Normální</string>
     <string name="touch_speed_fast">Rychlá</string>
     <string name="touch_edit_layout">Upravit rozložení</string>
-    <string name="touch_droiddeck_menu">Nabídka DroidDeck</string>
+    <string name="touch_droiddeck_menu">Nabídka ShieldDeck</string>
     <string name="touch_drag_hint">Přetáhněte prvky ovládání na obrazovku</string>
     <string name="touch_arrange">Uspořádat</string>
     <string name="touch_discard">Zahodit</string>

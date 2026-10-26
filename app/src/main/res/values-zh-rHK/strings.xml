@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>首次執行會下載 Steam，可能需要幾分鐘。</item>
         <item>預設情況下，離開應用程式會暫停 Steam；返回時會從上次中斷的地方繼續。</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">再按一次以移除</string>
     <string name="user_apps_stop_session">請先停止會話再移除</string>
     <string name="user_apps_script_linked">在 %1$s 原本所在的資料夾執行，該資料夾會連結到會話中。移除應用程式不會影響該資料夾。</string>
-    <string name="user_apps_script_copied">從 DroidDeck 內的資料夾副本執行 %1$s。移除應用程式會刪除副本，不會刪除原本的資料夾。</string>
+    <string name="user_apps_script_copied">從 ShieldDeck 內的資料夾副本執行 %1$s。移除應用程式會刪除副本，不會刪除原本的資料夾。</string>
     <string name="user_apps_runtime_required">請先安裝 Linux 運行環境</string>
     <string name="user_apps_file_gone">檔案已不存在</string>
     <string name="user_apps_no_space">可用空間不足：複製資料夾需要 %1$s</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">關閉</string>
     <string name="app_fex_hint">FEX 可在此 ARM64 裝置上執行 x86 Linux 程式。「自動」會在程式為 x86 而設時使用 FEX。</string>
     <string name="app_fex_x86">%1$s，透過 FEX</string>
-    <string name="app_fex_not_ready">此程式是為 %1$s 電腦而設，需透過 FEX 執行，但 FEX 尚未設定。請在登入狀態下開啟一次 Steam：DroidDeck 會讓它下載 FEX 及所需的 Steam Linux Runtime，之後便會開啟此程式。</string>
+    <string name="app_fex_not_ready">此程式是為 %1$s 電腦而設，需透過 FEX 執行，但 FEX 尚未設定。請在登入狀態下開啟一次 Steam：ShieldDeck 會讓它下載 FEX 及所需的 Steam Linux Runtime，之後便會開啟此程式。</string>
     <string name="session_end_program">此程式</string>
     <string name="session_end_fex_missing">%1$s 是為 x86 電腦而設，需透過 FEX 執行，但 FEX 尚未安裝。請在登入狀態下啟動一次 Steam，讓它下載 FEX 和 Steam Linux Runtime，然後再啟動此程式。</string>
     <string name="add_app_flatpak_hint">Flathub 應用程式 ID 或其 Flathub 頁面。如尚未設定 Flatpak，會先進行設定。</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">儲存</string>
     <string name="add_app_checking_folder">正在檢查資料夾…</string>
     <string name="add_app_folder_linked">其資料夾已連結到會話中：%1$s</string>
-    <string name="add_app_folder_copied">該資料夾包含 Linux 程式，而共用儲存空間無法執行這些程式，因此會複製到 DroidDeck（%1$s）。</string>
+    <string name="add_app_folder_copied">該資料夾包含 Linux 程式，而共用儲存空間無法執行這些程式，因此會複製到 ShieldDeck（%1$s）。</string>
     <string name="add_app_confirm">新增</string>
     <string name="add_app_cancel">取消</string>
     <string name="add_app_runtime_required">請先在「設定」中安裝 Linux 運行環境。</string>
     <string name="add_app_busy">請等待 %1$s 完成。</string>
     <string name="steam_compat_label">兼容</string>
-    <string name="proton_compatible_note">在 Steam「兼容性」選單中標示為「%1$s」的版本已包含 DroidDeck 的前綴修正，可在此啟動遊戲。預設為 Proton Experimental ARM64（%1$s）；安裝較新的 Proton 11.0 ARM64（%1$s）後則改用該版本。Valve 本身沒有此標示的 Proton 項目無法在此裝置上啟動遊戲。</string>
+    <string name="proton_compatible_note">在 Steam「兼容性」選單中標示為「%1$s」的版本已包含 ShieldDeck 的前綴修正，可在此啟動遊戲。預設為 Proton Experimental ARM64（%1$s）；安裝較新的 Proton 11.0 ARM64（%1$s）後則改用該版本。Valve 本身沒有此標示的 Proton 項目無法在此裝置上啟動遊戲。</string>
     <string name="proton_installed_compatible">已安裝 %1$s · %2$s</string>
     <string name="common_cancel">取消</string>
     <string name="common_auto">自動</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">Steam 正在下載時，延遲在背景暫停。</string>
     <string name="mode_suspend_note">「自動」會在背景時暫停，並在重新顯示時繼續；「手動」會等你按「繼續」；「從不」會保持執行。</string>
     <string name="mode_startup">啟動</string>
-    <string name="mode_steam_startup">隨 DroidDeck 啟動 Steam</string>
-    <string name="mode_steam_startup_hint">DroidDeck 啟動時開啟 Steam 會話。</string>
+    <string name="mode_steam_startup">隨 ShieldDeck 啟動 Steam</string>
+    <string name="mode_steam_startup_hint">ShieldDeck 啟動時開啟 Steam 會話。</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">正在檢查發佈版本…</string>
     <string name="mode_decky_ready">可安裝 %1$s。</string>
@@ -344,7 +344,7 @@
     <string name="wincomp_active">已為這款遊戲安裝（%1$d）</string>
     <string name="wincomp_all">所有組件（%1$d）</string>
     <string name="wincomp_installers">需要 Windows 安裝程式（%1$d）</string>
-    <string name="wincomp_installers_note">這些組件需要在前綴內執行真正的安裝程式（.NET、PhysX、XNA、完整的 Visual C++ 安裝程式等）。DroidDeck 暫時未能做到，下一步就會支援。</string>
+    <string name="wincomp_installers_note">這些組件需要在前綴內執行真正的安裝程式（.NET、PhysX、XNA、完整的 Visual C++ 安裝程式等）。ShieldDeck 暫時未能做到，下一步就會支援。</string>
     <string name="wincomp_show">顯示</string>
     <string name="wincomp_hide">隱藏</string>
     <string name="wincomp_needs_installer">需要 Windows 安裝程式（即將支援）</string>
@@ -372,7 +372,7 @@
     <string name="mode_wifi_open_settings">開啟設定</string>
     <string name="mode_wifi_continue">繼續</string>
     <string name="mode_wifi_explain_title">啟用 Wi-Fi 探索？</string>
-    <string name="mode_wifi_explain_text">Android 需要位置權限才能讀取 Wi-Fi 名稱和尋找附近網絡。DroidDeck 只會用此權限在 Steam 中顯示這些網絡，不會追蹤你的位置。沒有此權限亦可正常上網。</string>
+    <string name="mode_wifi_explain_text">Android 需要位置權限才能讀取 Wi-Fi 名稱和尋找附近網絡。ShieldDeck 只會用此權限在 Steam 中顯示這些網絡，不會追蹤你的位置。沒有此權限亦可正常上網。</string>
     <string name="mode_storage">遊戲儲存位置</string>
     <string name="mode_storage_auto">自動 - 有 SD 卡時使用 SD 卡，以及你的遊戲資料夾</string>
     <string name="mode_storage_auto_none">自動 - 使用你的遊戲資料夾，有 SD 卡時亦使用 SD 卡（目前沒有）</string>
@@ -696,13 +696,13 @@
     <string name="setup_language_system">系統預設（%1$s）</string>
     <string name="setup_language_system_short">系統預設</string>
     <string name="setup_app_scale">應用程式縮放</string>
-    <string name="setup_app_scale_hint">DroidDeck 的文字和控制項</string>
+    <string name="setup_app_scale_hint">ShieldDeck 的文字和控制項</string>
     <string name="setup_app_scale_default">%1$d%%（預設）</string>
     <string name="setup_theme">主題</string>
     <string name="setup_theme_hint">啟動器外觀</string>
     <string name="setup_home">用作主畫面</string>
-    <string name="setup_home_on">DroidDeck 可用作主畫面應用程式</string>
-    <string name="setup_home_off">DroidDeck 不會作為主畫面應用程式的選項</string>
+    <string name="setup_home_on">ShieldDeck 可用作主畫面應用程式</string>
+    <string name="setup_home_off">ShieldDeck 不會作為主畫面應用程式的選項</string>
     <string name="setup_orientation">螢幕方向</string>
     <string name="setup_orientation_auto">自動橫向</string>
     <string name="setup_orientation_landscape">橫向</string>
@@ -781,16 +781,16 @@
     <string name="store_website">網站</string>
     <string name="store_verified">已驗證</string>
     <string name="upd_title">更新</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">已檢查 %1$s</string>
     <string name="upd_not_checked">尚未檢查</string>
-    <string name="upd_perm_title">允許 DroidDeck 自行更新</string>
+    <string name="upd_perm_title">允許 ShieldDeck 自行更新</string>
     <string name="upd_perm_text">在下一個畫面開啟「允許來自此來源的應用程式」，然後返回，更新便會自動繼續。</string>
     <string name="upd_open_settings">開啟設定</string>
     <string name="upd_not_now">稍後</string>
     <string name="upd_signed_status">簽名不同</string>
     <string name="upd_signed_headline">無法直接更新</string>
-    <string name="upd_signed_detail">此版本並非使用 DroidDeck 的發佈金鑰簽署，因此無法覆蓋安裝更新。請先解除安裝再切換。</string>
+    <string name="upd_signed_detail">此版本並非使用 ShieldDeck 的發佈金鑰簽署，因此無法覆蓋安裝更新。請先解除安裝再切換。</string>
     <string name="upd_available">有可用更新</string>
     <string name="upd_blocked_status">無法安裝</string>
     <string name="upd_switch">可以切換</string>
@@ -812,7 +812,7 @@
     <string name="upd_stop_session">請先停止正在執行的會話再更新。</string>
     <string name="upd_less">收起</string>
     <string name="upd_more">更多</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">新的預覽版</string>
     <string name="upd_new_test">PR #%1$d 測試版本</string>
     <string name="upd_mb">%1$d MB</string>
@@ -827,7 +827,7 @@
     <string name="upd_tests_hint">在正式發佈前試用修正</string>
     <string name="upd_tests_none">目前沒有</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">沒有為此 DroidDeck 版本建置</string>
+    <string name="upd_not_built">沒有為此 ShieldDeck 版本建置</string>
     <string name="upd_updated">已更新 %1$s</string>
     <string name="upd_test_name">PR #%1$d 測試版</string>
     <string name="upd_while_ago">一段時間前</string>
@@ -847,13 +847,13 @@
     <string name="gate_fix_for_me">幫我修復</string>
     <string name="gate_toggle_steps">開啟「停用子進程限制」，然後返回。請保持開發人員選項開啟，否則此開關會再次關閉。</string>
     <string name="gate_open_dev">開啟開發人員選項</string>
-    <string name="gate_no_toggle">此 Android 版本沒有此開關，因此 DroidDeck 會透過無線偵錯更改。約需一分鐘，無需電腦。</string>
+    <string name="gate_no_toggle">此 Android 版本沒有此開關，因此 ShieldDeck 會透過無線偵錯更改。約需一分鐘，無需電腦。</string>
     <string name="gate_needs_wifi">無線偵錯需要 Wi-Fi。任何網絡都可以，無需連接互聯網。</string>
-    <string name="gate_needs_notifications">配對碼需在通知中輸入。請允許 DroidDeck 發出通知，或使用「其他方式」。</string>
+    <string name="gate_needs_notifications">配對碼需在通知中輸入。請允許 ShieldDeck 發出通知，或使用「其他方式」。</string>
     <string name="gate_allow_notifications">允許通知</string>
     <string name="gate_step1">開啟「設定」→「開發人員選項」→「無線偵錯」，並將其開啟</string>
     <string name="gate_step2">輕按「使用配對碼配對裝置」</string>
-    <string name="gate_step3">在 DroidDeck 通知中輸入配對碼</string>
+    <string name="gate_step3">在 ShieldDeck 通知中輸入配對碼</string>
     <string name="gate_waiting">正在等待配對彈出式視窗…</string>
     <string name="gate_code_needed">已找到彈出式視窗，請在通知中輸入其中的配對碼。</string>
     <string name="gate_status">狀態</string>
@@ -969,7 +969,7 @@
     <string name="desktop_removing">正在移除桌面</string>
     <string name="desktop_removed">已移除桌面</string>
     <string name="desktop_cleaning_legacy">正在移除舊的 LXQt 檔案</string>
-    <string name="desktop_removal_unknown">請先更新 DroidDeck，再移除此桌面版本。</string>
+    <string name="desktop_removal_unknown">請先更新 ShieldDeck，再移除此桌面版本。</string>
     <string name="content_linux_desktop">Linux 桌面</string>
     <string name="content_linux_desktop_hint">KDE Plasma、Firefox 和你的模擬器</string>
     <string name="games_empty">你在 Steam 安裝的遊戲會在會話結束後顯示在這裡。</string>
@@ -1011,11 +1011,11 @@
     <string name="gpu_set_with_runtime">與運行環境驅動程式一併設定：%1$s 同時包含兩者。</string>
     <string name="gpu_runtime_hint">供遊戲和桌面使用。</string>
     <string name="gpu_runtime_default">運行環境預設</string>
-    <string name="gpu_display_hint">負責將畫面繪製到螢幕。DroidDeck 重新啟動後生效。</string>
+    <string name="gpu_display_hint">負責將畫面繪製到螢幕。ShieldDeck 重新啟動後生效。</string>
     <string name="gpu_auto_by_gpu">自動 - 按 GPU 選擇</string>
     <string name="gpu_manage">下載、匯入或刪除…</string>
     <string name="gpu_in_use_caps">正在使用</string>
-    <string name="gpu_builtin">DroidDeck 內置的驅動程式</string>
+    <string name="gpu_builtin">ShieldDeck 內置的驅動程式</string>
     <string name="gpu_matched_pair">運行環境和顯示驅動程式作為配對組合一併設定。</string>
     <string name="gpu_recommended_for">此 GPU 建議使用：%1$s。</string>
     <string name="gpu_refresh_hint">重新整理以尋找此 GPU 的驅動程式。</string>
@@ -1118,7 +1118,7 @@
     <string name="unfolded_controls_hint">展開時，遊戲會顯示在 Steam Deck 觸控板和背面握把上方；摺疊時，遊戲會全螢幕顯示。</string>
     <string name="pip_suspended">已暫停</string>
     <string name="pip_not_ready">會話準備就緒後即可使用畫中畫。</string>
-    <string name="pip_permission">請在 Android 設定中允許 DroidDeck 使用畫中畫。</string>
+    <string name="pip_permission">請在 Android 設定中允許 ShieldDeck 使用畫中畫。</string>
     <string name="pip_unavailable">Android 無法開啟畫中畫。</string>
     <string name="game_shortcut">捷徑</string>
     <string name="game_shortcut_add">加至主畫面</string>
@@ -1128,7 +1128,7 @@
     <string name="game_link_copied">已複製啟動連結</string>
     <string name="game_shortcut_unsupported">此啟動器無法新增捷徑，請改用「複製啟動連結」。</string>
     <string name="game_link_invalid">遊戲啟動連結無效。</string>
-    <string name="game_link_missing">此遊戲已不在你的 DroidDeck 收藏庫中。</string>
+    <string name="game_link_missing">此遊戲已不在你的 ShieldDeck 收藏庫中。</string>
     <string name="game_link_session_busy">請先停止目前的會話，再啟動 Steam 遊戲。</string>
     <string name="game_link_failed">無法將遊戲傳送至 Steam，請再次嘗試啟動。</string>
     <string name="setup_retry_removal">重試移除</string>
@@ -1151,7 +1151,7 @@
         <item quantity="other">已從 %2$s 匯入 %1$d 個檔案至 %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="other">已從 %2$s 匯入 %1$d 個檔案至 %3$s。舊存檔已備份至 Download/DroidDeck/Saves/backups</item>
+        <item quantity="other">已從 %2$s 匯入 %1$d 個檔案至 %3$s。舊存檔已備份至 Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">為 %1$s 選擇存檔 zip</string>
     <string name="main_saves_exporting">正在匯出 %1$s</string>
@@ -1207,7 +1207,7 @@
 
     <string name="upd_unknown_apps_failed">無法開啟 Android 的「安裝不明應用程式」設定</string>
     <string name="upd_couldnt_check">無法檢查：%1$s</string>
-    <string name="upd_no_download">此版本沒有適用於此 DroidDeck 版本的下載</string>
+    <string name="upd_no_download">此版本沒有適用於此 ShieldDeck 版本的下載</string>
     <string name="upd_stop_first">請先停止正在執行的會話，然後再更新</string>
     <string name="upd_stage_downloading">正在下載</string>
     <string name="upd_stage_installing">正在安裝</string>
@@ -1236,16 +1236,16 @@
     <string name="drivers_recommended_unpublished">建議的驅動程式目前尚未發佈</string>
     <string name="drivers_downloading_pair">正在下載 %1$s %2$s…</string>
     <string name="drivers_updated_to">已更新至 %1$s %2$s。</string>
-    <string name="drivers_updated_to_restart">已更新至 %1$s %2$s。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_updated_to_restart">已更新至 %1$s %2$s。顯示驅動程式會在 ShieldDeck 重新啟動後生效。</string>
     <string name="drivers_switched_to">已切換至 %1$s %2$s。</string>
-    <string name="drivers_switched_to_restart">已切換至 %1$s %2$s。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_switched_to_restart">已切換至 %1$s %2$s。顯示驅動程式會在 ShieldDeck 重新啟動後生效。</string>
     <string name="drivers_using">正在使用 %1$s %2$s。</string>
-    <string name="drivers_using_restart">正在使用 %1$s %2$s。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_using_restart">正在使用 %1$s %2$s。顯示驅動程式會在 ShieldDeck 重新啟動後生效。</string>
     <string name="drivers_not_a_driver">不是驅動程式 zip：既非 AdrenoTools 驅動程式、-Linux Turnip，亦非 Android + Linux 組合包</string>
     <string name="drivers_import_failed">匯入失敗：%1$s</string>
     <string name="drivers_imported_unnamed">已匯入的驅動程式</string>
     <string name="drivers_using_bundle">正在使用 %1$s 作為運行環境及顯示驅動程式。</string>
-    <string name="drivers_using_bundle_restart">正在使用 %1$s 作為運行環境及顯示驅動程式。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_using_bundle_restart">正在使用 %1$s 作為運行環境及顯示驅動程式。顯示驅動程式會在 ShieldDeck 重新啟動後生效。</string>
     <string name="drivers_deleted_bundle">已刪除 %1$s（兩個驅動程式）</string>
     <string name="drivers_deleted">已刪除 %1$s</string>
     <string name="drivers_release_status">最新：%1$s · %2$s檢查</string>
@@ -1259,7 +1259,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d 日前</item>
     </plurals>
-    <string name="drivers_checking_sources">正在檢查 Banners-Turnip、WinNative 和 DroidDeck…</string>
+    <string name="drivers_checking_sources">正在檢查 Banners-Turnip、WinNative 和 ShieldDeck…</string>
     <string name="drivers_check_failed">檢查失敗</string>
     <string name="drivers_installed_pick_either">已安裝 %1$s - 在任一清單中選擇即可同時設定兩個驅動程式</string>
     <string name="drivers_installed_pick">已安裝 %1$s - 請在選單中選擇</string>
@@ -1626,7 +1626,7 @@
     <string name="adbfix_no_pairing">沒有已儲存的無線偵錯配對</string>
     <string name="adbfix_enter_address">請輸入目前的無線偵錯 IP 位址和連接埠</string>
 
-    <string name="adbpair_timed_out">等待配對彈出式視窗逾時，請在 DroidDeck 重試。</string>
+    <string name="adbpair_timed_out">等待配對彈出式視窗逾時，請在 ShieldDeck 重試。</string>
     <string name="adbpair_discovery_failed_code">無法尋找配對彈出式視窗（%1$d）。請確認 Wi-Fi 已開啟。</string>
     <string name="adbpair_discovery_failed">無法尋找配對彈出式視窗：%1$s</string>
     <string name="adbpair_six_digits">請輸入完整的 6 位數配對碼</string>
@@ -1648,20 +1648,20 @@
     <string name="adbpair_enter_code">輸入配對碼</string>
     <string name="adbpair_title_working">正在設定 Steam</string>
     <string name="adbpair_title_done">Steam 已準備就緒</string>
-    <string name="adbpair_done_text">輕按即可返回 DroidDeck。你現在可以關閉無線偵錯。</string>
+    <string name="adbpair_done_text">輕按即可返回 ShieldDeck。你現在可以關閉無線偵錯。</string>
     <string name="adbpair_title_failed">無線偵錯設定已停止</string>
 
     <string name="selfinst_http">下載回應 HTTP %1$d</string>
     <string name="selfinst_size_mismatch">下載的大小與已發佈的 APK 不符，已被捨棄 - 請再試一次</string>
     <string name="selfinst_checksum_mismatch">下載的檔案與其校驗和不符，已被捨棄 - 請再試一次</string>
     <string name="selfinst_wrong_package">此更新屬於 Android 套件 %1$s，而非 %2$s</string>
-    <string name="selfinst_metadata_signer">更新中繼資料未指明 DroidDeck 的發佈簽署金鑰</string>
+    <string name="selfinst_metadata_signer">更新中繼資料未指明 ShieldDeck 的發佈簽署金鑰</string>
     <string name="selfinst_unreadable">Android 無法讀取已下載的 APK</string>
     <string name="selfinst_apk_wrong_package">已下載的 APK 屬於 %1$s，而非 %2$s</string>
     <string name="selfinst_version_mismatch">已下載的 APK 的 versionCode 為 %1$d，而非已發佈的 %2$d</string>
     <string name="selfinst_downgrade">Android 不會以 versionCode %1$d 覆蓋已安裝的 %2$d</string>
     <string name="selfinst_no_signing">已下載的 APK 沒有簽署資料</string>
-    <string name="selfinst_wrong_signer">已下載的 APK 並非使用 DroidDeck 的發佈金鑰簽署</string>
+    <string name="selfinst_wrong_signer">已下載的 APK 並非使用 ShieldDeck 的發佈金鑰簽署</string>
     <string name="appupd_http">更新目錄回應 HTTP %1$d</string>
 
     <string name="loadstate_starting">正在啟動會話…</string>
@@ -1745,7 +1745,7 @@
     <string name="gpuinfo_supported">受支援</string>
     <string name="gpuinfo_experimental">實驗性：其驅動程式為測試版本</string>
     <string name="gpuinfo_below_tested">低於已測試的硬件（Adreno 725 或更新）：可能無法執行</string>
-    <string name="gpuinfo_unsupported">不受支援：DroidDeck 需要 Adreno (Snapdragon) GPU</string>
+    <string name="gpuinfo_unsupported">不受支援：ShieldDeck 需要 Adreno (Snapdragon) GPU</string>
 
     <string name="turnip_rate_limited">已達 GitHub 的速率限制 - 請稍後再試</string>
     <string name="turnip_github_http">GitHub 回應 HTTP %1$d</string>
@@ -1788,10 +1788,10 @@
     <string name="phantom_instructions_not_applicable">此 Android 版本不使用此限制。</string>
     <string name="phantom_fix_toggle">在開發人員選項中開啟「停用子進程限制」，之後請保持開發人員選項開啟。</string>
     <string name="phantom_fix_no_toggle">此 Android 版本沒有此開關。請使用無線偵錯，直接在此裝置上更改。</string>
-    <string name="upd_block_no_apk">此版本沒有適用於此 DroidDeck 版本的下載。</string>
+    <string name="upd_block_no_apk">此版本沒有適用於此 ShieldDeck 版本的下載。</string>
     <string name="upd_block_version_code">Android 不會以此版本覆蓋安裝，因為其 versionCode %1$d 低於已安裝的 %2$d。</string>
     <string name="upd_fail_downgrade">Android 不會以舊版本覆蓋較新的版本。請繼續使用此版本，直至該頻道追上為止。</string>
-    <string name="upd_fail_signature">此 DroidDeck 的簽署方式不同（可能是本機自行建置的版本？），因此 Android 無法直接更新。</string>
+    <string name="upd_fail_signature">此 ShieldDeck 的簽署方式不同（可能是本機自行建置的版本？），因此 Android 無法直接更新。</string>
     <string name="upd_fail_storage">可用空間不足，無法更新。</string>
     <string name="upd_fail_aborted">已取消更新。</string>
     <string name="upd_fail_with_message">更新未能安裝：%1$s</string>
@@ -1816,7 +1816,7 @@
     <string name="gstore_volume_free">%1$s · 可用 %2$s</string>
     <string name="mode_storage_auto_short">自動</string>
     <string name="appupd_catalog_rejected">更新目錄未通過檢查（%1$s）</string>
-    <string name="main_adb_clip_label">DroidDeck 子進程設定</string>
+    <string name="main_adb_clip_label">ShieldDeck 子進程設定</string>
     <string name="setup_signed_in_offline_unnamed">已登入 · 離線模式</string>
     <string name="setup_signed_in_unnamed">已登入</string>
     <string name="driver_tag_bundled">內置</string>
@@ -2130,7 +2130,7 @@
     <string name="touch_speed_normal">正常</string>
     <string name="touch_speed_fast">快</string>
     <string name="touch_edit_layout">編輯佈局</string>
-    <string name="touch_droiddeck_menu">DroidDeck 選單</string>
+    <string name="touch_droiddeck_menu">ShieldDeck 選單</string>
     <string name="touch_drag_hint">將控制項拖曳到畫面上</string>
     <string name="touch_arrange">排列</string>
     <string name="touch_discard">放棄</string>

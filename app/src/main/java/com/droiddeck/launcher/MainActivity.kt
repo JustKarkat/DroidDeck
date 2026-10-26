@@ -69,7 +69,7 @@ import com.droiddeck.launcher.frontend.Library
 import com.droiddeck.launcher.frontend.GameFiles
 import com.droiddeck.launcher.frontend.GameFileSync
 import com.droiddeck.launcher.frontend.GameLaunchIntent
-import com.droiddeck.launcher.ui.DroidDeckTheme
+import com.droiddeck.launcher.ui.ShieldDeckTheme
 import com.droiddeck.launcher.ui.RomsDialog
 import com.droiddeck.launcher.files.InAppFilePicker
 import com.droiddeck.launcher.session.SessionArtifacts
@@ -520,7 +520,7 @@ class MainActivity : ComponentActivity() {
         applyLauncherFullscreen()
         updates.start()
         setContent {
-            DroidDeckTheme(theme, appScale = appScale) {
+            ShieldDeckTheme(theme, appScale = appScale) {
             com.droiddeck.launcher.ui.FocusGlideHost(androidx.compose.ui.Modifier.fillMaxSize().exposeTestTags()) {
                 val page: (@Composable () -> Unit)? = when {
                     showPerformance -> { { PerformanceHost() } }

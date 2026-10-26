@@ -31,8 +31,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
 object EsyncPacks {
-    private const val TAG = "DroidDeckSync"
-    const val REPO = "Droid-Deck/DroidDeck-Components"
+    private const val TAG = "ShieldDeckSync"
+    const val REPO = "Droid-Deck/ShieldDeck-Components"
     const val INDEX_URL = "https://github.com/$REPO/releases/download/droiddeck-esync-index/index.json"
     const val SIG_URL = "$INDEX_URL.sig"
     const val ASSET_PREFIX = "https://github.com/$REPO/releases/download/droiddeck-esync-"
@@ -850,7 +850,7 @@ object EsyncPacks {
                 connectTimeout = TIMEOUT_MS
                 readTimeout = TIMEOUT_MS
                 instanceFollowRedirects = true
-                setRequestProperty("User-Agent", "DroidDeck-Android")
+                setRequestProperty("User-Agent", "ShieldDeck-Android")
             }
             val code = connection.responseCode
             if (code / 100 != 2) {

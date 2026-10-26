@@ -235,7 +235,7 @@ object UserApps {
         val icon = if (File(dir, "icon.png").isFile) "$GUEST_DIR/$id/icon.png" else "utilities-terminal"
         FileUtils.writeString(menuEntry(context, id),
             "[Desktop Entry]\nType=Application\nName=${readName(dir) ?: id}\nExec=$SCRIPT_LAUNCHER $GUEST_DIR/$id\nIcon=$icon\n" +
-            "Terminal=false\nCategories=Game;\nX-DroidDeck-App=$id\n")
+            "Terminal=false\nCategories=Game;\nX-ShieldDeck-App=$id\n")
     }
 
     private fun copyTree(from: File, to: File) {

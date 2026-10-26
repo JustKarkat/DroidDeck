@@ -65,6 +65,6 @@ class HeadTracker(context: Context, private val rotation: () -> Int) : SensorEve
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        Log.d("DroidDeck", "head tracker accuracy $accuracy")
+        Log.d("ShieldDeck", "head tracker accuracy $accuracy")
     }
 }

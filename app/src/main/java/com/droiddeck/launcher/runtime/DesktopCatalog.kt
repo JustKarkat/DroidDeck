@@ -12,8 +12,8 @@ import java.io.File
 
 object DesktopCatalog {
     private const val TAG = "DesktopCatalog"
-    const val CATALOG_URL = "https://raw.githubusercontent.com/Droid-Deck/DroidDeck-Components/main/desktop.json"
-    const val STEAM_SEED_URL = "https://raw.githubusercontent.com/Droid-Deck/DroidDeck-Components/main/steam-seed.json"
+    const val CATALOG_URL = "https://raw.githubusercontent.com/Droid-Deck/ShieldDeck-Components/main/desktop.json"
+    const val STEAM_SEED_URL = "https://raw.githubusercontent.com/Droid-Deck/ShieldDeck-Components/main/steam-seed.json"
     const val PROTON_SEED_ID = "proton-arm64"
 
     class Entry(

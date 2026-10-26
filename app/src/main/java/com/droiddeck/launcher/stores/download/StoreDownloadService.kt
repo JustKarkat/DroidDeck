@@ -123,13 +123,13 @@ class StoreDownloadService : Service() {
                 val wm = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
                 @Suppress("DEPRECATION")
                 val mode = if (Build.VERSION.SDK_INT >= 34) WifiManager.WIFI_MODE_FULL_LOW_LATENCY else WifiManager.WIFI_MODE_FULL_HIGH_PERF
-                wifi = wm.createWifiLock(mode, "DroidDeck:store-download").apply { setReferenceCounted(false); acquire() }
+                wifi = wm.createWifiLock(mode, "ShieldDeck:store-download").apply { setReferenceCounted(false); acquire() }
                 Log.i(TAG, "wifi lock held")
             }
         }
         val now = System.currentTimeMillis()
         if (wake == null) {
-            wake = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DroidDeck:store-download").apply { setReferenceCounted(false) }
+            wake = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ShieldDeck:store-download").apply { setReferenceCounted(false) }
             Log.i(TAG, "wake lock held")
         }
         if (now - wakeAt > WAKE_RENEW_MS) {

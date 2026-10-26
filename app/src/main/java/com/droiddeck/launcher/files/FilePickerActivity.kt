@@ -13,7 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.droiddeck.launcher.R
-import com.droiddeck.launcher.ui.DroidDeckTheme
+import com.droiddeck.launcher.ui.ShieldDeckTheme
 import java.io.File
 
 class FilePickerActivity : ComponentActivity() {
@@ -38,7 +38,7 @@ class FilePickerActivity : ComponentActivity() {
             ?.let { File(it) }?.takeIf { it.isDirectory }
 
         setContent {
-            DroidDeckTheme(appScale = com.droiddeck.launcher.core.AppUiPrefs.scale(this)) {
+            ShieldDeckTheme(appScale = com.droiddeck.launcher.core.AppUiPrefs.scale(this)) {
                 Surface(modifier = Modifier.fillMaxSize().systemBarsPadding(), color = MaterialTheme.colorScheme.background) {
                     FileManagerScreen(
                         pickMode = true,

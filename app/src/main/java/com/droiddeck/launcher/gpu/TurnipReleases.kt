@@ -48,7 +48,7 @@ object TurnipReleases {
             val gpus = if (m.groupValues[3] == "Axxx") "all Adreno" else m.groupValues[3]
             Kind(m.groupValues[1].isNotEmpty(), "$gpus · $flavour", "wn-" + m.groupValues[2])
         },
-        Source("DroidDeck", "Droid-Deck/Drivers-CI") { name, tag ->
+        Source("ShieldDeck", "Droid-Deck/Drivers-CI") { name, tag ->
             if (!Regex("""^DD-Turnip-v\d+\.\d+\.\d+\.zip$""").matches(name)) return@Source null
             Kind(false, "Android + Linux · all Adreno", DriverPairs.ddTurnip(tag), bundle = true)
         },
@@ -108,7 +108,7 @@ object TurnipReleases {
         c.connectTimeout = 15_000
         c.readTimeout = 20_000
         c.setRequestProperty("Accept", "application/vnd.github+json")
-        c.setRequestProperty("User-Agent", "DroidDeck-app")
+        c.setRequestProperty("User-Agent", "ShieldDeck-app")
         try {
             val code = c.responseCode
             if (code == 403 || code == 429) throw IOException(context.getString(R.string.turnip_rate_limited))
@@ -163,7 +163,7 @@ object TurnipReleases {
         val c = URL(asset.url).openConnection() as HttpURLConnection
         c.connectTimeout = 15_000
         c.readTimeout = 60_000
-        c.setRequestProperty("User-Agent", "DroidDeck-app")
+        c.setRequestProperty("User-Agent", "ShieldDeck-app")
         c.instanceFollowRedirects = true
         try {
             if (c.responseCode != 200) throw IOException(context.getString(R.string.turnip_download_http, c.responseCode))

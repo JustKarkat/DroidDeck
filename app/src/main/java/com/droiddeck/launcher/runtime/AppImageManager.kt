@@ -214,7 +214,7 @@ object AppImageManager {
         val icon = if (File(dir, "icon.png").isFile) "$GUEST_DIR/$id/icon.png" else "application-x-executable"
         FileUtils.writeString(menuEntry(context, id),
             "[Desktop Entry]\nType=Application\nName=$name\nExec=$LAUNCHER $GUEST_DIR/$id %U\nIcon=$icon\n" +
-            "Terminal=false\nCategories=$categories\nX-DroidDeck-AppImage=$id\n")
+            "Terminal=false\nCategories=$categories\nX-ShieldDeck-AppImage=$id\n")
     }
 
     fun desktopImport(context: Context, key: String, path: String): String? {

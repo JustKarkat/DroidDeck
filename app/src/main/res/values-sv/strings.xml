@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>Första starten laddar ned Steam. Det kan ta några minuter.</item>
         <item>Som standard pausas Steam när du lämnar appen. Det fortsätter där det slutade när du kommer tillbaka.</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">Tryck igen för att ta bort</string>
     <string name="user_apps_stop_session">Stoppa sessionen för att ta bort</string>
     <string name="user_apps_script_linked">Kör %1$s från sin mapp, som länkas in i sessionen där den ligger. Om du tar bort appen lämnas mappen orörd.</string>
-    <string name="user_apps_script_copied">Kör %1$s från en kopia av mappen i DroidDeck. Om du tar bort appen raderas kopian, inte originalet.</string>
+    <string name="user_apps_script_copied">Kör %1$s från en kopia av mappen i ShieldDeck. Om du tar bort appen raderas kopian, inte originalet.</string>
     <string name="user_apps_runtime_required">Installera Linux-körmiljön först</string>
     <string name="user_apps_file_gone">Filen finns inte längre</string>
     <string name="user_apps_no_space">Inte tillräckligt med ledigt utrymme: att kopiera mappen kräver %1$s</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">Av</string>
     <string name="app_fex_hint">FEX kör Linux-program för x86 på den här ARM64-enheten. Auto använder det när programmet är byggt för x86.</string>
     <string name="app_fex_x86">%1$s via FEX</string>
-    <string name="app_fex_not_ready">Programmet är byggt för %1$s-datorer och körs via FEX, som inte har konfigurerats än. Öppna Steam en gång medan du är inloggad: DroidDeck låter Steam ladda ned FEX och den Steam Linux Runtime som behövs, sedan öppnas detta.</string>
+    <string name="app_fex_not_ready">Programmet är byggt för %1$s-datorer och körs via FEX, som inte har konfigurerats än. Öppna Steam en gång medan du är inloggad: ShieldDeck låter Steam ladda ned FEX och den Steam Linux Runtime som behövs, sedan öppnas detta.</string>
     <string name="session_end_program">Det här programmet</string>
     <string name="session_end_fex_missing">%1$s är byggt för x86-datorer och körs via FEX, som inte är installerat än. Starta Steam en gång medan du är inloggad och låt det ladda ned FEX och Steam Linux Runtime. Starta sedan detta igen.</string>
     <string name="add_app_flatpak_hint">Ett app-ID från Flathub eller appens Flathub-sida. Flatpak konfigureras först om det inte redan är gjort.</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">Spara</string>
     <string name="add_app_checking_folder">Kontrollerar mappen…</string>
     <string name="add_app_folder_linked">Mappen länkas in i sessionen: %1$s</string>
-    <string name="add_app_folder_copied">Mappen innehåller Linux-program, som inte kan köras från delad lagring, så den kopieras till DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Mappen innehåller Linux-program, som inte kan köras från delad lagring, så den kopieras till ShieldDeck (%1$s).</string>
     <string name="add_app_confirm">Lägg till</string>
     <string name="add_app_cancel">Avbryt</string>
     <string name="add_app_runtime_required">Installera Linux-körmiljön från Konfiguration först.</string>
     <string name="add_app_busy">Vänta tills %1$s är klart.</string>
     <string name="steam_compat_label">Kompatibel</string>
-    <string name="proton_compatible_note">Versioner märkta ”%1$s” i Steams kompatibilitetsmeny har DroidDecks prefixkorrigeringar och startar spel här. Standard är Proton Experimental ARM64 (%1$s), eller Proton 11.0 ARM64 (%1$s) när den nyare versionen är installerad. Valves egna Proton-poster utan märkningen kan inte starta spel på den här enheten.</string>
+    <string name="proton_compatible_note">Versioner märkta ”%1$s” i Steams kompatibilitetsmeny har ShieldDecks prefixkorrigeringar och startar spel här. Standard är Proton Experimental ARM64 (%1$s), eller Proton 11.0 ARM64 (%1$s) när den nyare versionen är installerad. Valves egna Proton-poster utan märkningen kan inte starta spel på den här enheten.</string>
     <string name="proton_installed_compatible">Installerad %1$s · %2$s</string>
     <string name="common_cancel">Avbryt</string>
     <string name="common_auto">Auto</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">Skjut upp bakgrundspausning medan Steam aktivt laddar ned.</string>
     <string name="mode_suspend_note">Auto pausar i bakgrunden och återupptar när den visas. Manuell väntar på Återuppta. Aldrig fortsätter köra.</string>
     <string name="mode_startup">Uppstart</string>
-    <string name="mode_steam_startup">Starta Steam med DroidDeck</string>
-    <string name="mode_steam_startup_hint">Öppnar Steam-sessionen när DroidDeck startar.</string>
+    <string name="mode_steam_startup">Starta Steam med ShieldDeck</string>
+    <string name="mode_steam_startup_hint">Öppnar Steam-sessionen när ShieldDeck startar.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Söker efter utgåvor…</string>
     <string name="mode_decky_ready">Redo att installera %1$s.</string>
@@ -373,7 +373,7 @@
     <string name="mode_wifi_open_settings">Öppna inställningar</string>
     <string name="mode_wifi_continue">Fortsätt</string>
     <string name="mode_wifi_explain_title">Aktivera Wi-Fi-identifiering?</string>
-    <string name="mode_wifi_explain_text">Android kräver platsbehörighet för att läsa Wi-Fi-namn och upptäcka nätverk i närheten. DroidDeck använder den här åtkomsten för att visa dessa nätverk i Steam. Vi spårar inte din plats. Internetåtkomst fungerar utan den här behörigheten.</string>
+    <string name="mode_wifi_explain_text">Android kräver platsbehörighet för att läsa Wi-Fi-namn och upptäcka nätverk i närheten. ShieldDeck använder den här åtkomsten för att visa dessa nätverk i Steam. Vi spårar inte din plats. Internetåtkomst fungerar utan den här behörigheten.</string>
     <string name="mode_storage">Spellagring</string>
     <string name="mode_storage_auto">Automatiskt – SD-kortet när det finns, plus dina Games-mappar</string>
     <string name="mode_storage_auto_none">Automatiskt – dina Games-mappar, plus SD-kortet när det finns (inget nu)</string>
@@ -469,7 +469,7 @@
     <string name="comp_applies_next_game">Gäller nästa gång ett spel startar</string>
     <string name="comp_import_zip">Importera .zip</string>
     <string name="comp_reading">Läser in Proton-versioner…</string>
-    <string name="comp_no_proton">Ingen Proton installerad än. Starta Steam en gång för att ladda ned dess ARM64-Proton, eller lägg till GE-Proton, CachyOS eller DroidDeck-Proton från Konfiguration.</string>
+    <string name="comp_no_proton">Ingen Proton installerad än. Starta Steam en gång för att ladda ned dess ARM64-Proton, eller lägg till GE-Proton, CachyOS eller ShieldDeck-Proton från Konfiguration.</string>
     <string name="comp_original">Original · %1$s</string>
     <string name="comp_this_build">%1$s · det här bygget</string>
     <string name="comp_earlier_build">%1$s · tidigare bygge</string>
@@ -691,13 +691,13 @@
     <string name="setup_language_system">Systemstandard (%1$s)</string>
     <string name="setup_language_system_short">Systemstandard</string>
     <string name="setup_app_scale">Appskala</string>
-    <string name="setup_app_scale_hint">DroidDecks text och kontroller</string>
+    <string name="setup_app_scale_hint">ShieldDecks text och kontroller</string>
     <string name="setup_app_scale_default">%1$d %% (Standard)</string>
     <string name="setup_theme">Tema</string>
     <string name="setup_theme_hint">Startprogrammets utseende</string>
     <string name="setup_home">Använd som startskärm</string>
-    <string name="setup_home_on">DroidDeck kan vara startskärmsappen</string>
-    <string name="setup_home_off">DroidDeck erbjuds aldrig som startskärmsapp</string>
+    <string name="setup_home_on">ShieldDeck kan vara startskärmsappen</string>
+    <string name="setup_home_off">ShieldDeck erbjuds aldrig som startskärmsapp</string>
     <string name="setup_orientation">Orientering</string>
     <string name="setup_orientation_auto">Automatiskt liggande</string>
     <string name="setup_orientation_landscape">Liggande</string>
@@ -776,16 +776,16 @@
     <string name="store_website">Webbplats</string>
     <string name="store_verified">Verifierad</string>
     <string name="upd_title">Uppdateringar</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">Kontrollerad %1$s</string>
     <string name="upd_not_checked">Inte kontrollerad än</string>
-    <string name="upd_perm_title">Låt DroidDeck uppdatera sig själv</string>
+    <string name="upd_perm_title">Låt ShieldDeck uppdatera sig själv</string>
     <string name="upd_perm_text">På nästa skärm, slå på Tillåt från den här källan och kom sedan tillbaka. Uppdateringen fortsätter själv.</string>
     <string name="upd_open_settings">Öppna inställningar</string>
     <string name="upd_not_now">Inte nu</string>
     <string name="upd_signed_status">Signerad annorlunda</string>
     <string name="upd_signed_headline">Kan inte uppdateras på plats</string>
-    <string name="upd_signed_detail">Den här kopian är inte signerad med DroidDecks utgivningsnyckel, så uppdateringar kan inte installeras över den. Avinstallera den för att byta.</string>
+    <string name="upd_signed_detail">Den här kopian är inte signerad med ShieldDecks utgivningsnyckel, så uppdateringar kan inte installeras över den. Avinstallera den för att byta.</string>
     <string name="upd_available">Uppdatering tillgänglig</string>
     <string name="upd_blocked_status">Kan inte installeras</string>
     <string name="upd_switch">Redo att byta</string>
@@ -807,7 +807,7 @@
     <string name="upd_stop_session">Stoppa den körande sessionen för att uppdatera.</string>
     <string name="upd_less">Mindre</string>
     <string name="upd_more">Mer</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">Nytt bygge av Förhandsversion</string>
     <string name="upd_new_test">Testbygge för PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -822,7 +822,7 @@
     <string name="upd_tests_hint">Prova en fix innan den släpps</string>
     <string name="upd_tests_none">Inga just nu</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Inte byggd för den här kopian av DroidDeck</string>
+    <string name="upd_not_built">Inte byggd för den här kopian av ShieldDeck</string>
     <string name="upd_updated">Uppdaterad %1$s</string>
     <string name="upd_test_name">testet för PR #%1$d</string>
     <string name="upd_while_ago">för ett tag sedan</string>
@@ -845,13 +845,13 @@
     <string name="gate_fix_for_me">Fixa det åt mig</string>
     <string name="gate_toggle_steps">Slå på ”Inaktivera begränsningar för underprocesser” och kom sedan tillbaka. Lämna Utvecklaralternativ på, annars stängs omkopplaren av igen.</string>
     <string name="gate_open_dev">Öppna Utvecklaralternativ</string>
-    <string name="gate_no_toggle">Den här Android-versionen har ingen omkopplare för det, så DroidDeck ändrar det via Trådlös felsökning. Tar ungefär en minut, ingen dator behövs.</string>
+    <string name="gate_no_toggle">Den här Android-versionen har ingen omkopplare för det, så ShieldDeck ändrar det via Trådlös felsökning. Tar ungefär en minut, ingen dator behövs.</string>
     <string name="gate_needs_wifi">Trådlös felsökning kräver Wi-Fi. Alla nätverk fungerar; det behöver inte internet.</string>
-    <string name="gate_needs_notifications">Ihopkopplingskoden skickas i en avisering. Tillåt aviseringar för DroidDeck, eller använd Andra sätt.</string>
+    <string name="gate_needs_notifications">Ihopkopplingskoden skickas i en avisering. Tillåt aviseringar för ShieldDeck, eller använd Andra sätt.</string>
     <string name="gate_allow_notifications">Tillåt aviseringar</string>
     <string name="gate_step1">Öppna Inställningar → Utvecklaralternativ → Trådlös felsökning och slå på det</string>
     <string name="gate_step2">Tryck på ”Para ihop enhet med ihopkopplingskod”</string>
-    <string name="gate_step3">Skriv in koden i DroidDeck-aviseringen</string>
+    <string name="gate_step3">Skriv in koden i ShieldDeck-aviseringen</string>
     <string name="gate_waiting">Väntar på popup-fönstret för ihopkoppling…</string>
     <string name="gate_code_needed">Popup-fönster hittat. Ange dess kod i aviseringen.</string>
     <string name="gate_status">Status</string>
@@ -967,7 +967,7 @@
     <string name="desktop_removing">Tar bort skrivbordet</string>
     <string name="desktop_removed">Skrivbordet har tagits bort</string>
     <string name="desktop_cleaning_legacy">Tar bort gamla LXQt-filer</string>
-    <string name="desktop_removal_unknown">Uppdatera DroidDeck innan du tar bort den här skrivbordsversionen.</string>
+    <string name="desktop_removal_unknown">Uppdatera ShieldDeck innan du tar bort den här skrivbordsversionen.</string>
     <string name="content_linux_desktop">Linux-skrivbord</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox och dina emulatorer</string>
     <string name="games_empty">Spel du installerar i Steam visas här efter sessionen.</string>
@@ -1009,11 +1009,11 @@
     <string name="gpu_set_with_runtime">Ställs in tillsammans med körmiljödrivrutinen: %1$s innehåller båda.</string>
     <string name="gpu_runtime_hint">Används av spel och skrivbordet.</string>
     <string name="gpu_runtime_default">Standard för körmiljön</string>
-    <string name="gpu_display_hint">Ritar bildrutor på skärmen. Gäller efter att DroidDeck har startats om.</string>
+    <string name="gpu_display_hint">Ritar bildrutor på skärmen. Gäller efter att ShieldDeck har startats om.</string>
     <string name="gpu_auto_by_gpu">Auto – valt efter GPU</string>
     <string name="gpu_manage">Ladda ned, importera eller ta bort…</string>
     <string name="gpu_in_use_caps">I BRUK</string>
-    <string name="gpu_builtin">Drivrutinerna som är inbyggda i DroidDeck</string>
+    <string name="gpu_builtin">Drivrutinerna som är inbyggda i ShieldDeck</string>
     <string name="gpu_matched_pair">Körmiljö- och skärmdrivrutiner inställda tillsammans som ett matchat par.</string>
     <string name="gpu_recommended_for">Rekommenderas för den här GPU:n: %1$s.</string>
     <string name="gpu_refresh_hint">Uppdatera för att söka efter drivrutiner för den här GPU:n.</string>
@@ -1116,7 +1116,7 @@
     <string name="unfolded_controls_hint">Uppfälld ligger spelet ovanför Steam Decks styrplattor och greppknappar. Hopfälld visas spelet i helskärm.</string>
     <string name="pip_suspended">Pausad</string>
     <string name="pip_not_ready">Bild-i-bild blir tillgängligt när sessionen är redo.</string>
-    <string name="pip_permission">Tillåt bild-i-bild för DroidDeck i Android-inställningarna.</string>
+    <string name="pip_permission">Tillåt bild-i-bild för ShieldDeck i Android-inställningarna.</string>
     <string name="pip_unavailable">Android kunde inte öppna bild-i-bild.</string>
     <string name="game_shortcut">Genväg</string>
     <string name="game_shortcut_add">Lägg till på hemskärmen</string>
@@ -1126,7 +1126,7 @@
     <string name="game_link_copied">Startlänken har kopierats</string>
     <string name="game_shortcut_unsupported">Den här launchern kan inte lägga till genvägar. Använd Kopiera startlänk i stället.</string>
     <string name="game_link_invalid">Ogiltig startlänk för spelet.</string>
-    <string name="game_link_missing">Det här spelet finns inte längre i ditt DroidDeck-bibliotek.</string>
+    <string name="game_link_missing">Det här spelet finns inte längre i ditt ShieldDeck-bibliotek.</string>
     <string name="game_link_session_busy">Stoppa den aktuella sessionen innan du startar ett Steam-spel.</string>
     <string name="game_link_failed">Kunde inte skicka spelet till Steam. Försök starta det igen.</string>
     <string name="setup_retry_removal">Försök ta bort igen</string>
@@ -1150,8 +1150,8 @@
         <item quantity="other">Importerade %1$d filer från %2$s till %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">Importerade %1$d fil från %2$s till %3$s. Gamla sparfiler säkerhetskopierades till Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">Importerade %1$d filer från %2$s till %3$s. Gamla sparfiler säkerhetskopierades till Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">Importerade %1$d fil från %2$s till %3$s. Gamla sparfiler säkerhetskopierades till Download/ShieldDeck/Saves/backups</item>
+        <item quantity="other">Importerade %1$d filer från %2$s till %3$s. Gamla sparfiler säkerhetskopierades till Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">Välj en zip-fil med sparfiler för %1$s</string>
     <string name="main_saves_exporting">Exporterar %1$s</string>
@@ -1209,7 +1209,7 @@
 
     <string name="upd_unknown_apps_failed">Det gick inte att öppna Androids inställning ”Installera okända appar”</string>
     <string name="upd_couldnt_check">Kunde inte kontrollera: %1$s</string>
-    <string name="upd_no_download">Den här versionen har ingen nedladdning för den här kopian av DroidDeck</string>
+    <string name="upd_no_download">Den här versionen har ingen nedladdning för den här kopian av ShieldDeck</string>
     <string name="upd_stop_first">Stoppa den pågående sessionen innan du uppdaterar</string>
     <string name="upd_stage_downloading">Laddar ned</string>
     <string name="upd_stage_installing">Installerar</string>
@@ -1238,16 +1238,16 @@
     <string name="drivers_recommended_unpublished">De rekommenderade drivrutinerna är inte publicerade just nu</string>
     <string name="drivers_downloading_pair">Laddar ned %1$s %2$s…</string>
     <string name="drivers_updated_to">Uppdaterad till %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Uppdaterad till %1$s %2$s. Skärmdrivrutinen tillämpas efter att DroidDeck har startats om.</string>
+    <string name="drivers_updated_to_restart">Uppdaterad till %1$s %2$s. Skärmdrivrutinen tillämpas efter att ShieldDeck har startats om.</string>
     <string name="drivers_switched_to">Bytte till %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Bytte till %1$s %2$s. Skärmdrivrutinen tillämpas efter att DroidDeck har startats om.</string>
+    <string name="drivers_switched_to_restart">Bytte till %1$s %2$s. Skärmdrivrutinen tillämpas efter att ShieldDeck har startats om.</string>
     <string name="drivers_using">Använder %1$s %2$s.</string>
-    <string name="drivers_using_restart">Använder %1$s %2$s. Skärmdrivrutinen tillämpas efter att DroidDeck har startats om.</string>
+    <string name="drivers_using_restart">Använder %1$s %2$s. Skärmdrivrutinen tillämpas efter att ShieldDeck har startats om.</string>
     <string name="drivers_not_a_driver">Inte en drivrutins-zip: varken en AdrenoTools-drivrutin, en -Linux-Turnip eller ett Android + Linux-paket</string>
     <string name="drivers_import_failed">Importen misslyckades: %1$s</string>
     <string name="drivers_imported_unnamed">Importerad drivrutin</string>
     <string name="drivers_using_bundle">Använder %1$s som både körmiljö- och skärmdrivrutin.</string>
-    <string name="drivers_using_bundle_restart">Använder %1$s som både körmiljö- och skärmdrivrutin. Skärmdrivrutinen tillämpas efter att DroidDeck har startats om.</string>
+    <string name="drivers_using_bundle_restart">Använder %1$s som både körmiljö- och skärmdrivrutin. Skärmdrivrutinen tillämpas efter att ShieldDeck har startats om.</string>
     <string name="drivers_deleted_bundle">Tog bort %1$s (båda drivrutinerna)</string>
     <string name="drivers_deleted">Tog bort %1$s</string>
     <string name="drivers_release_status">Senaste: %1$s · kontrollerad %2$s</string>
@@ -1264,7 +1264,7 @@
         <item quantity="one">för %1$d dag sedan</item>
         <item quantity="other">för %1$d dagar sedan</item>
     </plurals>
-    <string name="drivers_checking_sources">Kontrollerar Banners-Turnip, WinNative och DroidDeck…</string>
+    <string name="drivers_checking_sources">Kontrollerar Banners-Turnip, WinNative och ShieldDeck…</string>
     <string name="drivers_check_failed">kontrollen misslyckades</string>
     <string name="drivers_installed_pick_either">Installerad %1$s - välj den i endera listan för att ställa in båda drivrutinerna</string>
     <string name="drivers_installed_pick">Installerad %1$s - välj den i menyn</string>
@@ -1639,7 +1639,7 @@
     <string name="adbfix_no_pairing">Ingen parkoppling för trådlös felsökning är sparad</string>
     <string name="adbfix_enter_address">Ange den aktuella IP-adressen och porten för trådlös felsökning</string>
 
-    <string name="adbpair_timed_out">Tidsgränsen överskreds när appen väntade på popup-fönstret för parkoppling. Försök igen från DroidDeck.</string>
+    <string name="adbpair_timed_out">Tidsgränsen överskreds när appen väntade på popup-fönstret för parkoppling. Försök igen från ShieldDeck.</string>
     <string name="adbpair_discovery_failed_code">Kunde inte söka efter popup-fönstret för parkoppling (%1$d). Kontrollera att Wi-Fi är på.</string>
     <string name="adbpair_discovery_failed">Kunde inte söka efter popup-fönstret för parkoppling: %1$s</string>
     <string name="adbpair_six_digits">Ange alla 6 siffror i koden</string>
@@ -1661,20 +1661,20 @@
     <string name="adbpair_enter_code">Ange kod</string>
     <string name="adbpair_title_working">Konfigurerar Steam</string>
     <string name="adbpair_title_done">Steam är redo</string>
-    <string name="adbpair_done_text">Tryck för att gå tillbaka till DroidDeck. Du kan stänga av trådlös felsökning nu.</string>
+    <string name="adbpair_done_text">Tryck för att gå tillbaka till ShieldDeck. Du kan stänga av trådlös felsökning nu.</string>
     <string name="adbpair_title_failed">Konfigurationen av trådlös felsökning avbröts</string>
 
     <string name="selfinst_http">Nedladdningen svarade HTTP %1$d</string>
     <string name="selfinst_size_mismatch">Nedladdningens storlek matchade inte den publicerade APK-filen och förkastades - försök igen</string>
     <string name="selfinst_checksum_mismatch">Nedladdningen matchade inte sin kontrollsumma och förkastades - försök igen</string>
     <string name="selfinst_wrong_package">Uppdateringen är för Android-paketet %1$s, inte %2$s</string>
-    <string name="selfinst_metadata_signer">Uppdateringens metadata anger inte DroidDecks signeringsnyckel för utgåvan</string>
+    <string name="selfinst_metadata_signer">Uppdateringens metadata anger inte ShieldDecks signeringsnyckel för utgåvan</string>
     <string name="selfinst_unreadable">Android kunde inte läsa den nedladdade APK-filen</string>
     <string name="selfinst_apk_wrong_package">Den nedladdade APK-filen är för %1$s, inte %2$s</string>
     <string name="selfinst_version_mismatch">Den nedladdade APK-filen anger versionCode %1$d, inte den publicerade %2$d</string>
     <string name="selfinst_downgrade">Android installerar inte versionCode %1$d över den installerade %2$d</string>
     <string name="selfinst_no_signing">Den nedladdade APK-filen har ingen signeringsinformation</string>
-    <string name="selfinst_wrong_signer">Den nedladdade APK-filen är inte signerad med DroidDecks nyckel för utgåvan</string>
+    <string name="selfinst_wrong_signer">Den nedladdade APK-filen är inte signerad med ShieldDecks nyckel för utgåvan</string>
     <string name="appupd_http">Uppdateringskatalogen svarade HTTP %1$d</string>
 
     <string name="loadstate_starting">Startar sessionen…</string>
@@ -1758,7 +1758,7 @@
     <string name="gpuinfo_supported">Stöds</string>
     <string name="gpuinfo_experimental">Experimentell: dess drivrutiner är testversioner</string>
     <string name="gpuinfo_below_tested">Under testad maskinvara (Adreno 725 och nyare): det kan hända att det inte fungerar</string>
-    <string name="gpuinfo_unsupported">Stöds inte: DroidDeck behöver en Adreno-GPU (Snapdragon)</string>
+    <string name="gpuinfo_unsupported">Stöds inte: ShieldDeck behöver en Adreno-GPU (Snapdragon)</string>
 
     <string name="turnip_rate_limited">GitHubs hastighetsgräns nåddes - försök igen senare</string>
     <string name="turnip_github_http">GitHub svarade HTTP %1$d</string>
@@ -1801,10 +1801,10 @@
     <string name="phantom_instructions_not_applicable">Den här Android-versionen använder inte den här gränsen.</string>
     <string name="phantom_fix_toggle">Slå på ”Inaktivera begränsningar för underprocesser” i Utvecklaralternativ, och låt Utvecklaralternativ vara kvar på efteråt.</string>
     <string name="phantom_fix_no_toggle">Den här Android-versionen har ingen växel för det. Använd trådlös felsökning för att ändra det från den här enheten.</string>
-    <string name="upd_block_no_apk">Den här versionen har ingen nedladdning för den här kopian av DroidDeck.</string>
+    <string name="upd_block_no_apk">Den här versionen har ingen nedladdning för den här kopian av ShieldDeck.</string>
     <string name="upd_block_version_code">Android installerar inte den över den här versionen eftersom dess versionCode %1$d är lägre än den installerade %2$d.</string>
     <string name="upd_fail_downgrade">Android installerar inte en äldre version över en nyare. Stanna på den här versionen tills kanalen hinner i kapp.</string>
-    <string name="upd_fail_signature">Den här kopian av DroidDeck är signerad på ett annat sätt (en lokal version?), så Android uppdaterar den inte på plats.</string>
+    <string name="upd_fail_signature">Den här kopian av ShieldDeck är signerad på ett annat sätt (en lokal version?), så Android uppdaterar den inte på plats.</string>
     <string name="upd_fail_storage">Det finns inte tillräckligt med ledigt utrymme för uppdateringen.</string>
     <string name="upd_fail_aborted">Uppdateringen avbröts.</string>
     <string name="upd_fail_with_message">Uppdateringen installerades inte: %1$s</string>
@@ -1829,7 +1829,7 @@
     <string name="gstore_volume_free">%1$s · %2$s ledigt</string>
     <string name="mode_storage_auto_short">Automatiskt</string>
     <string name="appupd_catalog_rejected">Uppdateringskatalogen klarade inte sina kontroller (%1$s)</string>
-    <string name="main_adb_clip_label">DroidDecks inställning för underprocesser</string>
+    <string name="main_adb_clip_label">ShieldDecks inställning för underprocesser</string>
     <string name="setup_signed_in_offline_unnamed">Inloggad · offlineläge</string>
     <string name="setup_signed_in_unnamed">Inloggad</string>
     <string name="driver_tag_bundled">PAKETERAD</string>
@@ -2145,7 +2145,7 @@
     <string name="touch_speed_normal">Normal</string>
     <string name="touch_speed_fast">Snabb</string>
     <string name="touch_edit_layout">Redigera layout</string>
-    <string name="touch_droiddeck_menu">DroidDeck-meny</string>
+    <string name="touch_droiddeck_menu">ShieldDeck-meny</string>
     <string name="touch_drag_hint">Dra kontroller till skärmen</string>
     <string name="touch_arrange">Ordna</string>
     <string name="touch_discard">Kasta</string>

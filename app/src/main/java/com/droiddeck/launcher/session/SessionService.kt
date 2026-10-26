@@ -1403,7 +1403,7 @@ class SessionService : Service() {
         try {
             if (wakeLock?.isHeld != true) {
                 val power = getSystemService(Context.POWER_SERVICE) as? PowerManager
-                wakeLock = power?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DroidDeck:session")?.apply {
+                wakeLock = power?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ShieldDeck:session")?.apply {
                     setReferenceCounted(false)
                     acquire(12L * 60L * 60L * 1000L)
                 }
@@ -1418,7 +1418,7 @@ class SessionService : Service() {
             if (!allowed) Log.i(TAG, "wifi lock skipped: its low-latency mode resets this device")
             @Suppress("DEPRECATION")
             if (allowed && wifiLock?.isHeld != true) {
-                wifiLock = wifi?.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "DroidDeck:session-wifi")
+                wifiLock = wifi?.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "ShieldDeck:session-wifi")
                     ?.apply {
                         setReferenceCounted(false)
                         acquire()

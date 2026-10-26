@@ -23,7 +23,7 @@ class SessionClipboard(context: Context, private val hasFocus: () -> Boolean) {
                 if (active && hasFocus() && WaylandCompositor.isClipboardListener(this)) {
                     val current = clipboard.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.text
                     if (current?.toString() != text) {
-                        clipboard.setPrimaryClip(ClipData.newPlainText("DroidDeck", text))
+                        clipboard.setPrimaryClip(ClipData.newPlainText("ShieldDeck", text))
                     }
                 }
             }

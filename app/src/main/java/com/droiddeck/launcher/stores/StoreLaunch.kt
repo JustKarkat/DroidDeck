@@ -24,7 +24,7 @@ object StoreLaunch {
         val lines = ArrayList<String>()
         lines += "@echo off"
         lines += "setlocal"
-        lines += "rem Written by DroidDeck for ${sidecar.store.label}: ${sidecar.title}. Steam's shortcut runs this file."
+        lines += "rem Written by ShieldDeck for ${sidecar.store.label}: ${sidecar.title}. Steam's shortcut runs this file."
         lines += "cd /d \"%~dp0$dir\""
         for ((k, v) in sidecar.env) if (ENV_NAME.matches(k)) lines += "set \"$k=${v.replace("\"", "")}\""
         val args = sidecar.args.joinToString(" ") { quoteArg(it) }

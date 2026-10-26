@@ -196,7 +196,7 @@ object CoverArt {
             connectTimeout = 10_000
             readTimeout = 20_000
             instanceFollowRedirects = true
-            setRequestProperty("User-Agent", "DroidDeck")
+            setRequestProperty("User-Agent", "ShieldDeck")
         }
 
     private fun exists(url: String): Boolean = try {

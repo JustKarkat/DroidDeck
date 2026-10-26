@@ -49,7 +49,7 @@ object WirelessAdbFix {
 
     suspend fun pair(context: Context, host: String, port: Int, pairingCode: String) {
         loadOrCreateIdentity(context.applicationContext)
-        Kadb.pair(host, port, pairingCode, "DroidDeck")
+        Kadb.pair(host, port, pairingCode, "ShieldDeck")
         writeAtomically(context, File(context.noBackupFilesDir, HOST_FILE), host.toByteArray())
         writeAtomically(context, File(context.noBackupFilesDir, CONNECTION_FILE), ByteArray(0))
     }

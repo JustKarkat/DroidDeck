@@ -29,7 +29,7 @@ object SessionTerminal {
         return TerminalSession(
             current.command.first(), current.workingDirectory, current.command,
             current.hostEnvironment, 3000, client,
-        ).also { it.mSessionName = "DroidDeck Linux shell" }
+        ).also { it.mSessionName = "ShieldDeck Linux shell" }
     }
 
     fun clear(generation: Int? = null) {

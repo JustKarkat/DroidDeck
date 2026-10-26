@@ -21,7 +21,7 @@ object DeviceInfo {
     }
 
     fun text(sections: List<Section>): String = buildString {
-        append("DroidDeck device info\n")
+        append("ShieldDeck device info\n")
         for (s in sections) {
             append('\n').append(s.title).append('\n')
             for ((k, v) in s.rows) append("  ").append(k).append(": ").append(v).append('\n')
@@ -141,7 +141,7 @@ object DeviceInfo {
         hw[PackageManager.FEATURE_VULKAN_HARDWARE_LEVEL]?.let { add("Android hardware level", it.toString()) }
     })
 
-    private fun drivers(context: Context, gpu: GpuInfo) = Section("Drivers DroidDeck uses", buildList<Pair<String, String>> {
+    private fun drivers(context: Context, gpu: GpuInfo) = Section("Drivers ShieldDeck uses", buildList<Pair<String, String>> {
         add("Driver mode", SessionPrefs.gpuDriverMode(context))
         val turnip = TurnipDriver(context)
         val choice = SessionPrefs.androidDriver(context).ifEmpty { turnip.autoId() }

@@ -8,7 +8,7 @@
 #define COMPOSITOR_INTERNAL __attribute__((visibility("hidden")))
 
 #ifndef WLOGE
-#define WLOGE(...) __android_log_print(ANDROID_LOG_ERROR, "DroidDeckWayland", __VA_ARGS__)
+#define WLOGE(...) __android_log_print(ANDROID_LOG_ERROR, "ShieldDeckWayland", __VA_ARGS__)
 #endif
 
 

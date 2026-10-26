@@ -107,10 +107,10 @@ struct VkTable {
 
 #include <android/log.h>
 #include <string>
-#define WLOG_TAG "DroidDeck_Renderer"
+#define WLOG_TAG "ShieldDeck_Renderer"
 #define RLOG(...) if(verboseLog) __android_log_print(ANDROID_LOG_DEBUG,WLOG_TAG,__VA_ARGS__)
 #define RLOG_E(...) __android_log_print(ANDROID_LOG_ERROR,WLOG_TAG,__VA_ARGS__)
-#define SCANOUT_LOG(...) __android_log_print(ANDROID_LOG_DEBUG,"DroidDeck_Scanout",__VA_ARGS__)
+#define SCANOUT_LOG(...) __android_log_print(ANDROID_LOG_DEBUG,"ShieldDeck_Scanout",__VA_ARGS__)
 
 #include <vulkan/vulkan_android.h>
 #include <android/hardware_buffer.h>

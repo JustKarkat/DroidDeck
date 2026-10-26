@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.droiddeck.launcher.ui.DroidDeckTheme
+import com.droiddeck.launcher.ui.ShieldDeckTheme
 import java.io.File
 
 class FileManagerActivity : ComponentActivity() {
@@ -27,7 +27,7 @@ class FileManagerActivity : ComponentActivity() {
         }
         val initialDir = intent.getStringExtra(EXTRA_START_DIR)?.let(::File)
         setContent {
-            DroidDeckTheme(appScale = com.droiddeck.launcher.core.AppUiPrefs.scale(this)) {
+            ShieldDeckTheme(appScale = com.droiddeck.launcher.core.AppUiPrefs.scale(this)) {
                 Surface(modifier = Modifier.fillMaxSize().systemBarsPadding(), color = MaterialTheme.colorScheme.background) {
                     FileManagerScreen(initialDir = initialDir)
                 }

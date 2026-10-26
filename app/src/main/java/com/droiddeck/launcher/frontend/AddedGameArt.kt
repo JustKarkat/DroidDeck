@@ -159,7 +159,7 @@ object AddedGameArt {
         c.requestMethod = "HEAD"
         c.connectTimeout = 8_000
         c.readTimeout = 8_000
-        c.setRequestProperty("User-Agent", "DroidDeck-launcher")
+        c.setRequestProperty("User-Agent", "ShieldDeck-launcher")
         try { c.responseCode == 200 } finally { c.disconnect() }
     }.getOrDefault(false)
 
@@ -315,7 +315,7 @@ object AddedGameArt {
         val c = URL(url).openConnection() as HttpURLConnection
         c.connectTimeout = 10_000
         c.readTimeout = 15_000
-        c.setRequestProperty("User-Agent", "DroidDeck-launcher")
+        c.setRequestProperty("User-Agent", "ShieldDeck-launcher")
         return try {
             if (c.responseCode != 200) null else c.inputStream.use { it.readBytes() }
         } catch (e: Exception) {

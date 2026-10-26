@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidDeck</string>
+    <string name="app_name">ShieldDeck</string>
     <string-array name="loading_hints">
         <item>Під час першого запуску завантажується Steam. Це може зайняти кілька хвилин.</item>
         <item>За замовчуванням вихід із додатка ставить Steam на паузу; коли ви повернетеся, усе продовжиться з того самого місця.</item>
@@ -132,7 +132,7 @@
     <string name="user_apps_remove_confirm">Натисніть ще раз, щоб видалити</string>
     <string name="user_apps_stop_session">Завершіть сеанс, щоб видалити</string>
     <string name="user_apps_script_linked">Запускає %1$s з його папки, яку підключено до сеансу там, де вона лежить. Видалення додатка не зачіпає цю папку.</string>
-    <string name="user_apps_script_copied">Запускає %1$s з копії його папки всередині DroidDeck. Видалення додатка видаляє копію, а не оригінал.</string>
+    <string name="user_apps_script_copied">Запускає %1$s з копії його папки всередині ShieldDeck. Видалення додатка видаляє копію, а не оригінал.</string>
     <string name="user_apps_runtime_required">Спершу встановіть середовище Linux</string>
     <string name="user_apps_file_gone">Файлу більше немає</string>
     <string name="user_apps_no_space">Недостатньо вільного місця: для копіювання папки потрібно %1$s</string>
@@ -167,7 +167,7 @@
     <string name="app_fex_off">Вимк.</string>
     <string name="app_fex_hint">FEX запускає програми Linux для x86 на цьому пристрої ARM64. У режимі «Авто» він вмикається, якщо програму зібрано для x86.</string>
     <string name="app_fex_x86">%1$s через FEX</string>
-    <string name="app_fex_not_ready">Цю програму зібрано для ПК з архітектурою %1$s, і вона працює через FEX, який ще не налаштовано. Один раз відкрийте Steam, увійшовши в обліковий запис: DroidDeck завантажить FEX і потрібний йому Steam Linux Runtime, після чого програма відкриється.</string>
+    <string name="app_fex_not_ready">Цю програму зібрано для ПК з архітектурою %1$s, і вона працює через FEX, який ще не налаштовано. Один раз відкрийте Steam, увійшовши в обліковий запис: ShieldDeck завантажить FEX і потрібний йому Steam Linux Runtime, після чого програма відкриється.</string>
     <string name="session_end_program">Ця програма</string>
     <string name="session_end_fex_missing">%1$s зібрано для ПК x86; для запуску потрібен FEX, який ще не встановлено. Один раз запустіть Steam, увійшовши в обліковий запис, дайте йому завантажити FEX і Steam Linux Runtime, а потім запустіть це знову.</string>
     <string name="add_app_flatpak_hint">ID додатка Flathub або його сторінка на Flathub. Якщо Flatpak ще не налаштовано, його буде налаштовано спочатку.</string>
@@ -202,13 +202,13 @@
     <string name="edit_app_save">Зберегти</string>
     <string name="add_app_checking_folder">Перевірка папки…</string>
     <string name="add_app_folder_linked">Папку додатка підключено до сеансу: %1$s</string>
-    <string name="add_app_folder_copied">Папка містить програми Linux, які не можна запускати зі спільного сховища, тому її буде скопійовано в DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Папка містить програми Linux, які не можна запускати зі спільного сховища, тому її буде скопійовано в ShieldDeck (%1$s).</string>
     <string name="add_app_confirm">Додати</string>
     <string name="add_app_cancel">Скасувати</string>
     <string name="add_app_runtime_required">Спершу встановіть середовище Linux у розділі «Налаштування».</string>
     <string name="add_app_busy">Зачекайте, поки завершиться %1$s.</string>
     <string name="steam_compat_label">Сумісно</string>
-    <string name="proton_compatible_note">Збірки з позначкою «%1$s» у меню «Сумісність» Steam мають виправлення префіксів від DroidDeck і запускають тут ігри. За замовчуванням використовується Proton Experimental ARM64 (%1$s) або Proton 11.0 ARM64 (%1$s), щойно встановлено цю новішу збірку. Власні збірки Proton від Valve без цієї позначки не можуть запустити гру на цьому пристрої.</string>
+    <string name="proton_compatible_note">Збірки з позначкою «%1$s» у меню «Сумісність» Steam мають виправлення префіксів від ShieldDeck і запускають тут ігри. За замовчуванням використовується Proton Experimental ARM64 (%1$s) або Proton 11.0 ARM64 (%1$s), щойно встановлено цю новішу збірку. Власні збірки Proton від Valve без цієї позначки не можуть запустити гру на цьому пристрої.</string>
     <string name="proton_installed_compatible">Установлено %1$s · %2$s</string>
     <string name="common_cancel">Скасувати</string>
     <string name="common_auto">Авто</string>
@@ -280,8 +280,8 @@
     <string name="mode_background_downloads_hint">Відкладає призупинення у фоні, поки Steam активно щось завантажує.</string>
     <string name="mode_suspend_note">«Авто» призупиняє сеанс у фоні й відновлює, коли додаток знову на екрані. «Вручну» чекає на «Відновити». «Ніколи» — сеанс працює далі.</string>
     <string name="mode_startup">Запуск</string>
-    <string name="mode_steam_startup">Запускати Steam разом із DroidDeck</string>
-    <string name="mode_steam_startup_hint">Відкриває сеанс Steam під час запуску DroidDeck.</string>
+    <string name="mode_steam_startup">Запускати Steam разом із ShieldDeck</string>
+    <string name="mode_steam_startup_hint">Відкриває сеанс Steam під час запуску ShieldDeck.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Пошук випусків…</string>
     <string name="mode_decky_ready">Можна встановити %1$s.</string>
@@ -375,7 +375,7 @@
     <string name="mode_wifi_open_settings">Відкрити налаштування</string>
     <string name="mode_wifi_continue">Продовжити</string>
     <string name="mode_wifi_explain_title">Увімкнути пошук Wi-Fi?</string>
-    <string name="mode_wifi_explain_text">Android вимагає дозволу на доступ до геоданих, щоб читати назви Wi-Fi і шукати мережі поблизу. DroidDeck використовує цей доступ, щоб показувати ці мережі в Steam. Ми не відстежуємо ваше місцезнаходження. Доступ до інтернету працює і без цього дозволу.</string>
+    <string name="mode_wifi_explain_text">Android вимагає дозволу на доступ до геоданих, щоб читати назви Wi-Fi і шукати мережі поблизу. ShieldDeck використовує цей доступ, щоб показувати ці мережі в Steam. Ми не відстежуємо ваше місцезнаходження. Доступ до інтернету працює і без цього дозволу.</string>
     <string name="mode_storage">Сховище ігор</string>
     <string name="mode_storage_auto">Автоматично — SD-карта, якщо вставлена, плюс ваші папки Games</string>
     <string name="mode_storage_auto_none">Автоматично — ваші папки Games, плюс SD-карта, якщо вставлена (зараз немає)</string>
@@ -473,7 +473,7 @@
     <string name="comp_applies_next_game">Застосовується під час наступного запуску гри</string>
     <string name="comp_import_zip">Імпортувати .zip</string>
     <string name="comp_reading">Читання версій Proton…</string>
-    <string name="comp_no_proton">Proton ще не встановлено. Один раз запустіть Steam, щоб завантажити його Proton для ARM64, або додайте GE-Proton, CachyOS чи DroidDeck-Proton у розділі «Налаштування».</string>
+    <string name="comp_no_proton">Proton ще не встановлено. Один раз запустіть Steam, щоб завантажити його Proton для ARM64, або додайте GE-Proton, CachyOS чи ShieldDeck-Proton у розділі «Налаштування».</string>
     <string name="comp_original">Оригінал · %1$s</string>
     <string name="comp_this_build">%1$s · ця збірка</string>
     <string name="comp_earlier_build">%1$s · попередня збірка</string>
@@ -697,13 +697,13 @@
     <string name="setup_language_system">Системна мова (%1$s)</string>
     <string name="setup_language_system_short">Системна мова</string>
     <string name="setup_app_scale">Масштаб додатка</string>
-    <string name="setup_app_scale_hint">Текст і елементи керування DroidDeck</string>
+    <string name="setup_app_scale_hint">Текст і елементи керування ShieldDeck</string>
     <string name="setup_app_scale_default">%1$d%% (стандартно)</string>
     <string name="setup_theme">Тема</string>
     <string name="setup_theme_hint">Вигляд лаунчера</string>
     <string name="setup_home">Використовувати як головний екран</string>
-    <string name="setup_home_on">DroidDeck може бути додатком головного екрана</string>
-    <string name="setup_home_off">DroidDeck ніколи не пропонується як додаток головного екрана</string>
+    <string name="setup_home_on">ShieldDeck може бути додатком головного екрана</string>
+    <string name="setup_home_off">ShieldDeck ніколи не пропонується як додаток головного екрана</string>
     <string name="setup_orientation">Орієнтація</string>
     <string name="setup_orientation_auto">Автоматично альбомна</string>
     <string name="setup_orientation_landscape">Альбомна</string>
@@ -782,16 +782,16 @@
     <string name="store_website">Веб-сайт</string>
     <string name="store_verified">Перевірено</string>
     <string name="upd_title">Оновлення</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">ShieldDeck %1$s · %2$s</string>
     <string name="upd_checked">Перевірено %1$s</string>
     <string name="upd_not_checked">Ще не перевірено</string>
-    <string name="upd_perm_title">Дозволити DroidDeck оновлюватися самостійно</string>
+    <string name="upd_perm_title">Дозволити ShieldDeck оновлюватися самостійно</string>
     <string name="upd_perm_text">На наступному екрані увімкніть «Дозволити з цього джерела», а потім поверніться. Оновлення продовжиться самостійно.</string>
     <string name="upd_open_settings">Відкрити налаштування</string>
     <string name="upd_not_now">Не зараз</string>
     <string name="upd_signed_status">Підписано інакше</string>
     <string name="upd_signed_headline">Неможливо оновити на місці</string>
-    <string name="upd_signed_detail">Цю копію не підписано релізним ключем DroidDeck, тому оновлення не можуть установитися над нею. Щоб перейти на іншу, видаліть цю копію.</string>
+    <string name="upd_signed_detail">Цю копію не підписано релізним ключем ShieldDeck, тому оновлення не можуть установитися над нею. Щоб перейти на іншу, видаліть цю копію.</string>
     <string name="upd_available">Є оновлення</string>
     <string name="upd_blocked_status">Неможливо встановити</string>
     <string name="upd_switch">Готово до переходу</string>
@@ -813,7 +813,7 @@
     <string name="upd_stop_session">Завершіть поточний сеанс, щоб оновити.</string>
     <string name="upd_less">Згорнути</string>
     <string name="upd_more">Розгорнути</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">ShieldDeck %1$s</string>
     <string name="upd_new_preview">Нова попередня збірка</string>
     <string name="upd_new_test">Тестова збірка PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -828,7 +828,7 @@
     <string name="upd_tests_hint">Спробуйте виправлення до його випуску</string>
     <string name="upd_tests_none">Поки що немає</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Не зібрано для цієї копії DroidDeck</string>
+    <string name="upd_not_built">Не зібрано для цієї копії ShieldDeck</string>
     <string name="upd_updated">Оновлено %1$s</string>
     <string name="upd_test_name">тест PR #%1$d</string>
     <string name="upd_while_ago">деякий час тому</string>
@@ -857,13 +857,13 @@
     <string name="gate_fix_for_me">Виправити за мене</string>
     <string name="gate_toggle_steps">Увімкніть «Вимкнути обмеження дочірніх процесів», а потім поверніться. Залиште «Параметри розробника» увімкненими, інакше перемикач вимкнеться знову.</string>
     <string name="gate_open_dev">Відкрити «Параметри розробника»</string>
-    <string name="gate_no_toggle">У цій версії Android немає перемикача для цього, тож DroidDeck змінює налаштування через бездротове налагодження. Займає приблизно хвилину, комп’ютер не потрібен.</string>
+    <string name="gate_no_toggle">У цій версії Android немає перемикача для цього, тож ShieldDeck змінює налаштування через бездротове налагодження. Займає приблизно хвилину, комп’ютер не потрібен.</string>
     <string name="gate_needs_wifi">Бездротове налагодження потребує Wi-Fi. Підійде будь-яка мережа; інтернет не потрібен.</string>
-    <string name="gate_needs_notifications">Код поєднання приходить у сповіщенні. Дозвольте сповіщення для DroidDeck або скористайтеся розділом «Інші способи».</string>
+    <string name="gate_needs_notifications">Код поєднання приходить у сповіщенні. Дозвольте сповіщення для ShieldDeck або скористайтеся розділом «Інші способи».</string>
     <string name="gate_allow_notifications">Дозволити сповіщення</string>
     <string name="gate_step1">Відкрийте «Налаштування» → «Параметри розробника» → «Бездротове налагодження» і увімкніть його</string>
     <string name="gate_step2">Натисніть «Поєднати пристрій за кодом»</string>
-    <string name="gate_step3">Введіть код у сповіщення DroidDeck</string>
+    <string name="gate_step3">Введіть код у сповіщення ShieldDeck</string>
     <string name="gate_waiting">Очікування вікна поєднання…</string>
     <string name="gate_code_needed">Вікно знайдено. Введіть його код у сповіщенні.</string>
     <string name="gate_status">Статус</string>
@@ -979,7 +979,7 @@
     <string name="desktop_removing">Видалення робочого столу</string>
     <string name="desktop_removed">Робочий стіл видалено</string>
     <string name="desktop_cleaning_legacy">Видалення старих файлів LXQt</string>
-    <string name="desktop_removal_unknown">Оновіть DroidDeck, перш ніж видаляти цю версію робочого столу.</string>
+    <string name="desktop_removal_unknown">Оновіть ShieldDeck, перш ніж видаляти цю версію робочого столу.</string>
     <string name="content_linux_desktop">Робочий стіл Linux</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox і ваші емулятори</string>
     <string name="games_empty">Ігри, які ви встановите в Steam, з’являться тут після сеансу.</string>
@@ -1021,11 +1021,11 @@
     <string name="gpu_set_with_runtime">Задається разом із драйвером середовища: %1$s містить обидва.</string>
     <string name="gpu_runtime_hint">Використовується іграми та робочим столом.</string>
     <string name="gpu_runtime_default">Стандартний для середовища</string>
-    <string name="gpu_display_hint">Виводить кадри на екран. Застосовується після перезапуску DroidDeck.</string>
+    <string name="gpu_display_hint">Виводить кадри на екран. Застосовується після перезапуску ShieldDeck.</string>
     <string name="gpu_auto_by_gpu">Авто — вибирається за GPU</string>
     <string name="gpu_manage">Завантажити, імпортувати або видалити…</string>
     <string name="gpu_in_use_caps">ВИКОРИСТОВУЄТЬСЯ</string>
-    <string name="gpu_builtin">Драйвери, вбудовані в DroidDeck</string>
+    <string name="gpu_builtin">Драйвери, вбудовані в ShieldDeck</string>
     <string name="gpu_matched_pair">Драйвери середовища і дисплея задаються разом як узгоджена пара.</string>
     <string name="gpu_recommended_for">Рекомендовано для цього GPU: %1$s.</string>
     <string name="gpu_refresh_hint">Оновіть, щоб знайти драйвери для цього GPU.</string>
@@ -1128,7 +1128,7 @@
     <string name="unfolded_controls_hint">У розгорнутому стані гра розташована над трекпадами й задніми кнопками Steam Deck. У складеному — гра на весь екран.</string>
     <string name="pip_suspended">Призупинено</string>
     <string name="pip_not_ready">Режим «Картинка в картинці» стане доступним, щойно сеанс буде готовий.</string>
-    <string name="pip_permission">Дозвольте DroidDeck режим «Картинка в картинці» в налаштуваннях Android.</string>
+    <string name="pip_permission">Дозвольте ShieldDeck режим «Картинка в картинці» в налаштуваннях Android.</string>
     <string name="pip_unavailable">Android не вдалося відкрити режим «Картинка в картинці».</string>
     <string name="game_shortcut">Ярлик</string>
     <string name="game_shortcut_add">Додати на головний екран</string>
@@ -1138,7 +1138,7 @@
     <string name="game_link_copied">Посилання для запуску скопійовано</string>
     <string name="game_shortcut_unsupported">Цей лаунчер не підтримує ярлики. Скористайтеся пунктом «Копіювати посилання для запуску».</string>
     <string name="game_link_invalid">Недійсне посилання для запуску гри.</string>
-    <string name="game_link_missing">Цієї гри більше немає у вашій бібліотеці DroidDeck.</string>
+    <string name="game_link_missing">Цієї гри більше немає у вашій бібліотеці ShieldDeck.</string>
     <string name="game_link_session_busy">Зупиніть поточний сеанс, перш ніж запускати гру Steam.</string>
     <string name="game_link_failed">Не вдалося передати гру в Steam. Спробуйте запустити її ще раз.</string>
     <string name="setup_retry_removal">Повторити видалення</string>
@@ -1164,10 +1164,10 @@
         <item quantity="other">Імпортовано %1$d файлу з %2$s у %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">Імпортовано %1$d файл з %2$s у %3$s. Резервну копію старих збережень записано в Download/DroidDeck/Saves/backups</item>
-        <item quantity="few">Імпортовано %1$d файли з %2$s у %3$s. Резервну копію старих збережень записано в Download/DroidDeck/Saves/backups</item>
-        <item quantity="many">Імпортовано %1$d файлів з %2$s у %3$s. Резервну копію старих збережень записано в Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">Імпортовано %1$d файлу з %2$s у %3$s. Резервну копію старих збережень записано в Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">Імпортовано %1$d файл з %2$s у %3$s. Резервну копію старих збережень записано в Download/ShieldDeck/Saves/backups</item>
+        <item quantity="few">Імпортовано %1$d файли з %2$s у %3$s. Резервну копію старих збережень записано в Download/ShieldDeck/Saves/backups</item>
+        <item quantity="many">Імпортовано %1$d файлів з %2$s у %3$s. Резервну копію старих збережень записано в Download/ShieldDeck/Saves/backups</item>
+        <item quantity="other">Імпортовано %1$d файлу з %2$s у %3$s. Резервну копію старих збережень записано в Download/ShieldDeck/Saves/backups</item>
     </plurals>
     <string name="main_saves_pick_zip">Виберіть zip-архів збережень для %1$s</string>
     <string name="main_saves_exporting">Експорт %1$s</string>
@@ -1229,7 +1229,7 @@
 
     <string name="upd_unknown_apps_failed">Не вдалося відкрити налаштування Android «Встановлення невідомих додатків»</string>
     <string name="upd_couldnt_check">Не вдалося перевірити: %1$s</string>
-    <string name="upd_no_download">У цій збірці немає завантаження для вашої копії DroidDeck</string>
+    <string name="upd_no_download">У цій збірці немає завантаження для вашої копії ShieldDeck</string>
     <string name="upd_stop_first">Спершу зупиніть поточний сеанс, потім оновлюйте</string>
     <string name="upd_stage_downloading">Завантаження</string>
     <string name="upd_stage_installing">Встановлення</string>
@@ -1258,16 +1258,16 @@
     <string name="drivers_recommended_unpublished">Рекомендовані драйвери зараз не опубліковано</string>
     <string name="drivers_downloading_pair">Завантаження %1$s %2$s…</string>
     <string name="drivers_updated_to">Оновлено до %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Оновлено до %1$s %2$s. Драйвер дисплея запрацює після перезапуску DroidDeck.</string>
+    <string name="drivers_updated_to_restart">Оновлено до %1$s %2$s. Драйвер дисплея запрацює після перезапуску ShieldDeck.</string>
     <string name="drivers_switched_to">Перемкнено на %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Перемкнено на %1$s %2$s. Драйвер дисплея запрацює після перезапуску DroidDeck.</string>
+    <string name="drivers_switched_to_restart">Перемкнено на %1$s %2$s. Драйвер дисплея запрацює після перезапуску ShieldDeck.</string>
     <string name="drivers_using">Використовується %1$s %2$s.</string>
-    <string name="drivers_using_restart">Використовується %1$s %2$s. Драйвер дисплея запрацює після перезапуску DroidDeck.</string>
+    <string name="drivers_using_restart">Використовується %1$s %2$s. Драйвер дисплея запрацює після перезапуску ShieldDeck.</string>
     <string name="drivers_not_a_driver">Це не zip-файл драйвера: не драйвер AdrenoTools, не Turnip -Linux і не набір Android + Linux</string>
     <string name="drivers_import_failed">Не вдалося імпортувати: %1$s</string>
     <string name="drivers_imported_unnamed">Імпортований драйвер</string>
     <string name="drivers_using_bundle">%1$s використовується і як драйвер середовища, і як драйвер дисплея.</string>
-    <string name="drivers_using_bundle_restart">%1$s використовується і як драйвер середовища, і як драйвер дисплея. Драйвер дисплея запрацює після перезапуску DroidDeck.</string>
+    <string name="drivers_using_bundle_restart">%1$s використовується і як драйвер середовища, і як драйвер дисплея. Драйвер дисплея запрацює після перезапуску ShieldDeck.</string>
     <string name="drivers_deleted_bundle">Видалено %1$s (обидва драйвери)</string>
     <string name="drivers_deleted">Видалено %1$s</string>
     <string name="drivers_release_status">Найновіші: %1$s · перевірено %2$s</string>
@@ -1290,7 +1290,7 @@
         <item quantity="many">%1$d днів тому</item>
         <item quantity="other">%1$d дня тому</item>
     </plurals>
-    <string name="drivers_checking_sources">Перевірка Banners-Turnip, WinNative і DroidDeck…</string>
+    <string name="drivers_checking_sources">Перевірка Banners-Turnip, WinNative і ShieldDeck…</string>
     <string name="drivers_check_failed">помилка перевірки</string>
     <string name="drivers_installed_pick_either">Встановлено %1$s — виберіть його в будь-якому зі списків, щоб задати обидва драйвери</string>
     <string name="drivers_installed_pick">Встановлено %1$s — виберіть його в меню</string>
@@ -1681,7 +1681,7 @@
     <string name="adbfix_no_pairing">Немає збереженої прив’язки бездротового налагодження</string>
     <string name="adbfix_enter_address">Введіть поточну IP-адресу та порт бездротового налагодження</string>
 
-    <string name="adbpair_timed_out">Час очікування вікна прив’язки минув. Спробуйте ще раз із DroidDeck.</string>
+    <string name="adbpair_timed_out">Час очікування вікна прив’язки минув. Спробуйте ще раз із ShieldDeck.</string>
     <string name="adbpair_discovery_failed_code">Не вдалося знайти вікно прив’язки (%1$d). Перевірте, що Wi-Fi увімкнено.</string>
     <string name="adbpair_discovery_failed">Не вдалося знайти вікно прив’язки: %1$s</string>
     <string name="adbpair_six_digits">Введіть усі 6 цифр коду</string>
@@ -1703,20 +1703,20 @@
     <string name="adbpair_enter_code">Ввести код</string>
     <string name="adbpair_title_working">Налаштування Steam</string>
     <string name="adbpair_title_done">Steam готовий</string>
-    <string name="adbpair_done_text">Торкніться, щоб повернутися до DroidDeck. Тепер можна вимкнути бездротове налагодження.</string>
+    <string name="adbpair_done_text">Торкніться, щоб повернутися до ShieldDeck. Тепер можна вимкнути бездротове налагодження.</string>
     <string name="adbpair_title_failed">Налаштування бездротового налагодження зупинено</string>
 
     <string name="selfinst_http">Завантаження відповіло HTTP %1$d</string>
     <string name="selfinst_size_mismatch">Розмір завантаження не збігся з опублікованим APK, тож його відхилено - спробуйте ще раз</string>
     <string name="selfinst_checksum_mismatch">Завантаження не збіглося з контрольною сумою, тож його відхилено - спробуйте ще раз</string>
     <string name="selfinst_wrong_package">Оновлення призначене для пакета Android %1$s, а не %2$s</string>
-    <string name="selfinst_metadata_signer">Метадані оновлення не вказують ключ підпису випуску DroidDeck</string>
+    <string name="selfinst_metadata_signer">Метадані оновлення не вказують ключ підпису випуску ShieldDeck</string>
     <string name="selfinst_unreadable">Android не вдалося прочитати завантажений APK</string>
     <string name="selfinst_apk_wrong_package">Завантажений APK призначений для %1$s, а не %2$s</string>
     <string name="selfinst_version_mismatch">Завантажений APK має versionCode %1$d, а не опублікований %2$d</string>
     <string name="selfinst_downgrade">Android не встановить versionCode %1$d над встановленим %2$d</string>
     <string name="selfinst_no_signing">Завантажений APK не містить інформації про підпис</string>
-    <string name="selfinst_wrong_signer">Завантажений APK не підписано ключем випуску DroidDeck</string>
+    <string name="selfinst_wrong_signer">Завантажений APK не підписано ключем випуску ShieldDeck</string>
     <string name="appupd_http">Каталог оновлень відповів HTTP %1$d</string>
 
     <string name="loadstate_starting">Запуск сеансу…</string>
@@ -1800,7 +1800,7 @@
     <string name="gpuinfo_supported">Підтримується</string>
     <string name="gpuinfo_experimental">Експериментально: його драйвери - тестові збірки</string>
     <string name="gpuinfo_below_tested">Нижче за протестоване обладнання (Adreno 725 і новіші): може не запрацювати</string>
-    <string name="gpuinfo_unsupported">Не підтримується: DroidDeck потребує GPU Adreno (Snapdragon)</string>
+    <string name="gpuinfo_unsupported">Не підтримується: ShieldDeck потребує GPU Adreno (Snapdragon)</string>
 
     <string name="turnip_rate_limited">Перевищено ліміт запитів GitHub - спробуйте пізніше</string>
     <string name="turnip_github_http">GitHub відповів HTTP %1$d</string>
@@ -1843,10 +1843,10 @@
     <string name="phantom_instructions_not_applicable">Ця версія Android не використовує це обмеження.</string>
     <string name="phantom_fix_toggle">Увімкніть «Вимкнути обмеження дочірніх процесів» у розділі «Параметри розробника» і залишіть «Параметри розробника» увімкненими після цього.</string>
     <string name="phantom_fix_no_toggle">У цій версії Android немає перемикача для цього. Змініть це з цього пристрою за допомогою бездротового налагодження.</string>
-    <string name="upd_block_no_apk">У цій збірці немає завантаження для цієї копії DroidDeck.</string>
+    <string name="upd_block_no_apk">У цій збірці немає завантаження для цієї копії ShieldDeck.</string>
     <string name="upd_block_version_code">Android не встановить це над цією збіркою, бо її versionCode %1$d нижчий за встановлений %2$d.</string>
     <string name="upd_fail_downgrade">Android не встановить старішу версію над новішою. Залишайтеся на цій збірці, доки канал не наздожене.</string>
-    <string name="upd_fail_signature">Цю копію DroidDeck підписано інакше (локальна збірка?), тож Android не оновить її на місці.</string>
+    <string name="upd_fail_signature">Цю копію ShieldDeck підписано інакше (локальна збірка?), тож Android не оновить її на місці.</string>
     <string name="upd_fail_storage">Недостатньо вільного місця для оновлення.</string>
     <string name="upd_fail_aborted">Оновлення скасовано.</string>
     <string name="upd_fail_with_message">Оновлення не встановилося: %1$s</string>
@@ -1871,7 +1871,7 @@
     <string name="gstore_volume_free">%1$s · %2$s вільно</string>
     <string name="mode_storage_auto_short">Автоматично</string>
     <string name="appupd_catalog_rejected">Каталог оновлень не пройшов перевірку (%1$s)</string>
-    <string name="main_adb_clip_label">Параметр дочірніх процесів DroidDeck</string>
+    <string name="main_adb_clip_label">Параметр дочірніх процесів ShieldDeck</string>
     <string name="setup_signed_in_offline_unnamed">Виконано вхід · офлайн-режим</string>
     <string name="setup_signed_in_unnamed">Виконано вхід</string>
     <string name="driver_tag_bundled">ВБУДОВАНО</string>
@@ -2191,7 +2191,7 @@
     <string name="touch_speed_normal">Звичайна</string>
     <string name="touch_speed_fast">Швидка</string>
     <string name="touch_edit_layout">Змінити розкладку</string>
-    <string name="touch_droiddeck_menu">Меню DroidDeck</string>
+    <string name="touch_droiddeck_menu">Меню ShieldDeck</string>
     <string name="touch_drag_hint">Перетягніть елементи керування на екран</string>
     <string name="touch_arrange">Розташувати</string>
     <string name="touch_discard">Відхилити</string>

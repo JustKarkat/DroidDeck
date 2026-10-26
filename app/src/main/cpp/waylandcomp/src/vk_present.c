@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include <android/log.h>
 
-#define TAG "DroidDeckWayland"
+#define TAG "ShieldDeckWayland"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 #define LOGE(...) droiddeck_log("error", __VA_ARGS__)
 #define MOD_INVALID VKP_MOD_INVALID

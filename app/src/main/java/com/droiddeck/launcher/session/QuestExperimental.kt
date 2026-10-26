@@ -38,7 +38,7 @@ object QuestExperimental {
                 .apply()
         }
         val report = buildString {
-            appendLine("DroidDeck Quest Experimental ${BuildConfig.VERSION_NAME}")
+            appendLine("ShieldDeck Quest Experimental ${BuildConfig.VERSION_NAME}")
             appendLine("package=${context.packageName}")
             appendLine("manufacturer=${Build.MANUFACTURER} model=${Build.MODEL}")
             appendLine("device=${Build.DEVICE} board=${Build.BOARD} hardware=${Build.HARDWARE}")

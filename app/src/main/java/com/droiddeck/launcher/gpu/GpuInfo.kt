@@ -45,7 +45,7 @@ data class GpuInfo(
             Support.UNTESTED -> if (family == Family.TEGRA) "Experimental: Tegra via NVK/software rendering"
                 else if (family == Family.A7XX_LOW) "Experimental: its drivers are test builds"
                 else "Outside tested hardware (Adreno 650, 725 and newer): it may not run"
-            Support.UNSUPPORTED -> "Not supported: DroidDeck needs an Adreno (Snapdragon) GPU"
+            Support.UNSUPPORTED -> "Not supported: ShieldDeck needs an Adreno (Snapdragon) GPU"
         }
 
     fun supportText(context: Context): String = context.getString(when (support) {

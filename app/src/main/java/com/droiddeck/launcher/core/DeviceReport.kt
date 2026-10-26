@@ -41,7 +41,7 @@ object DeviceReport {
             b.append(key.padEnd(24)).append(value ?: "unknown").append('\n')
         }
 
-        b.append("DroidDeck session report\n")
+        b.append("ShieldDeck session report\n")
         b.append("========================\n")
         k("Written", SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz", Locale.US).format(Date()))
         k("Session mode", when (mode) { SessionService.MODE_DESKTOP -> "desktop (KDE Plasma)"; SessionService.MODE_RUN -> "a program under gamescope"; else -> "Steam client (gamescope)" })

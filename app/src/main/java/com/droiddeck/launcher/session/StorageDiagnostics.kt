@@ -16,7 +16,7 @@ object StorageDiagnostics {
     ): Long? {
         val device = runCatching { Os.stat(library.absolutePath).st_dev }.getOrNull()
         val text = buildString {
-            appendLine("DroidDeck storage diagnostics v1")
+            appendLine("ShieldDeck storage diagnostics v1")
             appendLine("selected_library=$selectedLibrary")
             appendLine("volume_removable=$removable")
             appendLine("filesystem=${filesystemType(library) ?: "unknown"}")

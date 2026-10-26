@@ -36,7 +36,7 @@ object SelfInstaller {
         val c = URL(apk.url).openConnection() as HttpURLConnection
         c.connectTimeout = 15_000
         c.readTimeout = 60_000
-        c.setRequestProperty("User-Agent", "DroidDeck-app")
+        c.setRequestProperty("User-Agent", "ShieldDeck-app")
         c.instanceFollowRedirects = true
         try {
             if (c.responseCode != 200) throw IOException(context.getString(R.string.selfinst_http, c.responseCode))

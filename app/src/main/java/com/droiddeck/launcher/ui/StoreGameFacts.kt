@@ -261,7 +261,7 @@ private fun previewScore(score: Int) = Lookup.Found(GameFacts.Metacritic(score, 
 
 @Composable
 private fun FactsPreview(theme: String = Themes.GRAPHITE, narrow: Boolean = false, content: @Composable () -> Unit) {
-    DroidDeckTheme(theme = theme) {
+    ShieldDeckTheme(theme = theme) {
         CompositionLocalProvider(LocalNarrowPane provides narrow) {
             Box(Modifier.fillMaxSize().background(LocalPalette.current.background).padding(16.dp)) {
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) { content() }

@@ -43,7 +43,7 @@ object SessionLogShare {
             .filterNot { it.parentFile?.name == "steam" && it.length() > STEAM_LOG_MAX_BYTES }.toList()
         if (files.isEmpty()) return null
         val out = shareDir(context).apply { deleteRecursively(); mkdirs() }
-        val zip = File(out, "DroidDeck-${folder.name}.zip")
+        val zip = File(out, "ShieldDeck-${folder.name}.zip")
         LogRedactor.learnFromRuntime(LinuxRuntime.rootDir(context))
         val live = liveSteamLogs(context, folder)
         val logs = LinuxRuntime.logDir(context)
