@@ -63,6 +63,12 @@ if [ -x /usr/local/hybris/usr/bin/vkprobe ]; then
     ls -la /vendor/lib64/hw/vulkan.*.so 2>&1 || true
     export HYBRIS_VULKANPLATFORM=null
     /usr/local/hybris/usr/bin/vkprobe "$@" || rc=$?
+    # tegra driver table protocol (see vkprobe.c): one process per name so a
+    # crashing probe cannot take out the rest
+    for name in vkEnumerateInstanceVersion vkEnumerateInstanceExtensionProperties \
+                vkGetInstanceProcAddr vkCreateInstance; do
+        /usr/local/hybris/usr/bin/vkprobe gpa "$name" || true
+    done
 fi
 # The path gamescope will use: the guest's Mesa loader + the sysvk ICD
 # (hw_get_module -> HAL device -> driver, no Android loader).

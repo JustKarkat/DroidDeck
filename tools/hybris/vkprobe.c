@@ -125,10 +125,119 @@ struct hwvulkan_device_t {
     PFN_vkGetInstanceProcAddr GetInstanceProcAddr;
 };
 
-int main(void) {
+/* ---- tegra driver table protocol ----
+ * libglcore.so exports NvGlEglGetFunctions(int, void *out). The HAL calls it
+ * as (1, &table[1]) with table[0] = the dlopen handle and a 48-byte table;
+ * afterwards table[1] is a vkGetProcAddressNV(name) getter and the driver's
+ * real entrypoints come out of it (the hwvulkan device struct ships NULL
+ * everywhere and the HAL wrappers expect an internal context). */
+static void *tegra_table_init(void) {
+    void *glc = android_dlopen("libglcore.so", RTLD_NOW | RTLD_LOCAL);
+    printf("vkstage: dlopen libglcore.so -> %p (%s)\n", glc,
+           glc ? "ok" : (android_dlerror() ? android_dlerror() : "failed"));
+    if (!glc) return NULL;
+    int (*nvgl)(int, void *) = (int (*)(int, void *))android_dlsym(glc, "NvGlEglGetFunctions");
+    printf("vkstage: NvGlEglGetFunctions -> %p\n", (void *)nvgl);
+    if (!nvgl) return NULL;
+    void **table = NULL;
+    if (posix_memalign(&table, 8, 48) != 0) return NULL;
+    memset(table, 0, 48);
+    table[0] = glc; /* the HAL stores the dlopen handle in slot 0 */
+    nvgl(1, &table[1]);
+    printf("vkstage: driver table @%p:", (void *)table);
+    for (int i = 0; i < 6; i++) printf(" [%d]=%p", i, table[i]);
+    printf("\n");
+    return table;
+}
+
+static void *tegra_gpa(void *table, const char *name) {
+    if (!table || !table[1]) return NULL;
+    return ((void *(*)(const char *))table[1])(name);
+}
+
+/* per-name empirical calls, one process per name (crashes are contained) */
+static int gpa_probe(void *table, const char *name) {
+    void *fn = tegra_gpa(table, name);
+    printf("vkstage: GetProcAddressNV(%s) -> %p\n", name, fn);
+    if (!fn) return 1;
+    if (!strcmp(name, "vkEnumerateInstanceExtensionProperties")) {
+        PFN_vkEnumerateInstanceExtensionProperties f = (PFN_vkEnumerateInstanceExtensionProperties)fn;
+        uint32_t n = 0;
+        VkResult r = f(VK_NULL_HANDLE, &n, NULL);
+        printf("vkstage: NULL-instance -> %d count=%u\n", r, n);
+        if (r == VK_SUCCESS && n > 0 && n < 256) {
+            VkExtensionProperties ex[256] = { 0 };
+            f(VK_NULL_HANDLE, &n, ex);
+            printf("vkstage: extensions:");
+            for (uint32_t i = 0; i < n; i++) printf(" %s", ex[i].extensionName);
+            printf("\n");
+        }
+    } else if (!strcmp(name, "vkEnumerateInstanceVersion")) {
+        PFN_vkEnumerateInstanceVersion f = (PFN_vkEnumerateInstanceVersion)fn;
+        uint32_t v = 0;
+        VkResult r = f(&v);
+        printf("vkstage: -> %d version=%u.%u.%u\n", r, VK_VERSION_MAJOR(v),
+               VK_VERSION_MINOR(v), VK_VERSION_PATCH(v));
+    } else if (!strcmp(name, "vkGetInstanceProcAddr")) {
+        PFN_vkGetInstanceProcAddr f = (PFN_vkGetInstanceProcAddr)fn;
+        /* the decisive conformance test: NULL instance */
+        void *p = f(VK_NULL_HANDLE, "vkCreateInstance");
+        printf("vkstage: gipa(NULL, vkCreateInstance) -> %p\n", p);
+    } else if (!strcmp(name, "vkCreateInstance")) {
+        PFN_vkCreateInstance f = (PFN_vkCreateInstance)fn;
+        VkApplicationInfo app = { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                                  .pApplicationName = "droiddeck-vkprobe",
+                                  .apiVersion = VK_API_VERSION_1_1 };
+        VkInstanceCreateInfo ci = { .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+                                    .pApplicationInfo = &app };
+        VkInstance inst = VK_NULL_HANDLE;
+        VkResult r = f(&ci, NULL, &inst);
+        printf("vkstage: CreateInstance -> %d instance=%p\n", r, (void *)inst);
+        if (r != VK_SUCCESS) return 1;
+        /* dispatch object check: hwvulkan_dispatch_t = {magic 0x01CDC0DE, vtbl} */
+        unsigned long *disp = (unsigned long *)inst;
+        printf("vkstage: dispatch magic=%#lx vtbl=%p\n", disp[0], (void *)disp[1]);
+        PFN_vkGetInstanceProcAddr gipa = (PFN_vkGetInstanceProcAddr)tegra_gpa(table, "vkGetInstanceProcAddr");
+        if (!gipa) return 1;
+        PFN_vkEnumeratePhysicalDevices epd =
+            (PFN_vkEnumeratePhysicalDevices)gipa(inst, "vkEnumeratePhysicalDevices");
+        PFN_vkGetPhysicalDeviceProperties gpp =
+            (PFN_vkGetPhysicalDeviceProperties)gipa(inst, "vkGetPhysicalDeviceProperties");
+        printf("vkstage: gipa(inst) epd=%p gpp=%p\n", (void *)epd, (void *)gpp);
+        if (!epd) return 1;
+        uint32_t np = 0;
+        VkResult pr = epd(inst, &np, NULL);
+        printf("vkstage: vkEnumeratePhysicalDevices -> %d count=%u\n", pr, np);
+        if (pr == VK_SUCCESS && np > 0) {
+            VkPhysicalDevice pd = VK_NULL_HANDLE;
+            np = 1;
+            epd(inst, &np, &pd);
+            VkPhysicalDeviceProperties pp = { 0 };
+            if (gpp) gpp(pd, &pp);
+            printf("RESULT VK_TABLE_DEVICE=%s api=%u.%u.%u driver=0x%x\n", pp.deviceName,
+                   VK_VERSION_MAJOR(pp.apiVersion), VK_VERSION_MINOR(pp.apiVersion),
+                   VK_VERSION_PATCH(pp.apiVersion), pp.driverVersion);
+        }
+    } else {
+        printf("vkstage: (no per-name probe for %s)\n", name);
+    }
+    return 0;
+}
+
+int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IONBF, 0);
     install();
     say("vkstage: start\n");
+
+    if (argc > 1 && !strcmp(argv[1], "table")) {
+        tegra_table_init();
+        return 0;
+    }
+    if (argc > 2 && !strcmp(argv[1], "gpa")) {
+        void *table = tegra_table_init();
+        if (!table) return 1;
+        return gpa_probe(table, argv[2]);
+    }
 
     /* The hybris wrapper resolves its entrypoints via IFUNC, whose resolvers
      * run inside ld.so's relocation phase when linked at startup — that
