@@ -19,7 +19,54 @@
  			continue;
  
  		uint32_t queueFamilyCount = 0;
-@@ -1174,10 +1177,27 @@
+@@ -615,6 +618,13 @@
+ 		},
+ 	};
+ 
++	// 0127: query the device's advertised extensions up front so the
++	// enabled-list can gate on availability.
++	uint32_t devExtPropCount = 0;
++	vk.EnumerateDeviceExtensionProperties( physDev(), nullptr, &devExtPropCount, nullptr );
++	std::vector<VkExtensionProperties> devExtProp( devExtPropCount );
++	vk.EnumerateDeviceExtensionProperties( physDev(), nullptr, &devExtPropCount, devExtProp.data() );
++
+ 	std::vector< const char * > enabledExtensions;
+ 
+ 	// 0118-diag: env-toggled device-create pruning for the Shield TV lvp alloc bisect
+@@ -653,8 +663,19 @@
+ 
+ 	if ( !sk( "ext-memfd" ) )
+ 	{
+-	enabledExtensions.push_back( VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME );
+-	enabledExtensions.push_back( VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME );
++		// 0127: enable each half only when the ICD advertises it. The Tegra
++		// lacks VK_EXT_external_memory_dma_buf; enabling it blind made the
++		// loader hand out fd trampolines whose dispatch slots were never
++		// filled (call through NULL from exportMem).
++		enabledExtensions.push_back( VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME );
++		for ( const auto& ext : devExtProp )
++		{
++			if ( strcmp( ext.extensionName, VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME ) == 0 )
++			{
++				enabledExtensions.push_back( VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME );
++				break;
++			}
++		}
+ 	}
+ 
+ 	if ( !sk( "ext-semfd" ) )
+@@ -670,10 +691,6 @@
+ 	for ( auto& extension : GetBackend()->GetDeviceExtensions( physDev() ) )
+ 		enabledExtensions.push_back( extension );
+ 
+-	uint32_t devExtPropCount = 0;
+-	vk.EnumerateDeviceExtensionProperties( physDev(), nullptr, &devExtPropCount, nullptr );
+-	std::vector<VkExtensionProperties> devExtProp( devExtPropCount );
+-	vk.EnumerateDeviceExtensionProperties( physDev(), nullptr, &devExtPropCount, devExtProp.data() );
+ 	bool anyMissing = false;
+ 	for ( auto& requiredExt : enabledExtensions ) {
+ 		bool extFound = false;
+@@ -1174,10 +1191,27 @@
  	};
  
  	res = vk.CreateSemaphore( device(), &semCreateInfo, NULL, &m_scratchTimelineSemaphore );
@@ -51,7 +98,7 @@
  	}
  
  	return true;
-@@ -1365,17 +1385,29 @@
+@@ -1365,17 +1399,29 @@
  
  int32_t CVulkanDevice::findMemoryType( VkMemoryPropertyFlags properties, uint32_t requiredTypeBits )
  {
@@ -91,7 +138,7 @@
  	return -1;
  }
  
-@@ -1431,20 +1463,23 @@
+@@ -1431,20 +1477,23 @@
  	std::vector<VkSemaphore> pWaitSemaphores;
  	std::vector<uint64_t> ulWaitPoints;
  
@@ -127,7 +174,7 @@
  	}
  
  	VkTimelineSemaphoreSubmitInfo timelineInfo = {
-@@ -1458,9 +1493,13 @@
+@@ -1458,9 +1507,13 @@
  
  	VkCommandBuffer rawCmdBuffer = cmdBuffer->rawBuffer();
  
@@ -142,7 +189,7 @@
  		.waitSemaphoreCount = static_cast<uint32_t>( pWaitSemaphores.size() ),
  		.pWaitSemaphores = pWaitSemaphores.data(),
  		.pWaitDstStageMask = uWaitStageFlags.data(),
-@@ -1483,13 +1522,20 @@
+@@ -1483,13 +1536,20 @@
  	// Not wait(), its ring reset would clobber constants this recording already uploaded.
  	if ( const uint64_t ulSeqNo = m_descriptorSetSeqNos[ uIndex ] )
  	{
@@ -170,7 +217,7 @@
  	}
  
  	pCmdBuffer->AddDescriptorSet( uIndex );
-@@ -1505,6 +1551,12 @@
+@@ -1505,6 +1565,12 @@
  
  uint64_t CVulkanDevice::completedSeqNo()
  {
@@ -183,7 +230,7 @@
  	uint64_t ulSeqNo = 0;
  	vk_check( vk.GetSemaphoreCounterValue( device(), m_scratchTimelineSemaphore, &ulSeqNo ) );
  	return ulSeqNo;
-@@ -1512,8 +1564,7 @@
+@@ -1512,8 +1578,7 @@
  
  void CVulkanDevice::garbageCollect( void )
  {
@@ -193,7 +240,7 @@
  
  	// wait() only resets the ring on a latest-wait, which stale waits never are.
  	if ( currentSeqNo == m_submissionSeqNo )
-@@ -1533,6 +1584,11 @@
+@@ -1533,6 +1598,11 @@
  
  int VulkanTimelineSemaphore_t::GetFd() const
  {
@@ -205,7 +252,7 @@
  	const VkSemaphoreGetFdInfoKHR semaphoreGetInfo =
  	{
  		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR,
-@@ -1553,6 +1609,11 @@
+@@ -1553,6 +1623,11 @@
  
  std::shared_ptr<VulkanTimelineSemaphore_t> CVulkanDevice::CreateTimelineSemaphore( uint64_t ulStartPoint, bool bShared )
  {
@@ -217,7 +264,7 @@
  	std::shared_ptr<VulkanTimelineSemaphore_t> pSemaphore = std::make_unique<VulkanTimelineSemaphore_t>();
  	pSemaphore->pDevice = this;
  
-@@ -1589,6 +1650,8 @@
+@@ -1589,6 +1664,8 @@
  
  std::shared_ptr<VulkanTimelineSemaphore_t> CVulkanDevice::ImportTimelineSemaphore( gamescope::CTimeline *pTimeline )
  {
@@ -226,7 +273,7 @@
  	std::shared_ptr<VulkanTimelineSemaphore_t> pSemaphore = std::make_unique<VulkanTimelineSemaphore_t>();
  	pSemaphore->pDevice = this;
  
-@@ -1651,14 +1714,22 @@
+@@ -1651,14 +1728,22 @@
  	if (m_submissionSeqNo == sequence)
  		m_uploadBufferOffset = 0;
  
