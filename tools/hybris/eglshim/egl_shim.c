@@ -23,9 +23,10 @@
  * - DDEGL_DEBUG=1 enables per-call logging.
  */
 #define _GNU_SOURCE
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include <X11/Xlib.h>
 #include <dlfcn.h>
 #include <pthread.h>
 #include <stdarg.h>
@@ -38,6 +39,8 @@
 #define REAL_LIB "/usr/local/hybris/usr/lib/libEGL.so.1"
 #define MAX_WND 16
 #define GL_BACK 0x0402
+#define GL_RGBA 0x1908
+#define GL_UNSIGNED_BYTE 0x1401
 
 static int g_debug;
 static void logline(const char *fmt, ...) {
@@ -66,7 +69,7 @@ DECLARE(EGLDisplay, eglGetCurrentDisplay, void)
 DECLARE(EGLSurface, eglGetCurrentSurface, EGLint)
 DECLARE(EGLDisplay, eglGetDisplay, void *)
 DECLARE(EGLint, eglGetError, void)
-DECLARE(void *, eglGetProcAddress_real, const char *)
+DECLARE(void *, eglGetProcAddressReal, const char *)
 DECLARE(EGLBoolean, eglInitialize, EGLDisplay, EGLint *, EGLint *)
 DECLARE(EGLBoolean, eglMakeCurrent, EGLDisplay, EGLSurface, EGLSurface, EGLContext)
 DECLARE(EGLBoolean, eglQueryContext, EGLDisplay, EGLContext, EGLint, EGLint *)
@@ -111,7 +114,7 @@ static void load_real(void) {
         ENTRY(eglCreatePbufferSurface), ENTRY(eglCreatePixmapSurface), ENTRY(eglDestroySurface),
         ENTRY(eglGetConfigAttrib), ENTRY(eglGetConfigs), ENTRY(eglGetCurrentDisplay),
         ENTRY(eglGetCurrentSurface), ENTRY(eglGetDisplay), ENTRY(eglGetError),
-        ENTRY(eglGetProcAddress_real), ENTRY(eglInitialize), ENTRY(eglMakeCurrent),
+        ENTRY(eglGetProcAddressReal), ENTRY(eglInitialize), ENTRY(eglMakeCurrent),
         ENTRY(eglQueryContext), ENTRY(eglQueryString), ENTRY(eglQuerySurface),
         ENTRY(eglSwapInterval), ENTRY(eglTerminate), ENTRY(eglBindAPI), ENTRY(eglQueryAPI),
         ENTRY(eglReleaseThread), ENTRY(eglGetCurrentContext),
@@ -171,9 +174,9 @@ static Display *xconn(void) {
 }
 
 static void load_glprocs(void) {
-    if (p_glReadPixels || !p_eglGetProcAddress_real) return;
-    p_glReadPixels = (pfn_glReadPixels_t)p_eglGetProcAddress_real("glReadPixels");
-    p_glReadBuffer = (pfn_glReadBuffer_t)p_eglGetProcAddress_real("glReadBuffer");
+    if (p_glReadPixels || !p_eglGetProcAddressReal) return;
+    p_glReadPixels = (pfn_glReadPixels_t)p_eglGetProcAddressReal("glReadPixels");
+    p_glReadBuffer = (pfn_glReadBuffer_t)p_eglGetProcAddressReal("glReadBuffer");
     logline("gl procs: read=%p buf=%p", (void *)p_glReadPixels, (void *)p_glReadBuffer);
 }
 
@@ -261,14 +264,14 @@ static void blit_to_x(struct Wnd *wn, int w, int h) {
 
 /* ---- exported EGL ---- */
 
-EGLDisplay eglGetDisplay(void *native_display) {
+EGLDisplay eglGetDisplay(EGLNativeDisplayType native_display) {
     pthread_once(&real_once, load_real);
     (void)native_display; /* X11 Display* or anything else: always the default */
-    logline("eglGetDisplay(%p) -> default", native_display);
+    logline("eglGetDisplay(%p) -> default", (void *)native_display);
     return p_eglGetDisplay((void *)EGL_DEFAULT_DISPLAY);
 }
 
-EGLDisplay eglGetPlatformDisplay(EGLenum platform, void *native_display, const EGLint *attribs) {
+EGLDisplay eglGetPlatformDisplay(EGLenum platform, void *native_display, const EGLAttrib *attribs) {
     pthread_once(&real_once, load_real);
     logline("eglGetPlatformDisplay(%#x, %p) -> default", platform, native_display);
     return p_eglGetDisplay((void *)EGL_DEFAULT_DISPLAY);
@@ -278,9 +281,9 @@ EGLDisplay eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, cons
     return eglGetPlatformDisplay(platform, native_display, attribs);
 }
 
-EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attribs) {
+EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGLNativeWindowType native_window, const EGLint *attribs) {
     (void)attribs; /* render-buffer etc. hints don't apply to the pbuffer */
-    return wnd_create(dpy, config, native_window);
+    return wnd_create(dpy, config, (void *)(uintptr_t)native_window);
 }
 
 EGLSurface eglCreatePlatformWindowSurface(EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attribs) {
@@ -345,18 +348,18 @@ EGLBoolean eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attr, EGLi
     return r;
 }
 
-void *eglGetProcAddress(const char *name) {
+__eglMustCastToProperFunctionPointerType eglGetProcAddress(const char *name) {
     pthread_once(&real_once, load_real);
     if (!name) return NULL;
-    if (!strcmp(name, "eglGetPlatformDisplayEXT")) return (void *)eglGetPlatformDisplayEXT;
-    if (!strcmp(name, "eglGetPlatformDisplay")) return (void *)eglGetPlatformDisplay;
-    if (!strcmp(name, "eglCreatePlatformWindowSurfaceEXT")) return (void *)eglCreatePlatformWindowSurfaceEXT;
-    if (!strcmp(name, "eglSwapBuffersWithDamageKHR")) return (void *)swap_with_damage;
-    if (!strcmp(name, "eglSwapBuffersWithDamageEXT")) return (void *)swap_with_damage;
-    if (!strcmp(name, "eglSwapBuffersWithDamageClientRectKHR")) return (void *)swap_with_damage;
+    if (!strcmp(name, "eglGetPlatformDisplayEXT")) return (__eglMustCastToProperFunctionPointerType)eglGetPlatformDisplayEXT;
+    if (!strcmp(name, "eglGetPlatformDisplay")) return (__eglMustCastToProperFunctionPointerType)eglGetPlatformDisplay;
+    if (!strcmp(name, "eglCreatePlatformWindowSurfaceEXT")) return (__eglMustCastToProperFunctionPointerType)eglCreatePlatformWindowSurfaceEXT;
+    if (!strcmp(name, "eglSwapBuffersWithDamageKHR")) return (__eglMustCastToProperFunctionPointerType)swap_with_damage;
+    if (!strcmp(name, "eglSwapBuffersWithDamageEXT")) return (__eglMustCastToProperFunctionPointerType)swap_with_damage;
+    if (!strcmp(name, "eglSwapBuffersWithDamageClientRectKHR")) return (__eglMustCastToProperFunctionPointerType)swap_with_damage;
     void *p = dlsym(real_lib, name);
-    if (p) return p;
-    return p_eglGetProcAddress_real ? p_eglGetProcAddress_real(name) : NULL;
+    if (!p && p_eglGetProcAddressReal) p = (void *)p_eglGetProcAddressReal(name);
+    return (__eglMustCastToProperFunctionPointerType)p;
 }
 
 EGLBoolean eglTerminate(EGLDisplay dpy) {
