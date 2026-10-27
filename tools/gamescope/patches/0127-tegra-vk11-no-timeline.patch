@@ -185,7 +185,40 @@
  
  	// wait() only resets the ring on a latest-wait, which stale waits never are.
  	if ( currentSeqNo == m_submissionSeqNo )
-@@ -1651,14 +1701,22 @@
+@@ -1533,6 +1583,11 @@
+ 
+ int VulkanTimelineSemaphore_t::GetFd() const
+ {
++	// 0127: the Tegra driver advertises VK_KHR_external_semaphore_fd but
++	// exports no GetSemaphoreFdKHR entry point (NULL PFN, call through NULL
++	// from the commit-fence path).
++	if ( !pDevice->vk.GetSemaphoreFdKHR )
++		return -1;
+ 	const VkSemaphoreGetFdInfoKHR semaphoreGetInfo =
+ 	{
+ 		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR,
+@@ -1553,6 +1608,11 @@
+ 
+ std::shared_ptr<VulkanTimelineSemaphore_t> CVulkanDevice::CreateTimelineSemaphore( uint64_t ulStartPoint, bool bShared )
+ {
++	// 0127: no timeline support — CTimeline callers already handle nullptr
++	// (the commit path runs fence-less, as it does on lavapipe without a
++	// DRM render node).
++	if ( m_bEmulateTimeline )
++		return nullptr;
+ 	std::shared_ptr<VulkanTimelineSemaphore_t> pSemaphore = std::make_unique<VulkanTimelineSemaphore_t>();
+ 	pSemaphore->pDevice = this;
+ 
+@@ -1589,6 +1649,8 @@
+ 
+ std::shared_ptr<VulkanTimelineSemaphore_t> CVulkanDevice::ImportTimelineSemaphore( gamescope::CTimeline *pTimeline )
+ {
++	if ( m_bEmulateTimeline )
++		return nullptr;
+ 	std::shared_ptr<VulkanTimelineSemaphore_t> pSemaphore = std::make_unique<VulkanTimelineSemaphore_t>();
+ 	pSemaphore->pDevice = this;
+ 
+@@ -1651,14 +1713,22 @@
  	if (m_submissionSeqNo == sequence)
  		m_uploadBufferOffset = 0;
  
