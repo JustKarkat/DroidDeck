@@ -82,6 +82,31 @@ static const VkAllocationCallbacks sk_cb = {
 static PFN_vkCreateInstance real_ci;
 static PFN_vkGetInstanceProcAddr real_gipa;
 
+/* The driver leaves entry points NULL for extensions it lacks (no WSI, no
+ * fence-fd, no dma-buf, no dynamic rendering, …) and wlroots/gamescope call
+ * several of them unguarded — the call goes through NULL. Resolve those names
+ * to a stub that returns VK_ERROR_FEATURE_NOT_PRESENT instead: callers take
+ * their error paths, exactly like a conformant-but-unsupporting driver.
+ * Deliberately NOT the sync primitives (vkWaitSemaphores,
+ * vkGetSemaphoreCounterValue, vkWaitForFences, vkGetFenceStatus,
+ * vkResetFences): sysvk keys its own scratch-timeline emulation on those
+ * being NULL. */
+static VKAPI_ATTR VkResult VKAPI_CALL sk_stub(void) { return VK_ERROR_FEATURE_NOT_PRESENT; }
+static int sk_stub_needed(const char *pName) {
+    static const char *const k_names[] = {
+        "vkGetFenceFdKHR", "vkGetSemaphoreFdKHR", "vkGetMemoryFdKHR",
+        "vkCmdBeginRendering", "vkCmdEndRendering",
+        "vkQueuePresentKHR", "vkAcquireNextImageKHR", "vkWaitForPresentKHR",
+        "vkGetSwapchainImagesKHR", "vkCreateSwapchainKHR", "vkDestroySwapchainKHR",
+        "vkSetHdrMetadataEXT", "vkGetImageDrmFormatModifierPropertiesEXT",
+        "vkGetPhysicalDeviceSurfaceCapabilitiesKHR", "vkGetPhysicalDeviceSurfaceFormatsKHR",
+        "vkGetPhysicalDeviceSurfacePresentModesKHR", "vkGetPhysicalDeviceSurfaceSupportKHR",
+    };
+    for (size_t i = 0; i < sizeof k_names / sizeof k_names[0]; i++)
+        if (!strcmp(pName, k_names[i])) return 1;
+    return 0;
+}
+
 /* The hybris EGL wrapper dlopens its platform backend (…/libhybris/
  * eglplatform_null.so) by absolute pkglibdir path, but the plugin's soname
  * deps only resolve via LD_LIBRARY_PATH — which vulkaninfo/gamescope must
@@ -177,7 +202,10 @@ PFN_vkVoidFunction vk_icdGetInstanceProcAddr(VkInstance instance, const char *pN
         return (PFN_vkVoidFunction)sk_CreateInstance;
     if (instance && !strcmp(pName, "vkDestroyInstance"))
         return (PFN_vkVoidFunction)sk_DestroyInstance;
-    return real_gipa(instance, pName);
+    PFN_vkVoidFunction p = real_gipa(instance, pName);
+    if (!p && sk_stub_needed(pName))
+        return (PFN_vkVoidFunction)sk_stub;
+    return p;
 }
 
 PFN_vkVoidFunction vk_icdGetPhysicalDeviceProcAddr(VkInstance _instance, const char *pName) {
