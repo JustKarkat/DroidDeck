@@ -1,86 +1,156 @@
-/* sysvk — a Vulkan ICD that drives the Android hwvulkan HAL directly
- * (https://github.com/xMeM/sysvk, unlicensed). ShieldDeck fork: the NVIDIA
- * Tegra HAL on Shield Android 11 (495.00) is not loader-conformant —
- * GetInstanceProcAddr crashes on a NULL instance, and the hwvulkan_device_t
- * ships with all three entrypoints NULL (empty ANDROID_RELA, atexit-only
- * constructor; NVIDIA's own loader uses the device-struct fields for
- * global-level queries instead). So: fill the fields if the HAL left them
- * NULL (offsets are for vulkan.tegra.so from Shield firmware 33.01, stable
- * there), and answer NULL-instance queries from the struct rather than
- * forwarding into the HAL. For conformant HALs (fields pre-filled) nothing
- * changes: the fill is skipped and NULL-instance queries go through
- * GetInstanceProcAddr as upstream does.
+/* sysvk — a Vulkan ICD that drives the NVIDIA Tegra driver over the
+ * "driver table" protocol (https://github.com/xMeM/sysvk, unlicensed;
+ * ShieldDeck rewrite, session 2026-10-26-12).
  *
- * Build (see tools/hybris/build-in-arch.sh):
- *   gcc -shared -fPIC sysvk.c -I<sysvk bundled includes> -lhardware
+ * The tegra driver (libglcore, Shield firmware 33.01 / 495.00) is not
+ * reachable through the hwvulkan HAL: the device struct ships all-NULL
+ * entrypoints and the HAL's CreateInstance wrapper depends on driver-internal
+ * state only the consumer init installs. What works (proven by tools/hybris/
+ * vkprobe.c on device): after the EGL init chain has run in-process,
+ *   1. NvGlEglGetFunctions(1, &table[1]) with table[0] = the dlopen handle
+ *      fills table[1] = vkGetProcAddressNV(name) (48-byte table),
+ *   2. the consumer stores table[4] = GetProcAddressNV("vkGetInstanceProcAddr")
+ *      — the REAL driver GIPA, conformant with NULL instances (the HAL's
+ *      wrapper is not),
+ *   3. global queries go through that GIPA with instance == VK_NULL_HANDLE,
+ *   4. vkCreateInstance REQUIRES a non-NULL VkAllocationCallbacks
+ *      (pfnAllocation; NULL falls back to an unset process-global in
+ *      libglcore) — we substitute glibc-backed callbacks when the loader
+ *      passes NULL, and keep them for the matching destroy calls so
+ *      allocation/free pairs stay on one heap.
+ * The EGL init chain (the one libEGL_tegra runs via NvGlEglApiInit) is what
+ * installs libglcore's dispatch master object + singleton allocators that
+ * every CreateInstance call needs; see tools/hybris/egl_warmup.h.
+ *
+ * Build (tools/hybris/build-in-arch.sh):
+ *   gcc -shared -fPIC sysvk.c -I<xMeM sysvk includes> -I<hybris root include> \
+ *     -lhardware -lhybris-common -lEGL
  */
+#include <dlfcn.h>
 #include <hardware/hardware.h>
 #include <hardware/hwvulkan.h>
+#include <hybris/common/binding.h>
+#include <pthread.h>
+#include <stdio.h>
 #include <string.h>
+#include <vulkan/vulkan.h>
 
-/* The device struct the tegra HAL hands back lives at this vaddr inside the
- * module; everything else is placed relative to it. */
-#define TEGRA_DEVICE_VADDR 0x4448
-#define TEGRA_ENUMERATE_INSTANCE_EXTENSION_PROPERTIES 0x2060
-#define TEGRA_CREATE_INSTANCE 0x242c
-#define TEGRA_GET_INSTANCE_PROC_ADDR 0x22f0
-#define TEGRA_ENUMERATE_INSTANCE_VERSION 0x2954
-#define TEGRA_DESTROY_INSTANCE 0x28e8
+#include "../egl_warmup.h"
 
-static const struct hwvulkan_device_t *dev;
+/* Driver table: [0] = dlopen handle (consumer-stored), [1] = GetProcAddressNV,
+ * [4] = vkGetInstanceProcAddr (consumer-stored; the driver calls through it
+ * internally, so leaving it NULL faults — see vkprobe.c). */
+static void *table[6];
+static int inited;
 
-static void fill_device(struct hwvulkan_device_t *device) {
-    if (device->EnumerateInstanceExtensionProperties || device->CreateInstance ||
-        device->GetInstanceProcAddr)
-        return; /* conformant HAL — leave it alone */
-    char *base = (char *)device - TEGRA_DEVICE_VADDR;
-    device->EnumerateInstanceExtensionProperties =
-        (PFN_vkEnumerateInstanceExtensionProperties)(base +
-                                                     TEGRA_ENUMERATE_INSTANCE_EXTENSION_PROPERTIES);
-    device->CreateInstance = (PFN_vkCreateInstance)(base + TEGRA_CREATE_INSTANCE);
-    device->GetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)(base + TEGRA_GET_INSTANCE_PROC_ADDR);
+/* glibc-backed callbacks, substituted when the caller passes no allocator.
+ * The driver dereferences pAllocator unconditionally, so NULL is fatal. */
+static void *sk_alloc(void *ud, size_t size, size_t align, VkSystemAllocationScope scope) {
+    (void)ud; (void)scope;
+    void *p = NULL;
+    if (posix_memalign(&p, align < 8 ? 8 : align, size) != 0) return NULL;
+    return p;
+}
+/* shortcut: copies `size` bytes from the original (real size unknown),
+ * only if a realloc-happy driver ever requests one; upgrade to a size map
+ * if data corruption shows up */
+static void *sk_realloc(void *ud, void *orig, size_t size, size_t align,
+                        VkSystemAllocationScope scope) {
+    void *p = sk_alloc(ud, size, align, scope);
+    if (p && orig) memcpy(p, orig, size);
+    free(orig);
+    return p;
+}
+static void sk_free(void *ud, void *p) { (void)ud; free(p); }
+static void sk_notify(void *ud, size_t size, VkInternalAllocationType t,
+                      VkSystemAllocationScope s) {
+    (void)ud; (void)size; (void)t; (void)s;
 }
 
-static void *tegra_global_proc(const struct hwvulkan_device_t *d, const char *name) {
-    char *base = (char *)d - TEGRA_DEVICE_VADDR;
-    if (!strcmp(name, "vkEnumerateInstanceExtensionProperties"))
-        return (void *)(base + TEGRA_ENUMERATE_INSTANCE_EXTENSION_PROPERTIES);
-    if (!strcmp(name, "vkCreateInstance"))
-        return (void *)(base + TEGRA_CREATE_INSTANCE);
-    if (!strcmp(name, "vkEnumerateInstanceVersion"))
-        return (void *)(base + TEGRA_ENUMERATE_INSTANCE_VERSION);
-    if (!strcmp(name, "vkDestroyInstance"))
-        return (void *)(base + TEGRA_DESTROY_INSTANCE);
-    return NULL;
-}
+static const VkAllocationCallbacks sk_cb = {
+    .pUserData = NULL,
+    .pfnAllocation = sk_alloc,
+    .pfnReallocation = sk_realloc,
+    .pfnFree = sk_free,
+    .pfnInternalAllocation = sk_notify,
+    .pfnInternalFree = sk_notify,
+};
+#define ALLOC_OR(a) ((const VkAllocationCallbacks *)(a) ? (a) : &sk_cb)
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-vk_icdGetInstanceProcAddr(VkInstance instance, const char *pName) {
-    hw_module_t *module;
-    int ret = hw_get_module(HWVULKAN_HARDWARE_MODULE_ID, (const hw_module_t **)&module);
-    if (ret)
-        return NULL;
-    /* open() is cheap after the first call (HAL caches its device); the
-     * loader may ask for global procs before anything else. */
-    struct hwvulkan_device_t *hal_dev = NULL;
-    ret = module->methods->open(module, HWVULKAN_DEVICE_0, (hw_device_t **)&hal_dev);
-    if (ret || !hal_dev)
-        return NULL;
-    dev = hal_dev;
-    fill_device(hal_dev);
+static PFN_vkCreateInstance real_ci;
+static PFN_vkGetInstanceProcAddr real_gipa;
 
-    /* Global-level (instance == NULL): the tegra HAL's GetInstanceProcAddr
-     * dereferences the instance, so answer from the device struct. */
-    if (!instance) {
-        if (!strcmp(pName, "vkEnumerateInstanceExtensionProperties"))
-            return (PFN_vkVoidFunction)dev->EnumerateInstanceExtensionProperties;
-        if (!strcmp(pName, "vkCreateInstance"))
-            return (PFN_vkVoidFunction)dev->CreateInstance;
-        if (!dev->GetInstanceProcAddr)
-            return (PFN_vkVoidFunction)tegra_global_proc(dev, pName);
-        return NULL;
+/* The full consumer init, in the order vkprobe proved on device: EGL chain
+ * (installs the driver singletons) -> HAL device open -> driver table. */
+static int sysvk_init_once(void) {
+    static pthread_mutex_t mu = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock(&mu);
+    if (!inited) {
+        egl_warmup("sysvk");
+        void *lhw = android_dlopen("libhardware.so", RTLD_NOW);
+        int (*hgm)(const char *, void **) =
+            lhw ? (int (*)(const char *, void **))android_dlsym(lhw, "hw_get_module") : NULL;
+        const struct hw_module_t *mod = NULL;
+        if (hgm && hgm(HWVULKAN_HARDWARE_MODULE_ID, (void **)&mod) == 0 && mod &&
+            mod->methods && mod->methods->open) {
+            void *dev = NULL;
+            int rc = mod->methods->open(mod, HWVULKAN_DEVICE_0, &dev);
+            fprintf(stderr, "sysvk: HAL open(vk0) -> %d\n", rc);
+        } else {
+            fprintf(stderr, "sysvk: hw_get_module/open(vk0) unavailable\n");
+        }
+        void *glc = android_dlopen("libglcore.so", RTLD_NOW | RTLD_LOCAL);
+        int (*nvgl)(int, void *) =
+            glc ? (int (*)(int, void *))android_dlsym(glc, "NvGlEglGetFunctions") : NULL;
+        if (glc && nvgl) {
+            memset(table, 0, sizeof table);
+            table[0] = glc;
+            nvgl(1, &table[1]);
+            if (table[1])
+                table[4] = ((void *(*)(const char *))table[1])("vkGetInstanceProcAddr");
+        }
+        real_gipa = (PFN_vkGetInstanceProcAddr)table[4];
+        if (real_gipa) {
+            real_ci = (PFN_vkCreateInstance)real_gipa(VK_NULL_HANDLE, "vkCreateInstance");
+            fprintf(stderr, "sysvk: table ready gipa=%p ci=%p\n", (void *)real_gipa,
+                    (void *)real_ci);
+        } else {
+            fprintf(stderr, "sysvk: driver table init FAILED\n");
+        }
+        inited = real_gipa != NULL;
     }
-    return dev->GetInstanceProcAddr(instance, pName);
+    pthread_mutex_unlock(&mu);
+    return inited;
+}
+
+/* The loader passes no allocator; the driver needs one. */
+static VKAPI_ATTR VkResult VKAPI_CALL
+sk_CreateInstance(const VkInstanceCreateInfo *ci, const VkAllocationCallbacks *ac,
+                  VkInstance *inst) {
+    if (!sysvk_init_once() || !real_ci) return VK_ERROR_INITIALIZATION_FAILED;
+    return real_ci(ci, ALLOC_OR(ac), inst);
+}
+static VKAPI_ATTR void VKAPI_CALL
+sk_DestroyInstance(VkInstance inst, const VkAllocationCallbacks *ac) {
+    PFN_vkDestroyInstance f =
+        (PFN_vkDestroyInstance)(real_gipa ? real_gipa(inst, "vkDestroyInstance") : NULL);
+    if (f) f(inst, ALLOC_OR(ac));
+}
+/* shortcut: vkCreateDevice/vkDestroyDevice pass the caller's allocator through
+ * unwrapped — the allocator requirement is only proven for CreateInstance.
+ * If device creation faults on a NULL allocator in gamescope, wrap them here
+ * (needs a pd→instance registry, since gipa needs the owning instance). */
+
+PFN_vkVoidFunction vk_icdGetInstanceProcAddr(VkInstance instance, const char *pName) {
+    if (!sysvk_init_once() || !real_gipa)
+        return NULL;
+    /* Create/destroy pairs get the allocator-substituting wrappers; the
+     * driver must alloc and free through the same callbacks. */
+    if (!strcmp(pName, "vkCreateInstance"))
+        return (PFN_vkVoidFunction)sk_CreateInstance;
+    if (instance && !strcmp(pName, "vkDestroyInstance"))
+        return (PFN_vkVoidFunction)sk_DestroyInstance;
+    return real_gipa(instance, pName);
 }
 
 PFN_vkVoidFunction vk_icdGetPhysicalDeviceProcAddr(VkInstance _instance, const char *pName) {

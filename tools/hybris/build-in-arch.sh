@@ -70,20 +70,20 @@ gcc -O1 -o "$WORK/root/usr/bin/vkprobe" /work/tools/hybris/vkprobe.c \
 ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
   || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 
-echo "== sysvk (patched ICD: hw_get_module -> HAL device -> driver, no Android loader)"
-# Upstream xMeM/sysvk forwards straight to GetInstanceProcAddr, but the tegra
-# HAL is not loader-conformant: its GetInstanceProcAddr crashes on a NULL
-# instance and the device struct ships with NULL entrypoints (empty
-# ANDROID_RELA; NVIDIA's own loader uses the struct fields for global-level
-# queries). tools/hybris/sysvk/sysvk.c fills the fields (tegra firmware
-# offsets) and answers NULL-instance queries from the struct; conformant HALs
-# are untouched. The clone provides the bundled Android headers it includes.
+echo "== sysvk (table-protocol ICD: EGL-init chain -> driver table -> real gipa, no Android loader)"
+# The tegra HAL is a dead end for Vulkan (NULL device struct + a CreateInstance
+# wrapper that needs driver-internal state). What works on device (vkprobe,
+# session 2026-10-26-12): run the EGL init chain in-process (installs
+# libglcore's master dispatch object + singleton allocators), then
+# NvGlEglGetFunctions(1,...) + table[4]=real GIPA; global queries through the
+# real GIPA with NULL instance, CreateInstance with substituted glibc
+# callbacks. tools/hybris/sysvk/sysvk.c implements it.
 git clone --quiet https://github.com/xMeM/sysvk.git sysvk-src
 mkdir -p "$WORK/root/usr/share/vulkan/icd.d"
 gcc -O2 -shared -fPIC -o "$WORK/root/usr/lib/libsysvk.so" \
   /work/tools/hybris/sysvk/sysvk.c \
   -I"$WORK/sysvk-src/include" -I"$WORK/root/usr/include" \
-  -L"$WORK/root/usr/lib" -lhardware \
+  -L"$WORK/root/usr/lib" -lhardware -lhybris-common -lEGL \
   -Wl,-rpath,/usr/local/hybris/usr/lib
 cat > "$WORK/root/usr/share/vulkan/icd.d/sysvk_icd.json" <<'JSON'
 {
