@@ -32,6 +32,7 @@
 #include <hybris/common/binding.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <vulkan/vulkan.h>
 
@@ -93,7 +94,7 @@ static int sysvk_init_once(void) {
         const struct hw_module_t *mod = NULL;
         if (hgm && hgm(HWVULKAN_HARDWARE_MODULE_ID, (void **)&mod) == 0 && mod &&
             mod->methods && mod->methods->open) {
-            void *dev = NULL;
+            struct hw_device_t *dev = NULL;
             int rc = mod->methods->open(mod, HWVULKAN_DEVICE_0, &dev);
             fprintf(stderr, "sysvk: HAL open(vk0) -> %d\n", rc);
         } else {
