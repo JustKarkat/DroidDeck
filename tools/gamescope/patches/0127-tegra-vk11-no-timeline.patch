@@ -119,22 +119,14 @@
  	}
  
  	VkTimelineSemaphoreSubmitInfo timelineInfo = {
-@@ -1458,9 +1492,21 @@
+@@ -1458,9 +1492,13 @@
  
  	VkCommandBuffer rawCmdBuffer = cmdBuffer->rawBuffer();
  
-+	VkFence submitFence = VK_NULL_HANDLE;
-+	if ( m_bEmulateTimeline )
-+	{
-+		// Submit n uses fence n % K; by the time it is reused, submit n - K
-+		// has long been reaped (gamescope polls completedSeqNo every frame).
-+		submitFence = m_aTimelineFences[ nextSeqNo % k_uTimelineEmulationFences ];
-+		if ( nextSeqNo > k_uTimelineEmulationFences )
-+		{
-+			vk_check( vk.WaitForFences( device(), 1, &submitFence, VK_TRUE, ~0ull ) );
-+			vk.ResetFences( device(), 1, &submitFence );
-+		}
-+	}
++	// 0127: no fences on the emulated path — this driver exports no host-side
++	// wait/status entry points at all (WaitSemaphores, GetSemaphoreCounterValue,
++	// WaitForFences are NULL), so completion is tracked by draining the queue
++	// in completedSeqNo() instead.
  	VkSubmitInfo submitInfo = {
  		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 -		.pNext = &timelineInfo,
@@ -142,16 +134,7 @@
  		.waitSemaphoreCount = static_cast<uint32_t>( pWaitSemaphores.size() ),
  		.pWaitSemaphores = pWaitSemaphores.data(),
  		.pWaitDstStageMask = uWaitStageFlags.data(),
-@@ -1470,7 +1516,7 @@
- 		.pSignalSemaphores = pSignalSemaphores.data(),
- 	};
- 
--	vk_check( vk.QueueSubmit( cmdBuffer->queue(), 1, &submitInfo, VK_NULL_HANDLE ) );
-+	vk_check( vk.QueueSubmit( cmdBuffer->queue(), 1, &submitInfo, submitFence ) );
- 
- 	return nextSeqNo;
- }
-@@ -1483,13 +1529,21 @@
+@@ -1483,13 +1521,20 @@
  	// Not wait(), its ring reset would clobber constants this recording already uploaded.
  	if ( const uint64_t ulSeqNo = m_descriptorSetSeqNos[ uIndex ] )
  	{
@@ -164,8 +147,7 @@
 -		vk_check( vk.WaitSemaphores( device(), &waitInfo, ~0ull ) );
 +		if ( m_bEmulateTimeline )
 +		{
-+			VkFence fence = m_aTimelineFences[ ulSeqNo % k_uTimelineEmulationFences ];
-+			vk_check( vk.WaitForFences( device(), 1, &fence, VK_TRUE, ~0ull ) );
++			completedSeqNo(); // drains the queue; every recorded seq is done after it
 +		}
 +		else
 +		{
@@ -180,21 +162,20 @@
  	}
  
  	pCmdBuffer->AddDescriptorSet( uIndex );
-@@ -1505,6 +1559,13 @@
+@@ -1505,6 +1550,12 @@
  
  uint64_t CVulkanDevice::completedSeqNo()
  {
 +	if ( m_bEmulateTimeline )
 +	{
-+		while ( m_emulatedCompletedSeqNo < m_submissionSeqNo &&
-+		        vk.GetFenceStatus( device(), m_aTimelineFences[ ( m_emulatedCompletedSeqNo + 1 ) % k_uTimelineEmulationFences ] ) == VK_SUCCESS )
-+			m_emulatedCompletedSeqNo++;
-+		return m_emulatedCompletedSeqNo;
++		if ( vk.QueueWaitIdle )
++			vk_check( vk.QueueWaitIdle( queue() ) );
++		return m_submissionSeqNo.load();
 +	}
  	uint64_t ulSeqNo = 0;
  	vk_check( vk.GetSemaphoreCounterValue( device(), m_scratchTimelineSemaphore, &ulSeqNo ) );
  	return ulSeqNo;
-@@ -1512,8 +1573,7 @@
+@@ -1512,8 +1563,7 @@
  
  void CVulkanDevice::garbageCollect( void )
  {
@@ -204,7 +185,7 @@
  
  	// wait() only resets the ring on a latest-wait, which stale waits never are.
  	if ( currentSeqNo == m_submissionSeqNo )
-@@ -1651,14 +1711,22 @@
+@@ -1651,14 +1701,22 @@
  	if (m_submissionSeqNo == sequence)
  		m_uploadBufferOffset = 0;
  
