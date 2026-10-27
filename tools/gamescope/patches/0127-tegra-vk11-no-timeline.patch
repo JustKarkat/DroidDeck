@@ -295,7 +295,7 @@
 +		{
 +			PFN_vkVoidFunction const *pEntry = (PFN_vkVoidFunction const *)pBase + i;
 +			if ( *pEntry == nullptr )
-+				vk_log.warnf( "0127-diag: NULL dispatch entry %zu: %s", i, vk_func_names( i ) );
++				fprintf( stderr, "[gamescope] [Warn]  vulkan: 0127-diag: NULL dispatch entry %zu: %s\n", i, vk_func_names( i ) );
 +		}
 +		(void)pName;
 +	}
