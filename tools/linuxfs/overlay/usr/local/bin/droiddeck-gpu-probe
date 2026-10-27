@@ -71,12 +71,19 @@ if [ -x /usr/local/hybris/usr/bin/vkprobe ]; then
     done
 fi
 # The path gamescope will use: the guest's Mesa loader + the sysvk ICD
-# (hw_get_module -> HAL device -> driver, no Android loader).
+# (EGL init chain -> driver table -> real gipa; see tools/hybris/sysvk/sysvk.c).
 icd=/usr/local/hybris/usr/share/vulkan/icd.d/sysvk_icd.json
 if [ -f "$icd" ]; then
     echo "== vulkaninfo via sysvk ICD:"
-    export VK_ICD_FILENAMES=$icd VK_DRIVER_FILES=$icd
-    vulkaninfo --summary > /tmp/vulkaninfo.out 2>&1 || true
+    # The ICD's deps resolve through its own DT_RUNPATH; LD_LIBRARY_PATH must
+    # NOT leak here or vulkaninfo loads the hybris vulkan wrapper instead of
+    # the guest's Mesa loader (which then dies in ws.c platform init).
+    # HYBRIS_LD_LIBRARY_PATH (exported above) stays: the ICD's android_dlopen
+    # side needs the patched bionic.
+    env -u LD_LIBRARY_PATH \
+        VK_DRIVER_FILES=$icd VK_ICD_FILENAMES=$icd \
+        VK_LOADER_DEBUG=driver \
+        vulkaninfo --summary > /tmp/vulkaninfo.out 2>&1 || true
     echo "vulkaninfo exit=$?"
     head -40 /tmp/vulkaninfo.out || true
 fi

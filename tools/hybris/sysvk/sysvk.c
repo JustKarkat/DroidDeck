@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <vulkan/vulkan.h>
 
 #include "../egl_warmup.h"
@@ -81,12 +82,29 @@ static const VkAllocationCallbacks sk_cb = {
 static PFN_vkCreateInstance real_ci;
 static PFN_vkGetInstanceProcAddr real_gipa;
 
+/* The hybris EGL wrapper dlopens its platform backend (…/libhybris/
+ * eglplatform_null.so) by absolute pkglibdir path, but that plugin's soname
+ * deps (libhybris-eglplatformcommon.so.1 -> libhybris-common.so.1) only
+ * resolve via LD_LIBRARY_PATH — which vulkaninfo/gamescope must NOT have (it
+ * would shadow the guest's Mesa loader). Preload the chain by absolute path:
+ * an already-loaded soname satisfies later loads. The pkglibdir symlink is
+ * normally created by the probe wrapper; recreate it on fresh installs. */
+static void preload_hybris_egl_chain(void) {
+    const char *lib = "/usr/local/hybris/usr/lib/";
+    if (access("/usr/lib/libhybris", F_OK) != 0)
+        symlink(lib, "/usr/lib/libhybris");
+    dlopen("/usr/local/hybris/usr/lib/libhybris-common.so.1", RTLD_NOW | RTLD_GLOBAL);
+    dlopen("/usr/local/hybris/usr/lib/libhybris-eglplatformcommon.so.1",
+           RTLD_NOW | RTLD_GLOBAL);
+}
+
 /* The full consumer init, in the order vkprobe proved on device: EGL chain
  * (installs the driver singletons) -> HAL device open -> driver table. */
 static int sysvk_init_once(void) {
     static pthread_mutex_t mu = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_lock(&mu);
     if (!inited) {
+        preload_hybris_egl_chain();
         egl_warmup("sysvk");
         void *lhw = android_dlopen("libhardware.so", RTLD_NOW);
         int (*hgm)(const char *, void **) =
