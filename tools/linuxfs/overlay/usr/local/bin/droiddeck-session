@@ -661,10 +661,40 @@ BUSCONF
     _bl_ui=(-gamepadui)
     [ "${BL_STEAM_UI:-}" = desktop ] && _bl_ui=()
     _bl_cef=(-cef-force-gpu -cef-use-gl=angle -cef-use-angle=vulkan)
-    # BL_TEGRA: ANGLE-on-lavapipe wedges the in-process GPU thread; renderer watchdog
-    # then kills the UI ("Crashing because hung", no first frame). Software raster is
-    # slow but paints. Revert when the device has a real Vulkan ICD.
-    [ "${BL_TEGRA:-}" = 1 ] && _bl_cef=(-cef-disable-gpu)
+    # BL_TEGRA: ANGLE-on-lavapipe wedges the in-process GPU thread (renderer
+    # watchdog kills the UI). ANGLE-over-GLES runs CEF on the real Tegra GLES
+    # driver via hybris — actual hardware. BL_CEF_GLES=0 falls back to
+    # software CEF (the previous, known-good state).
+    if [ "${BL_TEGRA:-}" = 1 ]; then
+      if [ "${BL_CEF_GLES:-1}" = 1 ]; then
+        # ANGLE-gles: Chromium has no ANGLE GLES backend on Linux, so this
+        # lands on SwiftShader-vulkan (works, CPU-rendered); kept because it
+        # survives where the alternatives don't: --use-gl=egl never started a
+        # GPU process in CEF 126, and without -disable-gpu-sandbox the GPU
+        # process SIGSEGVs 4x and CEF silently falls back. The EGL-first
+        # LD_LIBRARY_PATH (hybris sonames minus libvulkan) is harmless here
+        # and is the hook for a future ANGLE build with a real GLES backend.
+        _bl_cef=(-cef-force-gpu -cef-use-gl=angle -cef-use-angle=gles -disable-gpu-sandbox)
+        echo "== steam: CEF on ANGLE-gles (SwiftShader; hw GLES blocked, see docs)"
+        # Inside (under gamescope, before steam): put the hybris EGL/GLES
+        # sonames first so a GL path would bind the vendor driver instead of
+        # Mesa. libvulkan is deliberately excluded (the hybris wrapper would
+        # hijack the guest's Vulkan). This is the inner script only —
+        # gamescope (outer) is already running and must not see it.
+        # HYBRIS_LD_LIBRARY_PATH: the patched-bionic side android_dlopen needs.
+        rm -rf /usr/local/hybris-egl
+        mkdir -p /usr/local/hybris-egl
+        for f in /usr/local/hybris/usr/lib/*; do
+          case "${f##*/}" in *vulkan*|*.la|*.a) continue ;; esac
+          ln -sfn "$f" "/usr/local/hybris-egl/${f##*/}"
+        done
+        export LD_LIBRARY_PATH=/usr/local/hybris-egl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+        export HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic
+      else
+        _bl_cef=(-cef-disable-gpu)
+        echo "== steam: CEF software raster (BL_CEF_GLES=0)"
+      fi
+    fi
     # breakpad needs a fresh /tmp/dumps it owns; a stale dir kills dump writing,
     # which is the only record of why CEF children die here.
     # chmod not mkdir -m: app umask (077) strips the mode, breakpad then
