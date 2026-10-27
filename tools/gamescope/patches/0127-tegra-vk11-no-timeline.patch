@@ -11,14 +11,23 @@
  			continue;
  
  		uint32_t queueFamilyCount = 0;
-@@ -1176,8 +1178,20 @@
+@@ -1174,10 +1176,27 @@
+ 	};
+ 
  	res = vk.CreateSemaphore( device(), &semCreateInfo, NULL, &m_scratchTimelineSemaphore );
- 	if ( res != VK_SUCCESS )
- 	{
+-	if ( res != VK_SUCCESS )
+-	{
 -		vk_errorf( res, "vkCreateSemaphore failed" );
 -		return false;
-+		// 0127: drivers without VK_KHR_timeline_semaphore (Tegra 495.00).
-+		// Emulate the scratch timeline with a fence ring; see submitInternal.
++	// 0127: drivers without usable VK_KHR_timeline_semaphore. The Shield TV
++	// Tegra (495.00) even CREATES timeline semaphores but exports no
++	// WaitSemaphores/GetSemaphoreCounterValue entry points (NULL PFNs, call
++	// through NULL at the first wait). Emulate the scratch timeline with a
++	// fence ring whenever creation fails OR the entry points are missing.
++	if ( res != VK_SUCCESS || !vk.WaitSemaphores || !vk.GetSemaphoreCounterValue )
++	{
++		if ( m_scratchTimelineSemaphore != VK_NULL_HANDLE )
++			vk.DestroySemaphore( device(), m_scratchTimelineSemaphore, nullptr );
 +		m_bEmulateTimeline = true;
 +		m_scratchTimelineSemaphore = VK_NULL_HANDLE;
 +		for ( uint32_t i = 0; i < k_uTimelineEmulationFences; i++ )
@@ -34,21 +43,43 @@
  	}
  
  	return true;
-@@ -1431,8 +1445,11 @@
+@@ -1431,20 +1450,23 @@
  	std::vector<VkSemaphore> pWaitSemaphores;
  	std::vector<uint64_t> ulWaitPoints;
  
 -	pSignalSemaphores.push_back( m_scratchTimelineSemaphore );
 -	ulSignalPoints.push_back( nextSeqNo );
+-
+-	for ( auto &dep : cmdBuffer->GetExternalSignals() )
 +	if ( !m_bEmulateTimeline )
-+	{
+ 	{
+-		pSignalSemaphores.push_back( dep.pTimelineSemaphore->pVkSemaphore );
+-		ulSignalPoints.push_back( dep.ulPoint );
+-	}
 +		pSignalSemaphores.push_back( m_scratchTimelineSemaphore );
 +		ulSignalPoints.push_back( nextSeqNo );
-+	}
  
- 	for ( auto &dep : cmdBuffer->GetExternalSignals() )
- 	{
-@@ -1458,9 +1475,21 @@
+-	for ( auto &dep : cmdBuffer->GetExternalDependencies() )
+-	{
+-		pWaitSemaphores.push_back( dep.pTimelineSemaphore->pVkSemaphore );
+-		ulWaitPoints.push_back( dep.ulPoint );
+-		uWaitStageFlags.push_back( VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
++		for ( auto &dep : cmdBuffer->GetExternalSignals() )
++		{
++			pSignalSemaphores.push_back( dep.pTimelineSemaphore->pVkSemaphore );
++			ulSignalPoints.push_back( dep.ulPoint );
++		}
++
++		for ( auto &dep : cmdBuffer->GetExternalDependencies() )
++		{
++			pWaitSemaphores.push_back( dep.pTimelineSemaphore->pVkSemaphore );
++			ulWaitPoints.push_back( dep.ulPoint );
++			uWaitStageFlags.push_back( VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
++		}
+ 	}
+ 
+ 	VkTimelineSemaphoreSubmitInfo timelineInfo = {
+@@ -1458,9 +1480,21 @@
  
  	VkCommandBuffer rawCmdBuffer = cmdBuffer->rawBuffer();
  
@@ -71,7 +102,7 @@
  		.waitSemaphoreCount = static_cast<uint32_t>( pWaitSemaphores.size() ),
  		.pWaitSemaphores = pWaitSemaphores.data(),
  		.pWaitDstStageMask = uWaitStageFlags.data(),
-@@ -1470,7 +1499,7 @@
+@@ -1470,7 +1504,7 @@
  		.pSignalSemaphores = pSignalSemaphores.data(),
  	};
  
@@ -80,7 +111,7 @@
  
  	return nextSeqNo;
  }
-@@ -1483,13 +1512,21 @@
+@@ -1483,13 +1517,21 @@
  	// Not wait(), its ring reset would clobber constants this recording already uploaded.
  	if ( const uint64_t ulSeqNo = m_descriptorSetSeqNos[ uIndex ] )
  	{
@@ -109,7 +140,7 @@
  	}
  
  	pCmdBuffer->AddDescriptorSet( uIndex );
-@@ -1505,6 +1542,13 @@
+@@ -1505,6 +1547,13 @@
  
  uint64_t CVulkanDevice::completedSeqNo()
  {
@@ -123,7 +154,7 @@
  	uint64_t ulSeqNo = 0;
  	vk_check( vk.GetSemaphoreCounterValue( device(), m_scratchTimelineSemaphore, &ulSeqNo ) );
  	return ulSeqNo;
-@@ -1512,8 +1556,7 @@
+@@ -1512,8 +1561,7 @@
  
  void CVulkanDevice::garbageCollect( void )
  {
@@ -133,7 +164,7 @@
  
  	// wait() only resets the ring on a latest-wait, which stale waits never are.
  	if ( currentSeqNo == m_submissionSeqNo )
-@@ -1651,14 +1694,22 @@
+@@ -1651,14 +1699,22 @@
  	if (m_submissionSeqNo == sequence)
  		m_uploadBufferOffset = 0;
  
