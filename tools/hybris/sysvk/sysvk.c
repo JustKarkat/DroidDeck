@@ -83,19 +83,27 @@ static PFN_vkCreateInstance real_ci;
 static PFN_vkGetInstanceProcAddr real_gipa;
 
 /* The hybris EGL wrapper dlopens its platform backend (…/libhybris/
- * eglplatform_null.so) by absolute pkglibdir path, but that plugin's soname
- * deps (libhybris-eglplatformcommon.so.1 -> libhybris-common.so.1) only
- * resolve via LD_LIBRARY_PATH — which vulkaninfo/gamescope must NOT have (it
- * would shadow the guest's Mesa loader). Preload the chain by absolute path:
- * an already-loaded soname satisfies later loads. The pkglibdir symlink is
- * normally created by the probe wrapper; recreate it on fresh installs. */
+ * eglplatform_null.so) by absolute pkglibdir path, but the plugin's soname
+ * deps only resolve via LD_LIBRARY_PATH — which vulkaninfo/gamescope must
+ * NOT have (it would shadow the guest's Mesa loader). Preload the chain
+ * leaf-first by absolute path: an already-loaded soname satisfies later
+ * loads. Deliberately NOT libEGL/libGLES — those sonames must stay free for
+ * the guest's Mesa. The pkglibdir symlink is normally created by the probe
+ * wrapper; recreate it on fresh installs. */
 static void preload_hybris_egl_chain(void) {
-    const char *lib = "/usr/local/hybris/usr/lib/";
+    static const char *libs[] = {
+        "/usr/local/hybris/usr/lib/libhybris-common.so.1",
+        "/usr/local/hybris/usr/lib/libsync.so.2",
+        "/usr/local/hybris/usr/lib/libhardware.so.2",
+        "/usr/local/hybris/usr/lib/libui.so.1",
+        "/usr/local/hybris/usr/lib/libgralloc.so.1",
+        "/usr/local/hybris/usr/lib/libhybris-platformcommon.so.1",
+        "/usr/local/hybris/usr/lib/libhybris-eglplatformcommon.so.1",
+    };
     if (access("/usr/lib/libhybris", F_OK) != 0)
-        symlink(lib, "/usr/lib/libhybris");
-    dlopen("/usr/local/hybris/usr/lib/libhybris-common.so.1", RTLD_NOW | RTLD_GLOBAL);
-    dlopen("/usr/local/hybris/usr/lib/libhybris-eglplatformcommon.so.1",
-           RTLD_NOW | RTLD_GLOBAL);
+        symlink("/usr/local/hybris/usr/lib/", "/usr/lib/libhybris");
+    for (size_t i = 0; i < sizeof libs / sizeof libs[0]; i++)
+        dlopen(libs[i], RTLD_NOW | RTLD_GLOBAL);
 }
 
 /* The full consumer init, in the order vkprobe proved on device: EGL chain
