@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <vulkan/vulkan.h>
 #include <dlfcn.h>
+#include <EGL/egl.h>
 #include <hybris/common/binding.h>
 
 /* The wrapper is opened with dlopen in main (see below), so rebind the
@@ -142,6 +143,46 @@ struct hw_module_t_fwd {
 /* Initialize driver-internal state the way every real consumer does: open the
  * HAL device (its helpers allocate the driver context) and make one safe
  * enumerate call through the proven struct field. */
+/* EGL warm-up: the one proven path that initializes the driver process-wide
+ * (the NvGlEglApiInit chain installs libglcore's dispatch master object and
+ * the singleton allocators every other consumer expects; calling the
+ * unexported init directly replicated half the chain and still faulted).
+ * Disassembly: NvGlEglGetFunctions' internal ensure calls singleton(0x19c5a70)
+ * then master(0x19c5640)->fn_0x160 — both NULL unless EGL init ran. */
+static void egl_warmup(void) {
+    EGLDisplay dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    printf("vkstage: egl warmup: GetDisplay=%p\n", (void *)dpy);
+    if (!dpy) return;
+    EGLint maj = 0, mi = 0;
+    if (!eglInitialize(dpy, &maj, &mi)) {
+        printf("vkstage: egl warmup: Initialize FAILED err 0x%x\n", eglGetError());
+        return;
+    }
+    printf("vkstage: egl warmup: EGL %d.%d vendor=%s\n", maj, mi,
+           eglQueryString(dpy, EGL_VENDOR));
+    EGLint cfg_attr[] = { EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+                          EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                          EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8,
+                          EGL_NONE };
+    EGLConfig cfg;
+    EGLint n = 0;
+    if (!eglChooseConfig(dpy, cfg_attr, &cfg, 1, &n) || n < 1) {
+        printf("vkstage: egl warmup: ChooseConfig FAILED\n");
+        return;
+    }
+    EGLint pb[] = { EGL_WIDTH, 32, EGL_HEIGHT, 32, EGL_NONE };
+    EGLSurface surf = eglCreatePbufferSurface(dpy, cfg, pb);
+    EGLint ca[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+    EGLContext ctx = eglCreateContext(dpy, cfg, EGL_NO_CONTEXT, ca);
+    printf("vkstage: egl warmup: surf=%p ctx=%p\n", (void *)surf, (void *)ctx);
+    if (surf == EGL_NO_SURFACE || ctx == EGL_NO_CONTEXT) return;
+    if (!eglMakeCurrent(dpy, surf, surf, ctx)) {
+        printf("vkstage: egl warmup: MakeCurrent FAILED err 0x%x\n", eglGetError());
+        return;
+    }
+    printf("vkstage: egl warmup: current\n");
+}
+
 static int tegra_hal_warmup(void) {
     void *lhw = android_dlopen("libhardware.so", RTLD_NOW);
     int (*hgm)(const char *, void **) =
@@ -402,13 +443,13 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (argc > 2 && !strcmp(argv[1], "gpa")) {
+        egl_warmup(); /* installs the driver singletons via the proven EGL path */
         tegra_hal_warmup(); /* driver context init; non-fatal if it fails */
         void **table = (void **)tegra_table_init();
         if (!table) return 1;
-        /* Patch before any driver call that can reach the singletons: the
-         * variant(2) init and the blind HAL ensure call were both removed —
-         * (2,…) fills nothing and ensure(0,NULL,0) faults at NULL+0x30,
-         * which used to abort the process before the shims were installed. */
+        /* After the warm-up the bss slots should hold the real NVIDIA
+         * allocators; the shim patch only fills slots that are still NULL
+         * (and logs the real values either way). */
         if (!strcmp(argv[2], "vkCreateInstance") || !strcmp(argv[2], "all"))
             patch_libglcore_allocators();
         return gpa_probe(table, argv[2]);
