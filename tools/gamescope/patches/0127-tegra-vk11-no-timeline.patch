@@ -1,0 +1,180 @@
+--- a/src/rendervulkan.cpp
++++ b/src/rendervulkan.cpp
+@@ -365,7 +365,9 @@
+ 		VkPhysicalDeviceProperties deviceProperties;
+ 		vk.GetPhysicalDeviceProperties(cphysDev, &deviceProperties);
+ 
+-		if (deviceProperties.apiVersion < VK_API_VERSION_1_2)
++		// 0127: the Shield TV Tegra driver (495.00) is Vulkan 1.1; accept it
++		// (the fence-ring emulation below covers the only hard 1.2 dependency).
++		if (deviceProperties.apiVersion < VK_API_VERSION_1_1)
+ 			continue;
+ 
+ 		uint32_t queueFamilyCount = 0;
+@@ -1176,8 +1178,20 @@
+ 	res = vk.CreateSemaphore( device(), &semCreateInfo, NULL, &m_scratchTimelineSemaphore );
+ 	if ( res != VK_SUCCESS )
+ 	{
+-		vk_errorf( res, "vkCreateSemaphore failed" );
+-		return false;
++		// 0127: drivers without VK_KHR_timeline_semaphore (Tegra 495.00).
++		// Emulate the scratch timeline with a fence ring; see submitInternal.
++		m_bEmulateTimeline = true;
++		m_scratchTimelineSemaphore = VK_NULL_HANDLE;
++		for ( uint32_t i = 0; i < k_uTimelineEmulationFences; i++ )
++		{
++			VkFenceCreateInfo fenceInfo = { .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
++			if ( ( res = vk.CreateFence( device(), &fenceInfo, nullptr, &m_aTimelineFences[ i ] ) ) != VK_SUCCESS )
++			{
++				vk_errorf( res, "vkCreateFence failed" );
++				return false;
++			}
++		}
++		vk_log.warnf( "0127: no timeline semaphores; emulating the scratch timeline with %u fences", k_uTimelineEmulationFences );
+ 	}
+ 
+ 	return true;
+@@ -1431,8 +1445,11 @@
+ 	std::vector<VkSemaphore> pWaitSemaphores;
+ 	std::vector<uint64_t> ulWaitPoints;
+ 
+-	pSignalSemaphores.push_back( m_scratchTimelineSemaphore );
+-	ulSignalPoints.push_back( nextSeqNo );
++	if ( !m_bEmulateTimeline )
++	{
++		pSignalSemaphores.push_back( m_scratchTimelineSemaphore );
++		ulSignalPoints.push_back( nextSeqNo );
++	}
+ 
+ 	for ( auto &dep : cmdBuffer->GetExternalSignals() )
+ 	{
+@@ -1458,9 +1475,21 @@
+ 
+ 	VkCommandBuffer rawCmdBuffer = cmdBuffer->rawBuffer();
+ 
++	VkFence submitFence = VK_NULL_HANDLE;
++	if ( m_bEmulateTimeline )
++	{
++		// Submit n uses fence n % K; by the time it is reused, submit n - K
++		// has long been reaped (gamescope polls completedSeqNo every frame).
++		submitFence = m_aTimelineFences[ nextSeqNo % k_uTimelineEmulationFences ];
++		if ( nextSeqNo > k_uTimelineEmulationFences )
++		{
++			vk_check( vk.WaitForFences( device(), 1, &submitFence, VK_TRUE, ~0ull ) );
++			vk.ResetFences( device(), 1, &submitFence );
++		}
++	}
+ 	VkSubmitInfo submitInfo = {
+ 		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+-		.pNext = &timelineInfo,
++		.pNext = m_bEmulateTimeline ? nullptr : &timelineInfo,
+ 		.waitSemaphoreCount = static_cast<uint32_t>( pWaitSemaphores.size() ),
+ 		.pWaitSemaphores = pWaitSemaphores.data(),
+ 		.pWaitDstStageMask = uWaitStageFlags.data(),
+@@ -1470,7 +1499,7 @@
+ 		.pSignalSemaphores = pSignalSemaphores.data(),
+ 	};
+ 
+-	vk_check( vk.QueueSubmit( cmdBuffer->queue(), 1, &submitInfo, VK_NULL_HANDLE ) );
++	vk_check( vk.QueueSubmit( cmdBuffer->queue(), 1, &submitInfo, submitFence ) );
+ 
+ 	return nextSeqNo;
+ }
+@@ -1483,13 +1512,21 @@
+ 	// Not wait(), its ring reset would clobber constants this recording already uploaded.
+ 	if ( const uint64_t ulSeqNo = m_descriptorSetSeqNos[ uIndex ] )
+ 	{
+-		VkSemaphoreWaitInfo waitInfo = {
+-			.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
+-			.semaphoreCount = 1,
+-			.pSemaphores = &m_scratchTimelineSemaphore,
+-			.pValues = &ulSeqNo,
+-		};
+-		vk_check( vk.WaitSemaphores( device(), &waitInfo, ~0ull ) );
++		if ( m_bEmulateTimeline )
++		{
++			VkFence fence = m_aTimelineFences[ ulSeqNo % k_uTimelineEmulationFences ];
++			vk_check( vk.WaitForFences( device(), 1, &fence, VK_TRUE, ~0ull ) );
++		}
++		else
++		{
++			VkSemaphoreWaitInfo waitInfo = {
++				.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
++				.semaphoreCount = 1,
++				.pSemaphores = &m_scratchTimelineSemaphore,
++				.pValues = &ulSeqNo,
++			};
++			vk_check( vk.WaitSemaphores( device(), &waitInfo, ~0ull ) );
++		}
+ 	}
+ 
+ 	pCmdBuffer->AddDescriptorSet( uIndex );
+@@ -1505,6 +1542,13 @@
+ 
+ uint64_t CVulkanDevice::completedSeqNo()
+ {
++	if ( m_bEmulateTimeline )
++	{
++		while ( m_emulatedCompletedSeqNo < m_submissionSeqNo &&
++		        vk.GetFenceStatus( device(), m_aTimelineFences[ ( m_emulatedCompletedSeqNo + 1 ) % k_uTimelineEmulationFences ] ) == VK_SUCCESS )
++			m_emulatedCompletedSeqNo++;
++		return m_emulatedCompletedSeqNo;
++	}
+ 	uint64_t ulSeqNo = 0;
+ 	vk_check( vk.GetSemaphoreCounterValue( device(), m_scratchTimelineSemaphore, &ulSeqNo ) );
+ 	return ulSeqNo;
+@@ -1512,8 +1556,7 @@
+ 
+ void CVulkanDevice::garbageCollect( void )
+ {
+-	uint64_t currentSeqNo;
+-	vk_check( vk.GetSemaphoreCounterValue(device(), m_scratchTimelineSemaphore, &currentSeqNo) );
++	uint64_t currentSeqNo = completedSeqNo();
+ 
+ 	// wait() only resets the ring on a latest-wait, which stale waits never are.
+ 	if ( currentSeqNo == m_submissionSeqNo )
+@@ -1651,14 +1694,22 @@
+ 	if (m_submissionSeqNo == sequence)
+ 		m_uploadBufferOffset = 0;
+ 
+-	VkSemaphoreWaitInfo waitInfo = {
+-		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
+-		.semaphoreCount = 1,
+-		.pSemaphores = &m_scratchTimelineSemaphore,
+-		.pValues = &sequence,
+-	} ;
++	if ( m_bEmulateTimeline )
++	{
++		while ( completedSeqNo() < sequence )
++			std::this_thread::yield();
++	}
++	else
++	{
++		VkSemaphoreWaitInfo waitInfo = {
++			.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
++			.semaphoreCount = 1,
++			.pSemaphores = &m_scratchTimelineSemaphore,
++			.pValues = &sequence,
++		} ;
+ 
+-	vk_check( vk.WaitSemaphores( device(), &waitInfo, ~0ull ) );
++		vk_check( vk.WaitSemaphores( device(), &waitInfo, ~0ull ) );
++	}
+ 
+ 	if (reset)
+ 		resetCmdBuffers(sequence);
+--- a/src/rendervulkan.hpp
++++ b/src/rendervulkan.hpp
+@@ -956,6 +956,12 @@
+ 	uint32_t m_uploadBufferOffset = 0;
+ 
+ 	VkSemaphore m_scratchTimelineSemaphore;
++	// 0127: fence-ring emulation of the scratch timeline for drivers without
++	// VK_KHR_timeline_semaphore (Shield TV Tegra 495.00).
++	static constexpr uint32_t k_uTimelineEmulationFences = 64;
++	bool m_bEmulateTimeline = false;
++	VkFence m_aTimelineFences[ k_uTimelineEmulationFences ] = {};
++	std::atomic<uint64_t> m_emulatedCompletedSeqNo = { 0 };
+ 	std::atomic<uint64_t> m_submissionSeqNo = { 0 };
+ 	std::vector<std::unique_ptr<CVulkanCmdBuffer>> m_unusedCmdBufs;
+ 	std::map<uint64_t, std::unique_ptr<CVulkanCmdBuffer>> m_pendingCmdBufs;
