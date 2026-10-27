@@ -667,15 +667,13 @@ BUSCONF
     # software CEF (the previous, known-good state).
     if [ "${BL_TEGRA:-}" = 1 ]; then
       if [ "${BL_CEF_GLES:-1}" = 1 ]; then
-        # ANGLE-gles: Chromium has no ANGLE GLES backend on Linux, so this
-        # lands on SwiftShader-vulkan (works, CPU-rendered); kept because it
-        # survives where the alternatives don't: --use-gl=egl never started a
-        # GPU process in CEF 126, and without -disable-gpu-sandbox the GPU
-        # process SIGSEGVs 4x and CEF silently falls back. The EGL-first
-        # LD_LIBRARY_PATH (hybris sonames minus libvulkan) is harmless here
-        # and is the hook for a future ANGLE build with a real GLES backend.
-        _bl_cef=(-cef-force-gpu -cef-use-gl=angle -cef-use-angle=gles -disable-gpu-sandbox)
-        echo "== steam: CEF on ANGLE-gles (SwiftShader; hw GLES blocked, see docs)"
+        # gl-egl: ANGLE's OpenGL backend via the system libEGL — which the
+        # hybris-egl LD_LIBRARY_PATH below points at the Tegra GLES driver
+        # (libGLX_nvidia probing strings are in Valve's libcef, so the GL
+        # backend ships in it). -disable-gpu-sandbox: the vendor driver
+        # faults in the GPU process when the sandbox is up.
+        _bl_cef=(-cef-force-gpu -cef-use-gl=angle -cef-use-angle=gl-egl -disable-gpu-sandbox)
+        echo "== steam: CEF on ANGLE gl-egl -> Tegra GLES (Tegra hw)"
         # Inside (under gamescope, before steam): put the hybris EGL/GLES
         # sonames first so a GL path would bind the vendor driver instead of
         # Mesa. libvulkan is deliberately excluded (the hybris wrapper would
