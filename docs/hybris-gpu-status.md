@@ -202,3 +202,29 @@ Everything up to the bionic TLS boundary — and now the boundary itself — is 
 is `tools/hybris/eglprobe.c` (stage prints + in-process SIGSEGV handler that prints the faulting
 mapping), the wrapper is `tools/linuxfs/overlay/usr/local/bin/droiddeck-gpu-probe`, and the payload
 staging is `tools/hybris/stage-payload.sh` (CI artifact → APK assets).
+
+## Update 2026-10-26 (evening): Vulkan enumeration SOLVED
+
+`vulkaninfo --summary` (guest Mesa loader 1.4.363 → sysvk ICD) lists
+`GPU0: NVIDIA Tegra X1 (rev B) (nvgpu)`, api 1.1.178, driver 495.00
+(session 2026-10-26-16). The chain, in order:
+
+1. EGL init chain (display → pbuffer → context → MakeCurrent, `egl_warmup.h`)
+   runs the `NvGlEglApiInit` sequence inside libglcore — this installs the
+   dispatch master object (.bss 0x19c5640, 41 KB from `+0xf60200`) and the
+   three allocator singletons (0x19c5a30/50/70). Before it, CreateInstance
+   calls through NULL (master+0x140/+0x160). No shims needed.
+2. `NvGlEglGetFunctions(1, &table[1])`, `table[0]`=dlopen handle,
+   `table[4]`=GetProcAddressNV("vkGetInstanceProcAddr") (real driver GIPA,
+   NULL-instance conformant).
+3. sysvk (`tools/hybris/sysvk/sysvk.c`) exposes this as a standard ICD for the
+   guest's Mesa loader; CreateInstance/DestroyInstance substitute glibc
+   `VkAllocationCallbacks` (driver dereferences pAllocator).
+4. Env contract: `HYBRIS_LD_LIBRARY_PATH` exported (patched bionic),
+   `LD_LIBRARY_PATH` UNSET for vulkaninfo/gamescope (else the hybris vulkan
+   wrapper hijacks libvulkan.so.1 and asserts in ws.c). sysvk preloads the
+   EGL platform-plugin deps by absolute path so it works without
+   LD_LIBRARY_PATH.
+
+Open: device creation (`vkCreateDevice`) unexercised through sysvk; gamescope
+on the Tegra is the next frontier (see handoff doc).

@@ -1,84 +1,78 @@
-# ShieldDeck handoff — Shield TV GPU (libhybris/Vulkan), 2026-10-26
+# ShieldDeck handoff — Shield TV GPU (libhybris/Vulkan), 2026-10-26 (evening)
 
 Companion to `docs/agent-playbook.md` (device access, build loop, logs, traps — read it first)
 and `docs/hybris-gpu-status.md` (full evidence trail). This file is the working state + next steps.
 
 ## TL;DR
 
-- **EGL/GLES on the Tegra from the guest: DONE and shipped in the app.** The probe prints
-  `RESULT GL_RENDERER=NVIDIA Tegra` (session 2026-10-25-39). Do not redo: bionic TLS, q linker
-  APS2, IFUNC, sphal/config — all solved, see status doc.
-- **Vulkan (what Steam/gamescope actually render with): one bug away from enumeration.**
-  The driver's `CreateInstance` calls libglcore singleton allocator objects whose function
-  pointers are NULL in our process (NVIDIA's loader installs them on stock). The probe has
-  logging/allocating shims for them ready and installed in the APK — **but a probe-ordering bug
-  killed the process before the shims were ever exercised on device** (session 2026-10-26-10).
-  Fix the ordering (one line), re-run, read the shim logs, wire real allocators, rewrite sysvk.
+- **EGL/GLES on the Tegra from the guest: DONE and shipped** (`RESULT GL_RENDERER=NVIDIA Tegra`).
+- **Vulkan enumeration: DONE.** The guest's real Vulkan stack (Mesa loader 1.4.363) lists the
+  hardware through the rewritten sysvk ICD (session 2026-10-26-16, `vulkaninfo --summary`):
+  `GPU0: NVIDIA Tegra X1 (rev B) (nvgpu)`, api 1.1.178, driver 495.00, INTEGRATED_GPU.
+- **Next: gamescope on the Tegra** (`dd env set 'VK_DRIVER_FILES=…sysvk_icd.json'`), then real
+  rendering; buffer handoff must go through AHB (no dma_buf ext on the driver).
 
-## Where things stand (all committed, HEAD `62bc6152`, pushed, CI green)
+## What happened this session (all committed, pushed, CI green; HEAD `7df5804d`)
 
-- App ships `usr/local/hybris/` = libhybris + `eglprobe` + `vkprobe` + Halium-patched bionic +
-  **patched sysvk ICD** (`tools/hybris/sysvk/sysvk.c`, registered at
-  `/usr/local/hybris/usr/share/vulkan/icd.d/sysvk_icd.json` for the guest's Mesa loader).
-- The probe wrapper `droiddeck-gpu-probe` synthesizes `/linkerconfig/ld.config.txt` in the guest
-  (the device's is root-only; the q linker needs it for the sphal namespace — without it every
-  Vulkan path saw the loader's stub HAL).
-- **Driver table protocol decoded** (this is the load-bearing discovery):
-  `libglcore.so!NvGlEglGetFunctions(1, &table[1])` with `table[0]` = dlopen handle fills a
-  48-byte table whose slot 1 is a `vkGetProcAddressNV(name)` getter. The driver requires
-  `table[4] = GetProcAddressNV("vkGetInstanceProcAddr")` to be stored by the consumer.
-  `gipa(NULL, …)` on the REAL driver gipa is conformant (the HAL wrapper at `base+0x22f0` is not —
-  it dereferences the instance). `vkEnumerateInstanceExtensionProperties` via GetProcAddressNV
-  works with NULL instance → 7 real extensions in the guest.
-- `cmd gpu vkjson` on stock: driver is healthy (NVIDIA Tegra X1, 99 extensions, has
-  `VK_KHR_external_memory_fd` + `VK_KHR_external_semaphore_fd` +
-  `VK_ANDROID_external_memory_android_hardware_buffer`; **no** dma_buf, **no** timeline_semaphore
-  — the gamescope integration must use the AHB path).
-
-## The frontier: CreateInstance
-
-- The tegra driver **requires a non-NULL `VkAllocationCallbacks`** (pfnAllocation): NULL falls
-  back to an unset process-global inside libglcore (`+0x185b880`) → call through NULL. The probe
-  passes glibc-backed callbacks now.
-- Even with callbacks, CreateInstance calls **singleton allocator objects**:
-  libglcore GOT `0x185b880/88/98` → `.bss 0x19c5a30/50/70` — function pointers NULL in our
-  process. Nothing in libglcore's text writes them directly (checked: no adrp refs to those
-  pages); NVIDIA's loader installs them on stock by some path we haven't traced.
-- Session 2026-10-26-09: one singleton invoked as `(heap, rodata, 8, heap)` — not a plain
-  alloc(size). Session 2026-10-26-10: `NvGlEglGetFunctions(2, …)` fills nothing (dead end);
-  blind-calling the HAL's ensure helper `base+0x2160(0,NULL,0)` faults at NULL+0x30 (needs real
-  args — and it ran *before* the allocator patching, aborting the process before the shims were
-  ever exercised). **The always-allocate arg-dumping shims (commit `62bc6152`) are in the
-  installed APK but untested on device.**
+1. **vkprobe ordering bug fixed** (`1f13bd15`): the allocator-shim patch now runs before the
+   CreateInstance probe; the dead `NvGlEglGetFunctions(2,…)` variant and the blind HAL
+   `ensure(0,NULL,0)` block were deleted. First run with the shims (session -11) showed
+   CreateInstance still calling a NULL: `singleton(0x19c5a70)` then
+   `master(libglcore .bss 0x19c5640)->fn_0x160`.
+2. **Disassembly findings** (libglcore 33.01/495.00, offsets in the cheat sheet): the "singleton
+   allocators" are three pointers of a bigger init story; the master dispatch object (41 KB,
+   allocated by `libglcore+0xf60200`, filled from `+0xf60250`) is installed by the
+   `NvGlEglApiInit` chain — the same chain EGL initialization runs.
+3. **The fix is EGL, not shims** (`f38acf97`): vkprobe's gpa path now runs the minimal EGL
+   sequence first (display → pbuffer → context → MakeCurrent, shared in
+   `tools/hybris/egl_warmup.h`). After that the three bss slots hold the REAL NVIDIA allocators
+   and CreateInstance works: session -12 printed
+   `RESULT VK_TABLE_DEVICE=NVIDIA Tegra X1 (rev B) (nvgpu)`. No shim ever fires; the shim
+   patcher now only logs the real values and fills still-NULL slots.
+4. **sysvk rewritten on the driver table protocol** (`7d2356ac`, `62ad013a`): at ICD-open it
+   runs the EGL chain (installs driver state), opens the HAL device, then
+   `NvGlEglGetFunctions(1,…)` + `table[4] = GetProcAddressNV("vkGetInstanceProcAddr")`.
+   Global queries go through the real GIPA (NULL-instance conformant); CreateInstance and
+   DestroyInstance are wrapped to substitute glibc `VkAllocationCallbacks` when the loader
+   passes NULL (the driver dereferences pAllocator unconditionally). Device create/destroy pass
+   through unwrapped (allocator requirement only proven at instance level).
+5. **Two env traps found and fixed** (`776943f5`, `7df5804d`):
+   - `LD_LIBRARY_PATH=/usr/local/hybris/usr/lib` must NOT reach vulkaninfo/gamescope — they
+     would load the hybris vulkan wrapper instead of the Mesa loader (ws.c assert). The ICD's
+     deps resolve via its own DT_RUNPATH.
+   - Without LD_LIBRARY_PATH the hybris EGL platform plugin chain can't resolve, so sysvk
+     preloads it leaf-first by absolute path (common → sync → hardware → ui → gralloc →
+     platformcommon → eglplatformcommon; deliberately NOT libEGL/libGLES — guest Mesa owns
+     those sonames) and recreates `/usr/lib/libhybris` if missing.
+   - Without `HYBRIS_LD_LIBRARY_PATH` (patched bionic first) everything segfaults in
+     eglGetDisplay — that one must stay exported for any process that touches the driver.
 
 ## Next steps (in order)
 
-1. **Fix the ordering bug in `tools/hybris/vkprobe.c` main() gpa path**: move
-   `patch_libglcore_allocators()` to right after `tegra_table_init()` (before the variant(2) and
-   ensure blocks, which can fault). CI → stage (`tools/hybris/stage-payload.sh`) → build →
-   install → `dd run /usr/local/bin/droiddeck-gpu-probe`.
-2. **Read the shim logs** (`shimA/B/C(...)` + hexdumps): identify each singleton's calling
-   convention, implement real glibc allocators to replace the shims.
-3. If CreateInstance + `vkEnumeratePhysicalDevices` succeed in the probe → **rewrite sysvk** on
-   the table protocol: init via NvGlEglGetFunctions (store table[4]!), install the real allocator
-   singletons at ICD-open, answer global-level queries from GetProcAddressNV, instance-level from
-   the real gipa. Then `vulkaninfo --summary` should list the Tegra (the wrapper already exports
-   `VK_DRIVER_FILES` for the sysvk json).
-4. **Gamescope on the Tegra**: `dd env set 'VK_DRIVER_FILES=/usr/local/hybris/usr/share/vulkan/icd.d/sysvk_icd.json'`
-   (seeds next session) + select the ICD as graphics driver; gamescope's zink/CEF path comes
-   after. Buffer handoff must go through AHB (no dma_buf ext). Watch for the loader's
-   `VK_EXT_physical_device_drm` warning — gamescope checks it.
-5. If the singleton story fights back: fallback plan unchanged — Option B, out-of-process EGL
-   helper (the proven EGL path) handing buffers to the guest.
+1. **Gamescope on the Tegra**: seed `dd env set 'VK_DRIVER_FILES=/usr/local/hybris/usr/share/vulkan/icd.d/sysvk_icd.json'`
+   (no LD_LIBRARY_PATH!) + select the ICD as graphics driver. Watch for the loader's
+   `VK_EXT_physical_device_drm` warning — gamescope checks it (handoff 2026-10-25 said it may
+   be missing; verify against 495.00). gamescope's zink/CEF path comes after.
+2. **Device-level sanity**: `vulkaninfo` summary works, but device creation is unexercised.
+   Quick check: `vkcube`/`vulkaninfo --json` device block, then a tiny vkCreateDevice probe
+   through sysvk (or run vkprobe's loader path). If vkCreateDevice faults on a NULL allocator,
+   wrap it in sysvk (needs a pd→instance registry — see the shortcut comment in sysvk.c).
+3. **Buffer handoff**: AHB path only (`VK_ANDROID_external_memory_android_hardware_buffer`).
+4. If anything fights back at device level: fallback plan unchanged — Option B, out-of-process
+   EGL helper handing buffers to the guest.
 
 ## Do NOT redo (all verified dead ends or solved)
 
-Stock-bionic TLS (patched bionic shipped); o-linker/APS2 (halium-11.0 headers); linking the
-hybris vulkan wrapper (IFUNC resolvers die in ld.so relocation — dlopen in main, always);
-Android-loader discovery (stub HAL without sphal → synthesized ld.config.txt solves it);
-`NvGlEglGetFunctions(2, …)` variant (empty); blind `base+0x2160(0,NULL,0)` (faults; needs args
-derived from its real callers first); hwvulkan device-struct fields (NULL on stock too — the
-loader never uses them); `open("vulkan")` id (must be `"vk0"`).
+Everything from the previous handoff (below) plus: shims for the allocator singletons
+(EGL init installs the real ones; `tools/hybris/vkprobe.c` patcher remains as logger only);
+driving the hwvulkan HAL's CreateInstance wrapper directly (needs driver-internal state);
+`NvGlEglGetFunctions(2,…)` (empty); blind `base+0x2160(0,NULL,0)` (faults at NULL+0x30);
+LD_LIBRARY_PATH for vulkaninfo/gamescope (hybris wrapper hijack).
+
+Previous handoff list, still valid: stock-bionic TLS (patched bionic shipped); o-linker/APS2
+(halium-11.0 headers); linking the hybris vulkan wrapper (IFUNC resolvers die in ld.so
+relocation — dlopen in main, always); Android-loader discovery (stub HAL without sphal →
+synthesized ld.config.txt solves it); `open("vulkan")` id (must be `"vk0"`).
 
 ## Cheat sheet — tegra HAL / libglcore offsets (Shield firmware 33.01, driver 495.00)
 
@@ -86,12 +80,13 @@ loader never uses them); `open("vulkan")` id (must be `"vk0"`).
 |---|---|
 | hwvulkan device struct | HAL vaddr `0x4448` (ships all-NULL) |
 | HAL real EnumerateInstanceExtensionProperties | HAL `+0x2060` |
-| HAL CreateInstance wrapper (takes table first) | HAL `+0x242c` |
-| HAL GetInstanceProcAddr wrapper (needs instance) | HAL `+0x22f0` |
 | HAL ensure/bootstrap helper (args unknown) | HAL `+0x2160` |
-| libglcore exports | `NvGlEglGetFunctions`, `NvGlEglApiInit` |
+| libglcore exports | `NvGlEglApiInit`, `NvGlEglGetFunctions` |
+| `NvGlEglGetFunctions` | dispatcher, modes 0–4; mode 1 → vkGetProcAddressNV |
 | driver table | 48 B; `[0]`=dlopen handle, `[1]`=GetProcAddressNV, `[4]`=GIPA (consumer-stored) |
-| singleton allocator objects | GOT `0x185b880/88/98` → bss `0x19c5a30/50/70` (NULL in guest) |
+| master dispatch object | .bss anchor `0x19c5640`, 41 KB (0xa190), `->fn` used at +0x140/+0x160 |
+| allocator singletons | GOT `0x185b880/88/98` → bss `0x19c5a30/50/70` — **installed by EGL init**, NULL only before |
+| `NvGlEglApiInit` chain | fill fn-ptr table → `{_nv004glsi,_nv006glsi}` pair → core init `0xf63de0` → master obj `0xf60200` |
 
 ## Build & probe loop
 
@@ -108,9 +103,15 @@ adb -s 192.168.0.194:5555 install -r -t app/build/outputs/apk/release/app-releas
 # probe (headless): set suspend policy never, run, read log, restore manual after
 python3 tools/droiddeckctl --serial 192.168.0.194:5555 prefs set session suspendPolicy.steam never --type string
 python3 tools/droiddeckctl --serial 192.168.0.194:5555 run /usr/local/bin/droiddeck-gpu-probe
-adb -s 192.168.0.194:5555 shell "run-as com.droiddeck.launcher sh -c 'grep -aE \"stage|RESULT|vkstage|shim|FAULT|vulkaninfo\" files/logs/<session-id>/session.log'"
+adb -s 192.168.0.194:5555 shell "run-as com.droiddeck.launcher sh -c 'grep -aE \"stage|RESULT|vkstage|shim|FAULT|vulkaninfo|sysvk\" files/logs/<session-id>/session.log'"
+# vulkaninfo's full output is ALSO at files/linuxfs/tmp/vulkaninfo.out in the guest rootfs
 ```
 
+Live-guest experiments are much faster than build loops: start a desktop session and drive the
+in-guest agent (playbook §6) — e.g. `VK_LOADER_DEBUG=driver vulkaninfo` with
+`HYBRIS_LD_LIBRARY_PATH` exported and `LD_LIBRARY_PATH` unset.
+
 Device state at handoff: idle, no session, `suspendPolicy.steam` = `manual`, latest APK
-(commit `62bc6152` payload) installed. Untracked repo dirs (`.CleanupShield/`, `prepared-components/`,
-`shield-probe.txt`, `stores-cargo-lock/`, `xbox-arm64/`) are pre-existing — do not delete.
+(commit `7df5804d` payload) installed. Untracked repo dirs (`.CleanupShield/`,
+`prepared-components/`, `shield-probe.txt`, `stores-cargo-lock/`, `xbox-arm64/`) are
+pre-existing — do not delete.
