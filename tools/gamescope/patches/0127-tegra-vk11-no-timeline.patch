@@ -1,6 +1,14 @@
 --- a/src/rendervulkan.cpp
 +++ b/src/rendervulkan.cpp
-@@ -365,7 +365,9 @@
+@@ -331,6 +331,7 @@
+ 	if (!createScratchResources())
+ 		return false;
+ 
++	log_null_dispatch_entries();
+ 	m_bInitialized = true;
+ 
+ 	m_pipelineThread = std::jthread([this](std::stop_token st){compileAllPipelines(st);});
+@@ -365,7 +366,9 @@
  		VkPhysicalDeviceProperties deviceProperties;
  		vk.GetPhysicalDeviceProperties(cphysDev, &deviceProperties);
  
@@ -11,7 +19,7 @@
  			continue;
  
  		uint32_t queueFamilyCount = 0;
-@@ -1174,10 +1176,27 @@
+@@ -1174,10 +1177,27 @@
  	};
  
  	res = vk.CreateSemaphore( device(), &semCreateInfo, NULL, &m_scratchTimelineSemaphore );
@@ -43,7 +51,7 @@
  	}
  
  	return true;
-@@ -1365,17 +1384,29 @@
+@@ -1365,17 +1385,29 @@
  
  int32_t CVulkanDevice::findMemoryType( VkMemoryPropertyFlags properties, uint32_t requiredTypeBits )
  {
@@ -83,7 +91,7 @@
  	return -1;
  }
  
-@@ -1431,20 +1462,23 @@
+@@ -1431,20 +1463,23 @@
  	std::vector<VkSemaphore> pWaitSemaphores;
  	std::vector<uint64_t> ulWaitPoints;
  
@@ -119,7 +127,7 @@
  	}
  
  	VkTimelineSemaphoreSubmitInfo timelineInfo = {
-@@ -1458,9 +1492,13 @@
+@@ -1458,9 +1493,13 @@
  
  	VkCommandBuffer rawCmdBuffer = cmdBuffer->rawBuffer();
  
@@ -134,7 +142,7 @@
  		.waitSemaphoreCount = static_cast<uint32_t>( pWaitSemaphores.size() ),
  		.pWaitSemaphores = pWaitSemaphores.data(),
  		.pWaitDstStageMask = uWaitStageFlags.data(),
-@@ -1483,13 +1521,20 @@
+@@ -1483,13 +1522,20 @@
  	// Not wait(), its ring reset would clobber constants this recording already uploaded.
  	if ( const uint64_t ulSeqNo = m_descriptorSetSeqNos[ uIndex ] )
  	{
@@ -162,7 +170,7 @@
  	}
  
  	pCmdBuffer->AddDescriptorSet( uIndex );
-@@ -1505,6 +1550,12 @@
+@@ -1505,6 +1551,12 @@
  
  uint64_t CVulkanDevice::completedSeqNo()
  {
@@ -175,7 +183,7 @@
  	uint64_t ulSeqNo = 0;
  	vk_check( vk.GetSemaphoreCounterValue( device(), m_scratchTimelineSemaphore, &ulSeqNo ) );
  	return ulSeqNo;
-@@ -1512,8 +1563,7 @@
+@@ -1512,8 +1564,7 @@
  
  void CVulkanDevice::garbageCollect( void )
  {
@@ -185,7 +193,7 @@
  
  	// wait() only resets the ring on a latest-wait, which stale waits never are.
  	if ( currentSeqNo == m_submissionSeqNo )
-@@ -1533,6 +1583,11 @@
+@@ -1533,6 +1584,11 @@
  
  int VulkanTimelineSemaphore_t::GetFd() const
  {
@@ -197,7 +205,7 @@
  	const VkSemaphoreGetFdInfoKHR semaphoreGetInfo =
  	{
  		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR,
-@@ -1553,6 +1608,11 @@
+@@ -1553,6 +1609,11 @@
  
  std::shared_ptr<VulkanTimelineSemaphore_t> CVulkanDevice::CreateTimelineSemaphore( uint64_t ulStartPoint, bool bShared )
  {
@@ -209,7 +217,7 @@
  	std::shared_ptr<VulkanTimelineSemaphore_t> pSemaphore = std::make_unique<VulkanTimelineSemaphore_t>();
  	pSemaphore->pDevice = this;
  
-@@ -1589,6 +1649,8 @@
+@@ -1589,6 +1650,8 @@
  
  std::shared_ptr<VulkanTimelineSemaphore_t> CVulkanDevice::ImportTimelineSemaphore( gamescope::CTimeline *pTimeline )
  {
@@ -218,7 +226,7 @@
  	std::shared_ptr<VulkanTimelineSemaphore_t> pSemaphore = std::make_unique<VulkanTimelineSemaphore_t>();
  	pSemaphore->pDevice = this;
  
-@@ -1651,14 +1713,22 @@
+@@ -1651,14 +1714,22 @@
  	if (m_submissionSeqNo == sequence)
  		m_uploadBufferOffset = 0;
  
@@ -258,7 +266,44 @@
  	VK_FUNC(GetSemaphoreFdKHR) \
  	VK_FUNC(ImportSemaphoreFdKHR) \
  	VK_FUNC(CreateShaderModule) \
-@@ -956,6 +957,12 @@
+@@ -896,6 +897,36 @@
+ 	} vk;
+ 	#undef VK_FUNC
+ 
++	// 0127-diag: names for the dispatch table, for NULL-scan logging.
++	static const char *const vk_func_names(size_t uIndex)
++	{
++		static const char *const k_names[] = {
++	#define VK_FUNC(x) "vk" #x,
++			VULKAN_INSTANCE_FUNCTIONS
++			VULKAN_DEVICE_FUNCTIONS
++	#undef VK_FUNC
++		};
++		return uIndex < sizeof(k_names) / sizeof(k_names[0]) ? k_names[uIndex] : "?";
++	}
++	void log_null_dispatch_entries() const
++	{
++		const void *const pBase = &vk;
++		const char *const *pName = nullptr;
++		// walk the same macro list to know the count
++		size_t uCount = 0;
++	#define VK_FUNC(x) (void)++uCount;
++		VULKAN_INSTANCE_FUNCTIONS
++		VULKAN_DEVICE_FUNCTIONS
++	#undef VK_FUNC
++		for ( size_t i = 0; i < uCount; i++ )
++		{
++			PFN_vkVoidFunction const *pEntry = (PFN_vkVoidFunction const *)pBase + i;
++			if ( *pEntry == nullptr )
++				vk_log.warnf( "0127-diag: NULL dispatch entry %zu: %s", i, vk_func_names( i ) );
++		}
++		(void)pName;
++	}
++
+ 	void resetCmdBuffers(uint64_t sequence);
+ 
+ protected:
+@@ -956,6 +987,12 @@
  	uint32_t m_uploadBufferOffset = 0;
  
  	VkSemaphore m_scratchTimelineSemaphore;
