@@ -1,0 +1,182 @@
+# Shield TV probe 2026-10-23T00:46:04Z
+
+### getprop ro.product.model; getprop ro.build.version.release; getprop ro.build.version.sdk; getprop ro.board.platform; getprop ro.hardware; getprop ro.build.fingerprint
+SHIELD Android TV
+11
+30
+tegra
+darcy
+NVIDIA/mdarcy/mdarcy:11/RQ1A.210105.003/7825230_4387.0822:user/release-keys
+
+### uname -a
+Linux localhost 4.9.141-tegra-gb6e5605a #2 SMP PREEMPT Fri Jan 30 20:55:30 PST 2026 aarch64
+
+### grep -E "MemTotal|MemAvailable|SwapTotal" /proc/meminfo
+MemTotal:        3016708 kB
+MemAvailable:     672792 kB
+SwapTotal:        524284 kB
+
+### df -h /data /sdcard
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/block/mmcblk0p32  12G  4.1G  7.3G  37% /data/user/0
+/dev/fuse              12G  4.1G  7.3G  37% /storage/emulated
+
+### grep -E "^processor|CPU part|Features" /proc/cpuinfo | sort | uniq -c
+      4 CPU part	: 0xd07
+      4 Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32
+      1 processor	: 0
+      1 processor	: 1
+      1 processor	: 2
+      1 processor	: 3
+
+### getenforce; id
+Enforcing
+uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid) context=u:r:shell:s0
+
+### ls -lZ /dev/nvhost* /dev/nvmap /dev/nvgpu* /dev/tegra* 2>&1 | head -60
+
+crw-rw-rw- 1 root   root   u:object_r:gpu_device:s0       505,   0 2026-10-22 19:29 /dev/nvhost-as-gpu
+crw-rw-rw- 1 root   root   u:object_r:gpu_device:s0       241,   0 2026-10-22 19:29 /dev/nvhost-ctrl
+crw-rw-rw- 1 root   root   u:object_r:gpu_device:s0       505,   2 2026-10-22 19:29 /dev/nvhost-ctrl-gpu
+crw-rw---- 1 media  drm    u:object_r:tee_device:s0       241,  14 2026-10-22 19:29 /dev/nvhost-ctrl-nvdec
+crw-rw---- 1 media  camera u:object_r:camera_device:s0    241,  26 2026-10-22 19:29 /dev/nvhost-ctrl-vi
+crw------- 1 root   root   u:object_r:device:s0           505,   3 2026-10-22 19:29 /dev/nvhost-ctxsw-gpu
+crw-rw---- 1 root   root   u:object_r:gpu_device:s0       505,   4 2026-10-22 19:29 /dev/nvhost-dbg-gpu
+crw-rw-rw- 1 root   root   u:object_r:gpu_device:s0       505,   1 2026-10-22 19:29 /dev/nvhost-gpu
+crw-rw---- 1 media  camera u:object_r:video_device:s0     241,   5 2026-10-22 19:29 /dev/nvhost-msenc
+crw-rw---- 1 media  camera u:object_r:video_device:s0     241,  13 2026-10-22 19:29 /dev/nvhost-nvdec
+crw-rw-rw- 1 media  camera u:object_r:gpu_device:s0       241,   9 2026-10-22 19:29 /dev/nvhost-nvjpg
+crw------- 1 root   root   u:object_r:device:s0           506,   0 2026-10-22 19:29 /dev/nvhost-power-gpu
+crw------- 1 root   root   u:object_r:device:s0           505,   6 2026-10-22 19:29 /dev/nvhost-prof-ctx-gpu
+crw------- 1 root   root   u:object_r:device:s0           505,   7 2026-10-22 19:29 /dev/nvhost-prof-dev-gpu
+crw-rw---- 1 root   root   u:object_r:gpu_device:s0       505,   5 2026-10-22 19:29 /dev/nvhost-prof-gpu
+crw------- 1 root   root   u:object_r:device:s0           505,   8 2026-10-22 19:29 /dev/nvhost-sched-gpu
+crw-rw-rw- 1 root   root   u:object_r:tsec_device:s0      241,  17 2026-10-22 19:29 /dev/nvhost-tsec
+crw-rw-rw- 1 root   root   u:object_r:tsec_device:s0      241,  21 2026-10-22 19:29 /dev/nvhost-tsecb
+crw-rw-rw- 1 root   root   u:object_r:gpu_device:s0       505,   9 2026-10-22 19:29 /dev/nvhost-tsg-gpu
+crw-rw---- 1 media  camera u:object_r:camera_device:s0    241,  25 2026-10-22 19:29 /dev/nvhost-vi
+crw-rw-rw- 1 root   root   u:object_r:gpu_device:s0       241,   1 2026-10-22 19:29 /dev/nvhost-vic
+crw-rw-rw- 1 system system u:object_r:gpu_device:s0        10,  57 2026-10-22 19:29 /dev/nvmap
+crw------- 1 root   root   u:object_r:device:s0            10,  33 2026-10-22 19:29 /dev/tegra-crypto
+crw-rw---- 1 media  camera u:object_r:camera_device:s0     10,  60 2026-10-22 19:29 /dev/tegra_camera_ctrl
+crw-rw---- 1 system system u:object_r:tegracec_device:s0   10,  59 2026-10-22 19:29 /dev/tegra_cec
+crw-rw---- 1 system system u:object_r:tegradc_device:s0   238,   1 2026-10-22 19:29 /dev/tegra_dc_0
+crw-rw---- 1 system system u:object_r:tegradc_device:s0   238,   0 2026-10-22 19:29 /dev/tegra_dc_ctrl
+crw------- 1 root   root   u:object_r:device:s0            10,  63 2026-10-22 19:29 /dev/tegra_mipi_cal
+
+/dev/nvgpu:
+total 0
+drwxr-xr-x 2 root root u:object_r:gpu_device:s0  240 2026-10-22 19:29 igpu0
+
+### pm list features | grep -i vulkan
+feature:android.hardware.vulkan.compute
+feature:android.hardware.vulkan.level=1
+feature:android.hardware.vulkan.version=4198400
+feature:android.software.vulkan.deqp.level=132383489
+
+### getprop ro.hardware.vulkan
+
+
+### ls -l /vendor/lib64/hw/ /system/vendor/lib64/hw/ 2>/dev/null | grep -i -E "vulkan|gralloc"
+-rw-r--r-- 1 root root  20640 2008-12-31 18:00 gralloc.default.so
+-rw-r--r-- 1 root root  76000 2008-12-31 18:00 gralloc.tegra.so
+-rw-r--r-- 1 root root  16696 2008-12-31 18:00 vulkan.tegra.so
+-rw-r--r-- 1 root root  20640 2008-12-31 18:00 gralloc.default.so
+-rw-r--r-- 1 root root  76000 2008-12-31 18:00 gralloc.tegra.so
+-rw-r--r-- 1 root root  16696 2008-12-31 18:00 vulkan.tegra.so
+
+### ls /vendor/lib64 /system/vendor/lib64 2>/dev/null | grep -i -E "nvidia|tegra|nvrm|nvgpu|nvos" | head -40
+libnvidia-glvkspirv.so
+libnvidia-ptxjitcompiler.so
+libnvos.so
+libnvrm_chip.so
+libnvrm_gpu.so
+libnvrm_host1x.so
+libnvrm_mem.so
+libnvrm_stream.so
+libnvrm_surface.so
+libnvrm_sync.so
+libnvrmapi_tegra.so
+libnvrmvkif.so
+libtegra_sata_hal.so
+vendor.nvidia.hardware.bluetooth@1.0.so
+vendor.nvidia.hardware.camera.argus.service@1.0-impl.so
+vendor.nvidia.hardware.camera.argus.service@1.0.so
+vendor.nvidia.hardware.camera.device@3.2-impl.so
+vendor.nvidia.hardware.camera.device@3.2.so
+vendor.nvidia.hardware.camera.provider@2.4-impl.so
+vendor.nvidia.hardware.camera.provider@2.4.so
+vendor.nvidia.hardware.convertibleport@1.0.so
+vendor.nvidia.hardware.cpl.interfacecb@1.0.so
+vendor.nvidia.hardware.cpl.service@1.0.so
+vendor.nvidia.hardware.cpl.service_common@1.0.so
+vendor.nvidia.hardware.cpl.tools@1.0.so
+vendor.nvidia.hardware.factoryservice@1.0-impl.so
+vendor.nvidia.hardware.factoryservice@1.0.so
+vendor.nvidia.hardware.gensysfs@1.0.so
+vendor.nvidia.hardware.graphics.composer@2.0-impl.so
+vendor.nvidia.hardware.graphics.composer@2.0.so
+vendor.nvidia.hardware.graphics.display@1.0-impl.so
+vendor.nvidia.hardware.graphics.display@1.0.so
+vendor.nvidia.hardware.graphics.mempool@1.0-impl.so
+vendor.nvidia.hardware.graphics.mempool@1.0.so
+vendor.nvidia.hardware.hubcore@1.0.so
+vendor.nvidia.hardware.ipprotect@1.0.so
+vendor.nvidia.hardware.media.propertyhal@1.0.so
+vendor.nvidia.hardware.mossigner@1.0.so
+vendor.nvidia.hardware.nvwifi@2.0.so
+vendor.nvidia.hardware.phs@1.0-impl.so
+
+### getprop ro.boot.verifiedbootstate; getprop ro.boot.flash.locked; which su
+green
+
+
+# Also run Vulkan Hardware Capability Viewer on the Shield and export the report.
+# Needed fields: apiVersion, storageBuffer8BitAccess, timelineSemaphore, descriptorIndexing, maxMemoryAllocation.
+== build ==
+SHIELD Android TV
+mdarcy
+tegra
+darcy
+11
+30
+4.9.141-tegra-gb6e5605a
+== gpu blobs ==
+vulkan.tegra.so
+nvhost-as-gpu
+nvhost-ctrl
+nvhost-ctrl-gpu
+nvhost-ctrl-nvdec
+nvhost-ctrl-vi
+nvhost-ctxsw-gpu
+nvhost-dbg-gpu
+nvhost-gpu
+nvhost-msenc
+nvhost-nvdec
+nvhost-nvjpg
+nvhost-power-gpu
+nvhost-prof-ctx-gpu
+nvhost-prof-dev-gpu
+nvhost-prof-gpu
+nvhost-sched-gpu
+nvhost-tsec
+nvhost-tsecb
+nvhost-tsg-gpu
+nvhost-vi
+nvhost-vic
+nvmap
+ls: /dev/dri: No such file or directory
+== sysfs ==
+ls: /sys/class/kgsl: No such file or directory
+ls: /sys/devices/soc0: No such file or directory
+cat: /sys/devices/soc0/machine: No such file or directory
+== vulkan feature ==
+feature:android.hardware.vulkan.compute
+feature:android.hardware.vulkan.level=1
+feature:android.hardware.vulkan.version=4198400
+feature:android.software.vulkan.deqp.level=132383489
+
+Queries:
+  system apps queryable: false
+== cpu/abi ==
+arm64-v8a
