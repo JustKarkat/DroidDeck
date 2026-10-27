@@ -165,7 +165,15 @@
  		resetCmdBuffers(sequence);
 --- a/src/rendervulkan.hpp
 +++ b/src/rendervulkan.hpp
-@@ -956,6 +956,12 @@
+@@ -767,6 +767,7 @@
+ 	VK_FUNC(CreateSampler) \
+ 	VK_FUNC(CreateSamplerYcbcrConversion) \
+ 	VK_FUNC(CreateSemaphore) \
++	VK_FUNC(GetFenceStatus) \
+ 	VK_FUNC(GetSemaphoreFdKHR) \
+ 	VK_FUNC(ImportSemaphoreFdKHR) \
+ 	VK_FUNC(CreateShaderModule) \
+@@ -956,6 +957,12 @@
  	uint32_t m_uploadBufferOffset = 0;
  
  	VkSemaphore m_scratchTimelineSemaphore;
