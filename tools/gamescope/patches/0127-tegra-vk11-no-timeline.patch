@@ -43,7 +43,47 @@
  	}
  
  	return true;
-@@ -1431,20 +1450,23 @@
+@@ -1365,17 +1384,29 @@
+ 
+ int32_t CVulkanDevice::findMemoryType( VkMemoryPropertyFlags properties, uint32_t requiredTypeBits )
+ {
+-	for ( uint32_t i = 0; i < m_memoryProperties.memoryTypeCount; i++ )
+-	{
+-		if ( ( ( 1 << i ) & requiredTypeBits ) == 0 )
+-			continue;
+-		
+-		if ( ( properties & m_memoryProperties.memoryTypes[ i ].propertyFlags ) != properties )
+-			continue;
+-		
+-		return i;
++	// 0127: the Shield TV Tegra exposes no HOST_CACHED memory type; prefer
++	// the exact request, then relax the cache hint (coherent memory still
++	// serves the mapped/shm paths) before failing.
++	for ( int nRelax = 0; nRelax < 2; nRelax++ )
++	{
++		VkMemoryPropertyFlags want = properties;
++		if ( nRelax == 1 )
++			want &= ~(VkMemoryPropertyFlags)VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
++
++		for ( uint32_t i = 0; i < m_memoryProperties.memoryTypeCount; i++ )
++		{
++			if ( ( ( 1 << i ) & requiredTypeBits ) == 0 )
++				continue;
++
++			if ( ( want & m_memoryProperties.memoryTypes[ i ].propertyFlags ) != want )
++				continue;
++
++			if ( nRelax == 1 && want != properties )
++				vk_log.warnf( "0127: memory type %u relaxed: wanted 0x%x, got 0x%x", i, properties, m_memoryProperties.memoryTypes[ i ].propertyFlags );
++			return i;
++		}
+ 	}
+-	
++
+ 	return -1;
+ }
+ 
+@@ -1431,20 +1462,23 @@
  	std::vector<VkSemaphore> pWaitSemaphores;
  	std::vector<uint64_t> ulWaitPoints;
  
@@ -79,7 +119,7 @@
  	}
  
  	VkTimelineSemaphoreSubmitInfo timelineInfo = {
-@@ -1458,9 +1480,21 @@
+@@ -1458,9 +1492,21 @@
  
  	VkCommandBuffer rawCmdBuffer = cmdBuffer->rawBuffer();
  
@@ -102,7 +142,7 @@
  		.waitSemaphoreCount = static_cast<uint32_t>( pWaitSemaphores.size() ),
  		.pWaitSemaphores = pWaitSemaphores.data(),
  		.pWaitDstStageMask = uWaitStageFlags.data(),
-@@ -1470,7 +1504,7 @@
+@@ -1470,7 +1516,7 @@
  		.pSignalSemaphores = pSignalSemaphores.data(),
  	};
  
@@ -111,7 +151,7 @@
  
  	return nextSeqNo;
  }
-@@ -1483,13 +1517,21 @@
+@@ -1483,13 +1529,21 @@
  	// Not wait(), its ring reset would clobber constants this recording already uploaded.
  	if ( const uint64_t ulSeqNo = m_descriptorSetSeqNos[ uIndex ] )
  	{
@@ -140,7 +180,7 @@
  	}
  
  	pCmdBuffer->AddDescriptorSet( uIndex );
-@@ -1505,6 +1547,13 @@
+@@ -1505,6 +1559,13 @@
  
  uint64_t CVulkanDevice::completedSeqNo()
  {
@@ -154,7 +194,7 @@
  	uint64_t ulSeqNo = 0;
  	vk_check( vk.GetSemaphoreCounterValue( device(), m_scratchTimelineSemaphore, &ulSeqNo ) );
  	return ulSeqNo;
-@@ -1512,8 +1561,7 @@
+@@ -1512,8 +1573,7 @@
  
  void CVulkanDevice::garbageCollect( void )
  {
@@ -164,7 +204,7 @@
  
  	// wait() only resets the ring on a latest-wait, which stale waits never are.
  	if ( currentSeqNo == m_submissionSeqNo )
-@@ -1651,14 +1699,22 @@
+@@ -1651,14 +1711,22 @@
  	if (m_submissionSeqNo == sequence)
  		m_uploadBufferOffset = 0;
  
