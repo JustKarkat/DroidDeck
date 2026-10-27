@@ -303,6 +303,27 @@
  
  	if (reset)
  		resetCmdBuffers(sequence);
+@@ -2410,7 +2495,10 @@
+ 		imageInfo.tiling = tiling = VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
+ 	}
+ 
+-	if ( flags.bFlippable == true && tiling != VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT )
++	// 0127: the scanout hint only makes sense with a KMS-exportable image;
++	// the Tegra driver mis-parses the Mesa WSI pNext as a modifier layout
++	// and rejects the image outright.
++	if ( flags.bFlippable == true && tiling != VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT && g_bDmaBufExportSupported )
+ 	{
+ 		// We want to scan-out the image
+ 		wsiImageCreateInfo = {
+@@ -2480,7 +2568,7 @@
+ 		VkMemoryDedicatedAllocateInfo memory_dedicated_info = {};
+ 		struct wsi_memory_allocate_info memory_wsi_info = {};
+ 
+-		if ( flags.bFlippable == true )
++		if ( flags.bFlippable == true && g_bDmaBufExportSupported )
+ 		{
+ 			memory_wsi_info = {
+ 				.sType = VK_STRUCTURE_TYPE_WSI_MEMORY_ALLOCATE_INFO_MESA,
 --- a/src/rendervulkan.hpp
 +++ b/src/rendervulkan.hpp
 @@ -767,6 +767,7 @@
