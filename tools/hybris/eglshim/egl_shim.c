@@ -23,10 +23,9 @@
  * - DDEGL_DEBUG=1 enables per-call logging.
  */
 #define _GNU_SOURCE
+#include "egl_abi.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 #include <dlfcn.h>
 #include <pthread.h>
 #include <stdarg.h>
@@ -264,7 +263,7 @@ static void blit_to_x(struct Wnd *wn, int w, int h) {
 
 /* ---- exported EGL ---- */
 
-EGLDisplay eglGetDisplay(EGLNativeDisplayType native_display) {
+EGLDisplay eglGetDisplay(void *native_display) {
     pthread_once(&real_once, load_real);
     (void)native_display; /* X11 Display* or anything else: always the default */
     logline("eglGetDisplay(%p) -> default", (void *)native_display);
@@ -282,7 +281,7 @@ EGLDisplay eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, cons
     return eglGetPlatformDisplay(platform, native_display, NULL);
 }
 
-EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGLNativeWindowType native_window, const EGLint *attribs) {
+EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attribs) {
     (void)attribs; /* render-buffer etc. hints don't apply to the pbuffer */
     return wnd_create(dpy, config, (void *)(uintptr_t)native_window);
 }
