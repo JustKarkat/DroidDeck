@@ -690,20 +690,27 @@ BUSCONF
         # GPU-process GL failure visibility (external review §3.4)
         BL_WEBHELPER_ARGS="$BL_WEBHELPER_ARGS --enable-logging=stderr --log-severity=verbose --vmodule=gl_*=1,gpu_init=1,gpu_info_collector=1,gpu_process_host=1,angle_platform_impl=1"
         export BL_WEBHELPER_ARGS
-        # Inside (under gamescope, before steam): put the hybris EGL/GLES
-        # sonames first so a GL path would bind the vendor driver instead of
-        # Mesa. libvulkan is deliberately excluded (the hybris wrapper would
-        # hijack the guest's Vulkan). This is the inner script only —
-        # gamescope (outer) is already running and must not see it.
+        # Inside (under gamescope, before steam): put the shim + hybris EGL/GLES
+        # sonames first so the GL path binds the vendor driver instead of Mesa.
+        # /usr/local/hybris-cef holds ONLY the window-surface shim as
+        # libEGL.so.1 — ANGLE's gles-egl dlopens that name and gets the shim,
+        # which forwards to the real hybris EGL and emulates X11 window
+        # surfaces (pbuffer + readback blit) that hybris platform=null lacks.
+        # libvulkan is deliberately excluded everywhere (the hybris wrapper
+        # would hijack the guest's Vulkan). Inner script only — gamescope
+        # (outer) is already running and must not see this.
         # HYBRIS_LD_LIBRARY_PATH: the patched-bionic side android_dlopen needs.
-        rm -rf /usr/local/hybris-egl
-        mkdir -p /usr/local/hybris-egl
+        rm -rf /usr/local/hybris-egl /usr/local/hybris-cef
+        mkdir -p /usr/local/hybris-egl /usr/local/hybris-cef
         for f in /usr/local/hybris/usr/lib/*; do
           case "${f##*/}" in *vulkan*|*.la|*.a) continue ;; esac
           ln -sfn "$f" "/usr/local/hybris-egl/${f##*/}"
         done
-        export LD_LIBRARY_PATH=/usr/local/hybris-egl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+        [ -f /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 ] && \
+          ln -sfn /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 /usr/local/hybris-cef/libEGL.so.1
+        export LD_LIBRARY_PATH=/usr/local/hybris-cef:/usr/local/hybris-egl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         export HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic
+        [ "${BL_CEF_DIAG:-}" = 1 ] && export DDEGL_DEBUG=1
       else
         _bl_cef=(-cef-disable-gpu)
         echo "== steam: CEF software raster (BL_CEF_GLES=0)"

@@ -74,6 +74,14 @@ echo "== glprobe (EGL desktop-GL / ES3 context matrix, ANGLE-sequence probe)"
 gcc -O1 -o "$WORK/root/usr/bin/glprobe" /work/tools/hybris/glprobe.c \
   -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
   -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lEGL -lhybris-common -lhardware
+
+echo "== libddcefgl (libEGL window-surface shim for CEF-on-Tegra)"
+# Sits where ANGLE's gles-egl backend looks for the system EGL: forwards to
+# the real hybris EGL and emulates X11 window surfaces with pbuffers +
+# readback/XPutImage presentation (hybris egl platform=null rejects X11).
+gcc -O2 -shared -fPIC -o "$WORK/root/usr/lib/libddcefgl.so.1.0.0" \
+  /work/tools/hybris/eglshim/egl_shim.c \
+  -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" -lX11
 ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
   || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 

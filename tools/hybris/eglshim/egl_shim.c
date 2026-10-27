@@ -1,0 +1,410 @@
+/* egl_shim.c — libEGL.so.1 window-surface shim for CEF-on-Tegra (ShieldDeck).
+ *
+ * Why: the Tegra EGL (via hybris) is built with egl platform=null — it cannot
+ * accept an X11 native display/window. ANGLE's gles-egl backend (which the CEF
+ * GPU process uses after droiddeck-cef-patch) dlopens "libEGL.so.1" and drives
+ * it with X11 objects, so it fails and silently falls back to SwiftShader.
+ * This shim sits where ANGLE looks for the system EGL, forwards everything to
+ * the real hybris EGL by absolute path, and emulates window surfaces:
+ *   eglGetDisplay / eglGetPlatformDisplay[EXT]  -> the real default display
+ *   eglCreateWindowSurface(X11 XID)             -> pbuffer at the window size
+ *   eglSwapBuffers                              -> glReadPixels + XPutImage blit
+ *   eglQuerySurface                             -> the X window's current size
+ * Rendering is 100% on the Tegra GPU; only the final readback + X11 put-image
+ * (960x540x4 ≈ 2 MB/frame) run on the CPU.
+ *
+ * Design notes:
+ * - Our own X connection (XOpenDisplay(NULL)) — never touch Chromium's Xlib
+ *   state; window IDs are server-global.
+ * - The real lib is dlopened by absolute path (soname dedup would hand us
+ *   glvnd or ourselves).
+ * - Swap variants (SwapBuffersWithDamage*) are intercepted at
+ *   eglGetProcAddress time — a real swap on a pbuffer is an EGL error.
+ * - DDEGL_DEBUG=1 enables per-call logging.
+ */
+#define _GNU_SOURCE
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <X11/Xlib.h>
+#include <dlfcn.h>
+#include <pthread.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <unistd.h>
+
+#define REAL_LIB "/usr/local/hybris/usr/lib/libEGL.so.1"
+#define MAX_WND 16
+#define GL_BACK 0x0402
+
+static int g_debug;
+static void logline(const char *fmt, ...) {
+    if (!g_debug) return;
+    va_list ap; va_start(ap, fmt);
+    fprintf(stderr, "[ddcef-egl] ");
+    vfprintf(stderr, fmt, ap);
+    fputc('\n', stderr);
+    va_end(ap);
+}
+
+/* ---- real library binding ---- */
+#define DECLARE(ret, name, ...) \
+    typedef ret (*pfn_##name##_t)(__VA_ARGS__); \
+    static pfn_##name##_t p_##name;
+
+DECLARE(EGLBoolean, eglChooseConfig, EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *)
+DECLARE(EGLContext, eglCreateContext, EGLDisplay, EGLConfig, EGLContext, const EGLint *)
+DECLARE(EGLBoolean, eglDestroyContext, EGLDisplay, EGLContext)
+DECLARE(EGLSurface, eglCreatePbufferSurface, EGLDisplay, EGLConfig, const EGLint *)
+DECLARE(EGLSurface, eglCreatePixmapSurface, EGLDisplay, EGLConfig, void *, const EGLint *)
+DECLARE(EGLBoolean, eglDestroySurface, EGLDisplay, EGLSurface)
+DECLARE(EGLBoolean, eglGetConfigAttrib, EGLDisplay, EGLConfig, EGLint, EGLint *)
+DECLARE(EGLBoolean, eglGetConfigs, EGLDisplay, EGLConfig *, EGLint, EGLint *)
+DECLARE(EGLDisplay, eglGetCurrentDisplay, void)
+DECLARE(EGLSurface, eglGetCurrentSurface, EGLint)
+DECLARE(EGLDisplay, eglGetDisplay, void *)
+DECLARE(EGLint, eglGetError, void)
+DECLARE(void *, eglGetProcAddress_real, const char *)
+DECLARE(EGLBoolean, eglInitialize, EGLDisplay, EGLint *, EGLint *)
+DECLARE(EGLBoolean, eglMakeCurrent, EGLDisplay, EGLSurface, EGLSurface, EGLContext)
+DECLARE(EGLBoolean, eglQueryContext, EGLDisplay, EGLContext, EGLint, EGLint *)
+DECLARE(const char *, eglQueryString, EGLDisplay, EGLint)
+DECLARE(EGLBoolean, eglQuerySurface, EGLDisplay, EGLSurface, EGLint, EGLint *)
+DECLARE(EGLBoolean, eglSwapInterval, EGLDisplay, EGLint)
+DECLARE(EGLBoolean, eglTerminate, EGLDisplay)
+DECLARE(EGLBoolean, eglBindAPI, EGLenum)
+DECLARE(EGLenum, eglQueryAPI, void)
+DECLARE(EGLBoolean, eglReleaseThread, void)
+DECLARE(EGLContext, eglGetCurrentContext, void)
+DECLARE(EGLSurface, eglCreatePbufferFromClientBuffer, EGLDisplay, EGLenum, void *, EGLConfig, const EGLint *)
+DECLARE(EGLBoolean, eglWaitClient, void)
+DECLARE(EGLBoolean, eglWaitGL, void)
+DECLARE(EGLBoolean, eglWaitNative, EGLint)
+DECLARE(EGLSync, eglCreateSync, EGLDisplay, EGLenum, const EGLint *)
+DECLARE(EGLBoolean, eglDestroySync, EGLDisplay, EGLSync)
+DECLARE(EGLint, eglClientWaitSync, EGLDisplay, EGLSync, EGLint, EGLTime)
+DECLARE(EGLBoolean, eglGetSyncAttrib, EGLDisplay, EGLSync, EGLint, EGLint *)
+DECLARE(EGLBoolean, eglWaitSync, EGLDisplay, EGLSync, EGLint)
+DECLARE(EGLImage, eglCreateImage, EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *)
+DECLARE(EGLBoolean, eglDestroyImage, EGLDisplay, EGLImage)
+DECLARE(EGLSurface, eglCreatePlatformPixmapSurface, EGLDisplay, EGLConfig, void *, const EGLint *)
+DECLARE(EGLBoolean, eglCopyBuffers, EGLDisplay, EGLSurface, void *)
+
+#undef DECLARE
+
+static void *real_lib;
+static pthread_once_t real_once = PTHREAD_ONCE_INIT;
+
+static void load_real(void) {
+    const char *env = getenv("DDEGL_DEBUG");
+    g_debug = env && *env && *env != '0';
+    real_lib = dlopen(REAL_LIB, RTLD_NOW | RTLD_GLOBAL);
+    if (!real_lib) {
+        fprintf(stderr, "[ddcef-egl] FATAL: dlopen %s: %s\n", REAL_LIB, dlerror());
+        abort();
+    }
+    struct { const char *n; void **p; } t[] = {
+#define ENTRY(name) { #name, (void **)&p_##name }
+        ENTRY(eglChooseConfig), ENTRY(eglCreateContext), ENTRY(eglDestroyContext),
+        ENTRY(eglCreatePbufferSurface), ENTRY(eglCreatePixmapSurface), ENTRY(eglDestroySurface),
+        ENTRY(eglGetConfigAttrib), ENTRY(eglGetConfigs), ENTRY(eglGetCurrentDisplay),
+        ENTRY(eglGetCurrentSurface), ENTRY(eglGetDisplay), ENTRY(eglGetError),
+        ENTRY(eglGetProcAddress_real), ENTRY(eglInitialize), ENTRY(eglMakeCurrent),
+        ENTRY(eglQueryContext), ENTRY(eglQueryString), ENTRY(eglQuerySurface),
+        ENTRY(eglSwapInterval), ENTRY(eglTerminate), ENTRY(eglBindAPI), ENTRY(eglQueryAPI),
+        ENTRY(eglReleaseThread), ENTRY(eglGetCurrentContext),
+        ENTRY(eglCreatePbufferFromClientBuffer), ENTRY(eglWaitClient), ENTRY(eglWaitGL),
+        ENTRY(eglWaitNative), ENTRY(eglCreateSync), ENTRY(eglDestroySync),
+        ENTRY(eglClientWaitSync), ENTRY(eglGetSyncAttrib), ENTRY(eglWaitSync),
+        ENTRY(eglCreateImage), ENTRY(eglDestroyImage), ENTRY(eglCreatePlatformPixmapSurface),
+        ENTRY(eglCopyBuffers),
+#undef ENTRY
+    };
+    for (unsigned i = 0; i < sizeof t / sizeof t[0]; i++) {
+        if (!(*t[i].p = dlsym(real_lib, t[i].n)))
+            logline("WARN: real lib lacks %s", t[i].n);
+    }
+    logline("real lib loaded");
+}
+
+/* ---- window table ---- */
+struct Wnd {
+    EGLSurface surf;      /* the real pbuffer we hand out as a "window surface" */
+    EGLConfig cfg;
+    Window xid;
+    Visual *visual;
+    int depth;
+    int w, h;
+    GC gc;
+    XImage *img;
+    unsigned char *buf;
+    size_t bufsz;
+};
+static struct Wnd g_wnds[MAX_WND];
+static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
+static Display *g_xdpy;
+
+typedef void (*pfn_glReadBuffer_t)(unsigned);
+typedef void (*pfn_glReadPixels_t)(int, int, int, int, unsigned, unsigned, void *);
+static pfn_glReadBuffer_t p_glReadBuffer;
+static pfn_glReadPixels_t p_glReadPixels;
+
+static struct Wnd *wnd_find(EGLSurface s) {
+    for (int i = 0; i < MAX_WND; i++)
+        if (g_wnds[i].surf == s && s != EGL_NO_SURFACE) return &g_wnds[i];
+    return NULL;
+}
+static struct Wnd *wnd_slot(void) {
+    for (int i = 0; i < MAX_WND; i++)
+        if (!g_wnds[i].surf) return &g_wnds[i];
+    return NULL;
+}
+
+static Display *xconn(void) {
+    if (!g_xdpy) {
+        g_xdpy = XOpenDisplay(NULL);
+        if (!g_xdpy) logline("FATAL: XOpenDisplay(NULL) failed");
+    }
+    return g_xdpy;
+}
+
+static void load_glprocs(void) {
+    if (p_glReadPixels || !p_eglGetProcAddress_real) return;
+    p_glReadPixels = (pfn_glReadPixels_t)p_eglGetProcAddress_real("glReadPixels");
+    p_glReadBuffer = (pfn_glReadBuffer_t)p_eglGetProcAddress_real("glReadBuffer");
+    logline("gl procs: read=%p buf=%p", (void *)p_glReadPixels, (void *)p_glReadBuffer);
+}
+
+static void wnd_wipe(struct Wnd *wn) {
+    if (wn->img) { wn->img->data = NULL; XDestroyImage(wn->img); }
+    if (wn->gc && g_xdpy) XFreeGC(g_xdpy, wn->gc);
+    free(wn->buf);
+    memset(wn, 0, sizeof *wn);
+}
+
+/* ---- shared window-surface creation (core 1.5 and EXT paths) ---- */
+static EGLSurface wnd_create(EGLDisplay dpy, EGLConfig config, void *native_window) {
+    pthread_once(&real_once, load_real);
+    Window xid = (Window)(uintptr_t)native_window;
+    Display *xd = xconn();
+    if (!xd) return EGL_NO_SURFACE;
+    Window root; int x, y; unsigned w = 0, h = 0, bw, depth = 24;
+    if (!XGetGeometry(xd, xid, &root, &x, &y, &w, &h, &bw, &depth)) {
+        logline("CreateWindowSurface: XGetGeometry(%#lx) failed", (unsigned long)xid);
+        return EGL_NO_SURFACE;
+    }
+    if (!w || !h) { w = 1; h = 1; }
+    XWindowAttributes wa; Visual *visual = NULL;
+    if (XGetWindowAttributes(xd, xid, &wa)) visual = wa.visual;
+    EGLint pb[] = { EGL_WIDTH, (EGLint)w, EGL_HEIGHT, (EGLint)h,
+                    EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE, EGL_NONE };
+    EGLSurface s = p_eglCreatePbufferSurface(dpy, config, pb);
+    logline("CreateWindowSurface xid=%#lx %ux%u depth=%u -> pbuffer %p", (unsigned long)xid, w, h, depth, s);
+    if (s == EGL_NO_SURFACE) return s;
+    pthread_mutex_lock(&g_lock);
+    struct Wnd *wn = wnd_slot();
+    if (!wn) { pthread_mutex_unlock(&g_lock); p_eglDestroySurface(dpy, s); return EGL_NO_SURFACE; }
+    memset(wn, 0, sizeof *wn);
+    wn->surf = s; wn->cfg = config; wn->xid = xid; wn->visual = visual;
+    wn->depth = (int)depth; wn->w = (int)w; wn->h = (int)h;
+    wn->gc = XCreateGC(xd, xid, 0, NULL);
+    pthread_mutex_unlock(&g_lock);
+    return s;
+}
+
+/* re-make the current context onto a fresh pbuffer of the new size */
+static int wnd_resize(struct Wnd *wn, EGLDisplay dpy) {
+    EGLContext ctx = p_eglGetCurrentContext();
+    p_eglMakeCurrent(dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    p_eglDestroySurface(dpy, wn->surf);
+    EGLint pb[] = { EGL_WIDTH, wn->w, EGL_HEIGHT, wn->h, EGL_NONE };
+    EGLSurface s = p_eglCreatePbufferSurface(dpy, wn->cfg, pb);
+    if (s == EGL_NO_SURFACE) { logline("resize: pbuffer create failed"); wn->surf = EGL_NO_SURFACE; return 0; }
+    wn->surf = s;
+    if (ctx) p_eglMakeCurrent(dpy, s, s, ctx);
+    logline("resized pbuffer -> %dx%d", wn->w, wn->h);
+    return 1;
+}
+
+static void blit_to_x(struct Wnd *wn, int w, int h) {
+    Display *xd = xconn();
+    if (!xd || !wn->xid || !wn->visual || !p_glReadPixels || !wn->buf) return;
+    size_t need = (size_t)w * h * 4;
+    if (need > wn->bufsz) { free(wn->buf); wn->buf = malloc(need); wn->bufsz = need; }
+    if (!wn->buf) return;
+    if (p_glReadBuffer) p_glReadBuffer(GL_BACK);
+    p_glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, wn->buf);
+    /* RGBA bottom-up -> BGRA top-down for X ZPixmap (LSBFirst, 24/32bpp) */
+    for (int y = 0; y < h; y++) {
+        const unsigned char *src = wn->buf + (size_t)(h - 1 - y) * w * 4;
+        unsigned char *d = wn->buf + (size_t)y * w * 4;
+        for (int x = 0; x < w; x++) {
+            unsigned char r = src[0], g = src[1], b = src[2];
+            d[0] = b; d[1] = g; d[2] = r; d[3] = 0xff;
+            src += 4; d += 4;
+        }
+    }
+    if (!wn->img || wn->img->width != w || wn->img->height != h) {
+        if (wn->img) { wn->img->data = NULL; XDestroyImage(wn->img); wn->img = NULL; }
+        wn->img = XCreateImage(xd, wn->visual, wn->depth, ZPixmap, 0, (char *)wn->buf, w, h, 32, 0);
+        if (!wn->img) { logline("XCreateImage failed (depth %d)", wn->depth); return; }
+        wn->img->byte_order = LSBFirst;
+    } else {
+        wn->img->data = (char *)wn->buf;
+    }
+    if (wn->gc)
+        XPutImage(xd, wn->xid, wn->gc, wn->img, 0, 0, 0, 0, w, h);
+    XFlush(xd);
+}
+
+/* ---- exported EGL ---- */
+
+EGLDisplay eglGetDisplay(void *native_display) {
+    pthread_once(&real_once, load_real);
+    (void)native_display; /* X11 Display* or anything else: always the default */
+    logline("eglGetDisplay(%p) -> default", native_display);
+    return p_eglGetDisplay((void *)EGL_DEFAULT_DISPLAY);
+}
+
+EGLDisplay eglGetPlatformDisplay(EGLenum platform, void *native_display, const EGLint *attribs) {
+    pthread_once(&real_once, load_real);
+    logline("eglGetPlatformDisplay(%#x, %p) -> default", platform, native_display);
+    return p_eglGetDisplay((void *)EGL_DEFAULT_DISPLAY);
+}
+
+EGLDisplay eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, const EGLint *attribs) {
+    return eglGetPlatformDisplay(platform, native_display, attribs);
+}
+
+EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attribs) {
+    (void)attribs; /* render-buffer etc. hints don't apply to the pbuffer */
+    return wnd_create(dpy, config, native_window);
+}
+
+EGLSurface eglCreatePlatformWindowSurface(EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attribs) {
+    (void)attribs;
+    return wnd_create(dpy, config, native_window);
+}
+
+EGLSurface eglCreatePlatformWindowSurfaceEXT(EGLDisplay dpy, EGLConfig config, void *native_window, const EGLint *attribs) {
+    return eglCreatePlatformWindowSurface(dpy, config, native_window, attribs);
+}
+
+EGLBoolean eglDestroySurface(EGLDisplay dpy, EGLSurface surface) {
+    pthread_once(&real_once, load_real);
+    pthread_mutex_lock(&g_lock);
+    struct Wnd *wn = wnd_find(surface);
+    if (wn) wnd_wipe(wn);
+    pthread_mutex_unlock(&g_lock);
+    return p_eglDestroySurface(dpy, surface);
+}
+
+EGLBoolean eglSwapBuffers(EGLDisplay dpy, EGLSurface surface) {
+    pthread_once(&real_once, load_real);
+    struct Wnd *wn = wnd_find(surface);
+    if (!wn) { logline("SwapBuffers on unmapped surface %p", surface); return EGL_FALSE; }
+    pthread_mutex_lock(&g_lock);
+    Display *xd = xconn();
+    if (xd) {
+        Window root; int x, y; unsigned w, h, bw, depth;
+        if (XGetGeometry(xd, wn->xid, &root, &x, &y, &w, &h, &bw, &depth) && w && h) {
+            if ((int)w == wn->w && (int)h == wn->h) {
+                blit_to_x(wn, wn->w, wn->h);
+            } else {
+                /* present the last frame at the old size, then resize */
+                blit_to_x(wn, wn->w, wn->h);
+                wn->w = (int)w; wn->h = (int)h;
+                wnd_resize(wn, dpy);
+            }
+        }
+    }
+    pthread_mutex_unlock(&g_lock);
+    return EGL_TRUE;
+}
+
+static EGLBoolean swap_with_damage(EGLDisplay dpy, EGLSurface surface, const EGLint *rects, EGLint n) {
+    (void)rects; (void)n;
+    return eglSwapBuffers(dpy, surface);
+}
+
+EGLBoolean eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attr, EGLint *value) {
+    pthread_once(&real_once, load_real);
+    struct Wnd *wn = wnd_find(surface);
+    if (!wn) return p_eglQuerySurface(dpy, surface, attr, value);
+    EGLBoolean r = p_eglQuerySurface(dpy, surface, attr, value);
+    if (r == EGL_TRUE && (attr == EGL_WIDTH || attr == EGL_HEIGHT)) {
+        Display *xd = xconn();
+        Window root; int x, y; unsigned w, h, bw, depth;
+        if (xd && XGetGeometry(xd, wn->xid, &root, &x, &y, &w, &h, &bw, &depth) && w && h) {
+            if (attr == EGL_WIDTH) *value = (EGLint)w;
+            else *value = (EGLint)h;
+        }
+    }
+    return r;
+}
+
+void *eglGetProcAddress(const char *name) {
+    pthread_once(&real_once, load_real);
+    if (!name) return NULL;
+    if (!strcmp(name, "eglGetPlatformDisplayEXT")) return (void *)eglGetPlatformDisplayEXT;
+    if (!strcmp(name, "eglGetPlatformDisplay")) return (void *)eglGetPlatformDisplay;
+    if (!strcmp(name, "eglCreatePlatformWindowSurfaceEXT")) return (void *)eglCreatePlatformWindowSurfaceEXT;
+    if (!strcmp(name, "eglSwapBuffersWithDamageKHR")) return (void *)swap_with_damage;
+    if (!strcmp(name, "eglSwapBuffersWithDamageEXT")) return (void *)swap_with_damage;
+    if (!strcmp(name, "eglSwapBuffersWithDamageClientRectKHR")) return (void *)swap_with_damage;
+    void *p = dlsym(real_lib, name);
+    if (p) return p;
+    return p_eglGetProcAddress_real ? p_eglGetProcAddress_real(name) : NULL;
+}
+
+EGLBoolean eglTerminate(EGLDisplay dpy) {
+    pthread_once(&real_once, load_real);
+    pthread_mutex_lock(&g_lock);
+    for (int i = 0; i < MAX_WND; i++)
+        if (g_wnds[i].surf) wnd_wipe(&g_wnds[i]);
+    pthread_mutex_unlock(&g_lock);
+    return p_eglTerminate(dpy);
+}
+
+/* ---- pure forwarders ---- */
+EGLBoolean eglInitialize(EGLDisplay dpy, EGLint *maj, EGLint *min) { pthread_once(&real_once, load_real); EGLBoolean r = p_eglInitialize(dpy, maj, min); logline("eglInitialize(%p) -> %d (%d.%d)", dpy, r, maj ? *maj : 0, min ? *min : 0); return r; }
+EGLBoolean eglChooseConfig(EGLDisplay dpy, const EGLint *a, EGLConfig *c, EGLint n, EGLint *m) { pthread_once(&real_once, load_real); EGLBoolean r = p_eglChooseConfig(dpy, a, c, n, m); logline("eglChooseConfig -> %d n=%d", r, m ? *m : -1); return r; }
+EGLContext eglCreateContext(EGLDisplay dpy, EGLConfig c, EGLContext sh, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreateContext(dpy, c, sh, a); }
+EGLBoolean eglDestroyContext(EGLDisplay dpy, EGLContext c) { pthread_once(&real_once, load_real); return p_eglDestroyContext(dpy, c); }
+EGLBoolean eglMakeCurrent(EGLDisplay dpy, EGLSurface rd, EGLSurface dr, EGLContext c) { pthread_once(&real_once, load_real); EGLBoolean r = p_eglMakeCurrent(dpy, rd, dr, c); logline("MakeCurrent rd=%p dr=%p -> %d", rd, dr, r); return r; }
+EGLBoolean eglGetConfigAttrib(EGLDisplay dpy, EGLConfig c, EGLint a, EGLint *v) { pthread_once(&real_once, load_real); return p_eglGetConfigAttrib(dpy, c, a, v); }
+EGLBoolean eglGetConfigs(EGLDisplay dpy, EGLConfig *c, EGLint n, EGLint *m) { pthread_once(&real_once, load_real); return p_eglGetConfigs(dpy, c, n, m); }
+EGLDisplay eglGetCurrentDisplay(void) { pthread_once(&real_once, load_real); return p_eglGetCurrentDisplay(); }
+EGLSurface eglGetCurrentSurface(EGLint t) { pthread_once(&real_once, load_real); return p_eglGetCurrentSurface(t); }
+EGLint eglGetError(void) { pthread_once(&real_once, load_real); return p_eglGetError(); }
+EGLBoolean eglQueryContext(EGLDisplay dpy, EGLContext c, EGLint a, EGLint *v) { pthread_once(&real_once, load_real); return p_eglQueryContext(dpy, c, a, v); }
+const char *eglQueryString(EGLDisplay dpy, EGLint n) { pthread_once(&real_once, load_real); return p_eglQueryString(dpy, n); }
+EGLBoolean eglSwapInterval(EGLDisplay dpy, EGLint i) { pthread_once(&real_once, load_real); return p_eglSwapInterval(dpy, i); }
+EGLBoolean eglBindAPI(EGLenum a) { pthread_once(&real_once, load_real); return p_eglBindAPI(a); }
+EGLenum eglQueryAPI(void) { pthread_once(&real_once, load_real); return p_eglQueryAPI(); }
+EGLBoolean eglReleaseThread(void) { pthread_once(&real_once, load_real); return p_eglReleaseThread(); }
+EGLContext eglGetCurrentContext(void) { pthread_once(&real_once, load_real); return p_eglGetCurrentContext(); }
+EGLSurface eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig c, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePbufferSurface(dpy, c, a); }
+EGLSurface eglCreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum t, void *b, EGLConfig c, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePbufferFromClientBuffer(dpy, t, b, c, a); }
+EGLSurface eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig c, void *pm, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePixmapSurface(dpy, c, pm, a); }
+EGLSurface eglCreatePlatformPixmapSurface(EGLDisplay dpy, EGLConfig c, void *pm, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePlatformPixmapSurface(dpy, c, pm, a); }
+EGLBoolean eglWaitClient(void) { pthread_once(&real_once, load_real); return p_eglWaitClient(); }
+EGLBoolean eglWaitGL(void) { pthread_once(&real_once, load_real); return p_eglWaitGL(); }
+EGLBoolean eglWaitNative(EGLint e) { pthread_once(&real_once, load_real); return p_eglWaitNative(e); }
+EGLSync eglCreateSync(EGLDisplay dpy, EGLenum t, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreateSync(dpy, t, a); }
+EGLBoolean eglDestroySync(EGLDisplay dpy, EGLSync s) { pthread_once(&real_once, load_real); return p_eglDestroySync(dpy, s); }
+EGLint eglClientWaitSync(EGLDisplay dpy, EGLSync s, EGLint f, EGLTime t) { pthread_once(&real_once, load_real); return p_eglClientWaitSync(dpy, s, f, t); }
+EGLBoolean eglGetSyncAttrib(EGLDisplay dpy, EGLSync s, EGLint a, EGLint *v) { pthread_once(&real_once, load_real); return p_eglGetSyncAttrib(dpy, s, a, v); }
+EGLBoolean eglWaitSync(EGLDisplay dpy, EGLSync s, EGLint f) { pthread_once(&real_once, load_real); return p_eglWaitSync(dpy, s, f); }
+EGLImage eglCreateImage(EGLDisplay dpy, EGLContext c, EGLenum t, EGLClientBuffer b, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreateImage(dpy, c, t, b, a); }
+EGLBoolean eglDestroyImage(EGLDisplay dpy, EGLImage i) { pthread_once(&real_once, load_real); return p_eglDestroyImage(dpy, i); }
+EGLBoolean eglCopyBuffers(EGLDisplay dpy, EGLSurface s, void *t) { pthread_once(&real_once, load_real); return p_eglCopyBuffers(dpy, s, t); }
+
+__attribute__((constructor))
+static void shim_init(void) {
+    const char *env = getenv("DDEGL_DEBUG");
+    g_debug = env && *env && *env != '0';
+    logline("shim loaded (pid %d)", (int)getpid());
+}

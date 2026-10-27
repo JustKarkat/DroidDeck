@@ -147,6 +147,7 @@ object SessionFiles {
             "usr/lib/libhardware.so.2.0.0",
             "usr/lib/libhwc2.so.1.0.0",
             "usr/lib/libhybris-common.so.1.0.0",
+            "usr/lib/libddcefgl.so.1.0.0",
             "usr/lib/libhybris-eglplatformcommon.so.1.0.0",
             "usr/lib/libhybris/eglplatform_fbdev.so",
             "usr/lib/libhybris/eglplatform_hwcomposer.so",
