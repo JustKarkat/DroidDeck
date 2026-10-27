@@ -662,18 +662,34 @@ BUSCONF
     [ "${BL_STEAM_UI:-}" = desktop ] && _bl_ui=()
     _bl_cef=(-cef-force-gpu -cef-use-gl=angle -cef-use-angle=vulkan)
     # BL_TEGRA: ANGLE-on-lavapipe wedges the in-process GPU thread (renderer
-    # watchdog kills the UI). ANGLE-over-GLES runs CEF on the real Tegra GLES
-    # driver via hybris — actual hardware. BL_CEF_GLES=0 falls back to
-    # software CEF (the previous, known-good state).
+    # watchdog kills the UI). Valve's steamwebhelper forces
+    # --use-angle=swiftshader-webgl in the GPU process argv; droiddeck-cef-patch
+    # rewrites that string in libcef.so to BL_CEF_ANGLE (default gles-egl —
+    # ANGLE's DisplayEGL requests ES3 configs there and dlopens only
+    # libEGL.so.1, which the hybris-egl LD_LIBRARY_PATH below points at the
+    # Tegra driver). gl-egl was tried first: it requests EGL_OPENGL_BIT
+    # configs, fails on a GLES-only driver, and silently falls back to
+    # SwiftShader (verified via GPU-process maps: swiftshader=7, hw=0).
     if [ "${BL_TEGRA:-}" = 1 ]; then
       if [ "${BL_CEF_GLES:-1}" = 1 ]; then
-        # gl-egl: ANGLE's OpenGL backend via the system libEGL — which the
-        # hybris-egl LD_LIBRARY_PATH below points at the Tegra GLES driver
-        # (libGLX_nvidia probing strings are in Valve's libcef, so the GL
-        # backend ships in it). -disable-gpu-sandbox: the vendor driver
-        # faults in the GPU process when the sandbox is up.
-        _bl_cef=(-cef-force-gpu -cef-use-gl=angle -cef-use-angle=gl-egl -disable-gpu-sandbox)
-        echo "== steam: CEF on ANGLE gl-egl -> Tegra GLES (Tegra hw)"
+        # -disable-gpu-sandbox: the vendor driver faults in the GPU process
+        # when the sandbox is up; 4 crashes -> CEF silently falls back.
+        _bl_cef=(-cef-force-gpu -disable-gpu-sandbox)
+        if [ "${BL_CEF_DIAG:-}" = 1 ]; then
+          # make a hardware-init failure an immediate visible GPU exit
+          # instead of a silent SwiftShader fallback (diagnosing only)
+          _bl_cef+=(--disable-software-rasterizer)
+        fi
+        if /usr/local/bin/droiddeck-cef-patch; then
+          echo "== steam: CEF on ANGLE ${BL_CEF_ANGLE:-gles-egl} -> Tegra GLES (hw)"
+        else
+          rc=$?
+          echo "== steam: cef-patch exit $rc (client layout changed?); CEF software raster"
+          _bl_cef=(-cef-disable-gpu)
+        fi
+        # GPU-process GL failure visibility (external review §3.4)
+        BL_WEBHELPER_ARGS="$BL_WEBHELPER_ARGS --enable-logging=stderr --log-severity=verbose --vmodule=gl_*=1,gpu_init=1,gpu_info_collector=1,gpu_process_host=1,angle_platform_impl=1"
+        export BL_WEBHELPER_ARGS
         # Inside (under gamescope, before steam): put the hybris EGL/GLES
         # sonames first so a GL path would bind the vendor driver instead of
         # Mesa. libvulkan is deliberately excluded (the hybris wrapper would

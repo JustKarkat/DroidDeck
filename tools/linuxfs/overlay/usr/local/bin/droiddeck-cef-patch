@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# droiddeck-cef-patch: swap Valve's forced ANGLE backend (swiftshader-webgl)
+# for a native one so Steam's CEF GPU process can bind the Tegra GLES driver
+# via the hybris-egl LD_LIBRARY_PATH (BL_CEF_ANGLE selects it, default
+# gles-egl — ANGLE's DisplayEGL requests EGL_OPENGL_ES3_BIT there and only
+# dlopens libEGL.so.1). Idempotent; safe to run on every launch.
+# Exit codes: 0 patched or already patched, 3 client layout changed
+# (neither string found), 4 unexpected layout (too many sites).
+import hashlib, os, shutil, sys
+
+LIB = sys.argv[1] if len(sys.argv) > 1 else "/root/.local/share/Steam/steamrtarm64/libcef.so"
+OLD = b"swiftshader-webgl\0"
+NEW = (os.environ.get("BL_CEF_ANGLE", "gles-egl").encode() + b"\0")[: len(OLD) - 1]
+assert len(NEW) <= len(OLD) - 1
+
+data = open(LIB, "rb").read()
+n_old = data.count(OLD)
+n_new = data.count(NEW.ljust(len(OLD), b"\0"))
+if n_old == 0:
+    sys.exit(0 if n_new else 3)
+if n_old > 4:
+    sys.exit(4)
+bak = LIB + ".droiddeck-bak"
+if not os.path.exists(bak):
+    shutil.copy2(LIB, bak)
+    open(bak + ".sha256", "w").write(hashlib.sha256(data).hexdigest())
+open(LIB + ".tmp", "wb").write(data.replace(OLD, NEW.ljust(len(OLD), b"\0")))
+shutil.copymode(LIB, LIB + ".tmp")
+os.replace(LIB + ".tmp", LIB)
+print("patched", n_old, "site(s) ->", NEW.decode().strip("\0"))

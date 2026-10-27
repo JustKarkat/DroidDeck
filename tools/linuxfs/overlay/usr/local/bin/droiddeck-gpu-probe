@@ -51,6 +51,10 @@ fi
 
 rc=0
 /usr/local/hybris/usr/bin/eglprobe "$@" || rc=$?
+if [ -x /usr/local/hybris/usr/bin/glprobe ]; then
+    echo "== glprobe (EGL context matrix, ANGLE-sequence):"
+    /usr/local/hybris/usr/bin/glprobe || true
+fi
 if [ -x /usr/local/hybris/usr/bin/vkprobe ]; then
     # Vulkan goes through the same patched bionic; the hybris wrapper dlopens
     # the Android loader (libvulkan.so) which loads the tegra ICD. The loader

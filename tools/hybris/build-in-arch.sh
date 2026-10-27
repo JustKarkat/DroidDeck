@@ -67,6 +67,13 @@ gcc -O1 -o "$WORK/root/usr/bin/vkprobe" /work/tools/hybris/vkprobe.c \
 # NB: deliberately NOT -lvulkan — linking the wrapper creates IFUNC dispatch
 # entries whose resolvers run in ld.so's relocation phase, before main, and
 # that dies under proot. vkprobe dlopens libvulkan.so.1 itself.
+
+echo "== glprobe (EGL desktop-GL / ES3 context matrix, ANGLE-sequence probe)"
+# From the 2026-10-27 external review: settles which renderable types and
+# context versions the Tegra EGL actually accepts — the ANGLE gles-egl gates.
+gcc -O1 -o "$WORK/root/usr/bin/glprobe" /work/tools/hybris/glprobe.c \
+  -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" \
+  -L"$WORK/root/usr/lib" -Wl,-rpath,/usr/lib -Wl,-rpath-link,"$WORK/root/usr/lib" -lEGL -lhybris-common -lhardware
 ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
   || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 
