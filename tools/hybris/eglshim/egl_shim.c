@@ -85,10 +85,10 @@ DECLARE(EGLSurface, eglCreatePbufferFromClientBuffer, EGLDisplay, EGLenum, void 
 DECLARE(EGLBoolean, eglWaitClient, void)
 DECLARE(EGLBoolean, eglWaitGL, void)
 DECLARE(EGLBoolean, eglWaitNative, EGLint)
-DECLARE(EGLSync, eglCreateSync, EGLDisplay, EGLenum, const EGLint *)
+DECLARE(EGLSync, eglCreateSync, EGLDisplay, EGLenum, const EGLAttrib *)
 DECLARE(EGLBoolean, eglDestroySync, EGLDisplay, EGLSync)
 DECLARE(EGLint, eglClientWaitSync, EGLDisplay, EGLSync, EGLint, EGLTime)
-DECLARE(EGLBoolean, eglGetSyncAttrib, EGLDisplay, EGLSync, EGLint, EGLint *)
+DECLARE(EGLBoolean, eglGetSyncAttrib, EGLDisplay, EGLSync, EGLint, EGLAttrib *)
 DECLARE(EGLBoolean, eglWaitSync, EGLDisplay, EGLSync, EGLint)
 DECLARE(EGLImage, eglCreateImage, EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *)
 DECLARE(EGLBoolean, eglDestroyImage, EGLDisplay, EGLImage)
@@ -278,7 +278,8 @@ EGLDisplay eglGetPlatformDisplay(EGLenum platform, void *native_display, const E
 }
 
 EGLDisplay eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, const EGLint *attribs) {
-    return eglGetPlatformDisplay(platform, native_display, attribs);
+    (void)attribs; /* ANGLE-specific attribs mean nothing to the real driver */
+    return eglGetPlatformDisplay(platform, native_display, NULL);
 }
 
 EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGLNativeWindowType native_window, const EGLint *attribs) {
@@ -396,10 +397,10 @@ EGLSurface eglCreatePlatformPixmapSurface(EGLDisplay dpy, EGLConfig c, void *pm,
 EGLBoolean eglWaitClient(void) { pthread_once(&real_once, load_real); return p_eglWaitClient(); }
 EGLBoolean eglWaitGL(void) { pthread_once(&real_once, load_real); return p_eglWaitGL(); }
 EGLBoolean eglWaitNative(EGLint e) { pthread_once(&real_once, load_real); return p_eglWaitNative(e); }
-EGLSync eglCreateSync(EGLDisplay dpy, EGLenum t, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreateSync(dpy, t, a); }
+EGLSync eglCreateSync(EGLDisplay dpy, EGLenum t, const EGLAttrib *a) { pthread_once(&real_once, load_real); return p_eglCreateSync(dpy, t, a); }
 EGLBoolean eglDestroySync(EGLDisplay dpy, EGLSync s) { pthread_once(&real_once, load_real); return p_eglDestroySync(dpy, s); }
 EGLint eglClientWaitSync(EGLDisplay dpy, EGLSync s, EGLint f, EGLTime t) { pthread_once(&real_once, load_real); return p_eglClientWaitSync(dpy, s, f, t); }
-EGLBoolean eglGetSyncAttrib(EGLDisplay dpy, EGLSync s, EGLint a, EGLint *v) { pthread_once(&real_once, load_real); return p_eglGetSyncAttrib(dpy, s, a, v); }
+EGLBoolean eglGetSyncAttrib(EGLDisplay dpy, EGLSync s, EGLint a, EGLAttrib *v) { pthread_once(&real_once, load_real); return p_eglGetSyncAttrib(dpy, s, a, v); }
 EGLBoolean eglWaitSync(EGLDisplay dpy, EGLSync s, EGLint f) { pthread_once(&real_once, load_real); return p_eglWaitSync(dpy, s, f); }
 EGLImage eglCreateImage(EGLDisplay dpy, EGLContext c, EGLenum t, EGLClientBuffer b, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreateImage(dpy, c, t, b, a); }
 EGLBoolean eglDestroyImage(EGLDisplay dpy, EGLImage i) { pthread_once(&real_once, load_real); return p_eglDestroyImage(dpy, i); }

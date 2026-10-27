@@ -81,7 +81,9 @@ echo "== libddcefgl (libEGL window-surface shim for CEF-on-Tegra)"
 # readback/XPutImage presentation (hybris egl platform=null rejects X11).
 gcc -O2 -shared -fPIC -o "$WORK/root/usr/lib/libddcefgl.so.1.0.0" \
   /work/tools/hybris/eglshim/egl_shim.c \
-  -I"$WORK/prefix/include/android" -I"$WORK/root/usr/include" -lX11
+  -I"$WORK/root/usr/include" -lX11
+# NB: system (mesa/glvnd) EGL headers only — the Android ones use different
+# native types and would conflict with the exported signatures.
 ls "$WORK/root/usr/lib/libvulkan"* "$WORK/root/usr/lib/libhybris/vulkanplatform_null.so" \
   || { echo "ERROR: hybris vulkan wrapper not built (vulkan headers missing?)" >&2; exit 1; }
 
