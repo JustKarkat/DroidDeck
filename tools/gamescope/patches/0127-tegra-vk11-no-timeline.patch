@@ -186,3 +186,56 @@
  	std::atomic<uint64_t> m_submissionSeqNo = { 0 };
  	std::vector<std::unique_ptr<CVulkanCmdBuffer>> m_unusedCmdBufs;
  	std::map<uint64_t, std::unique_ptr<CVulkanCmdBuffer>> m_pendingCmdBufs;
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -712,8 +712,50 @@
+ 
+ extern char **environ;
+ 
++// 0127-diag: in-process SIGSEGV/SIGBUS/SIGILL logger (proot forbids nested
++// ptrace). TEMPORARY — revert with the Tegra bring-up.
++#include <ucontext.h>
++#include <unistd.h>
++#include <execinfo.h>
++static void droiddeck_fault(int sig, siginfo_t *si, void *ctx)
++{
++	ucontext_t *uc = (ucontext_t *)ctx;
++	void *pc = (void *)uc->uc_mcontext.pc;
++	void *lr = (void *)uc->uc_mcontext.regs[30];
++	char buf[256];
++	int n = snprintf(buf, sizeof buf, "\n0127-FAULT sig=%d addr=%p pc=%p lr=%p\n", sig, si->si_addr, pc, lr);
++	write(2, buf, n);
++	void *bt[24];
++	int c = backtrace(bt, 24);
++	backtrace_symbols_fd(bt, c, 2);
++	FILE *f = fopen("/proc/self/maps", "r");
++	if (f) {
++		char line[512];
++		while (fgets(line, sizeof line, f)) {
++			unsigned long s_, e_;
++			if (sscanf(line, "%lx-%lx", &s_, &e_) != 2) continue;
++			if (((unsigned long)pc >= s_ && (unsigned long)pc < e_) ||
++			    ((unsigned long)lr >= s_ && (unsigned long)lr < e_) ||
++			    ((unsigned long)si->si_addr >= s_ && (unsigned long)si->si_addr < e_))
++				write(2, line, strlen(line));
++		}
++		fclose(f);
++	}
++	_exit(97);
++}
++
+ int main(int argc, char **argv)
+ {
++	{
++		struct sigaction sa;
++		memset(&sa, 0, sizeof sa);
++		sa.sa_sigaction = droiddeck_fault;
++		sa.sa_flags = SA_SIGINFO | SA_NODEFER;
++		sigemptyset(&sa.sa_mask);
++		sigaction(SIGSEGV, &sa, NULL);
++		sigaction(SIGBUS, &sa, NULL);
++		sigaction(SIGILL, &sa, NULL);
++	}
+ 	g_argc = argc;
+ 	g_argv = argv;
+ 
