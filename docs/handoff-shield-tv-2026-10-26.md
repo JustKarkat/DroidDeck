@@ -115,3 +115,42 @@ Device state at handoff: idle, no session, `suspendPolicy.steam` = `manual`, lat
 (commit `7df5804d` payload) installed. Untracked repo dirs (`.CleanupShield/`,
 `prepared-components/`, `shield-probe.txt`, `stores-cargo-lock/`, `xbox-arm64/`) are
 pre-existing — do not delete.
+
+## Update 2026-10-27 (night): gamescope-on-Tegra verdict + CEF GPU path
+
+**gamescope compositing on the Tegra is NOT possible — the driver's Vulkan is a
+transfer-only stub.** Proven in the driver's own format tables (session
+2026-10-26-32 + ctypes probes): B8G8R8A8 supports NOTHING, A8B8G8R8 only
+TRANSFER_SRC/DST; no COLOR_ATTACHMENT, no STORAGE, no SAMPLED anywhere. The
+99 extensions are advertised but unusable for rendering. The 0127 patch chain
+that got us to the proof (all committed, keep — they also un-break any future
+ICD): apiVersion-1.1 accept, fence-free completion (QueueWaitIdle drain),
+CTimeline → nullptr, memory-type relaxation, per-ext enable gating
+(external_memory_fd without dma_buf), WSI-pNext gating. Also: sysvk stubs
+known-missing entry points (GetFenceFdKHR etc.) so callers get
+VK_ERROR_FEATURE_NOT_PRESENT instead of NULL-call crashes. Gameoscope must
+stay on lavapipe.
+
+**CEF GPU path (session script)**: Tegra CEF now runs
+`-cef-force-gpu -cef-use-gl=angle -cef-use-angle=gles -disable-gpu-sandbox`
+instead of `-cef-disable-gpu`. Findings:
+- The GPU process SIGSEGVs under Chromium's sandbox with the hybris EGL;
+  after 4 crashes CEF silently falls back to SwiftShader.
+  `-disable-gpu-sandbox` fixes it (0 crashes).
+- Chromium has NO ANGLE GLES backend on Linux: `--use-angle=gles` lands on
+  SwiftShader-vulkan. `--use-gl=egl` (native EGL) never started a GPU process
+  in CEF 126. So CEF is currently SwiftShader-rendered but out-of-process
+  (no more UI-thread wedge) and READY + OOBE render proven (sessions
+  2026-10-26-34/-36).
+- The real-hardware CEF lever left: an ANGLE build with a working Linux GLES
+  backend (upstream doesn't ship one), pointed at the hybris EGL — the
+  session script already stages `/usr/local/hybris-egl` (hybris sonames minus
+  libvulkan) on LD_LIBRARY_PATH inside the steam branch, plus
+  HYBRIS_LD_LIBRARY_PATH. `BL_CEF_GLES=0` restores software CEF.
+- Debug env on device: cleared (was: BL_VK_DRIVER/gamescope_diag_skip/etc.).
+  suspendPolicy restored to manual.
+
+Vulkan games: DXVK/vkd3d require timeline semaphores the driver doesn't
+export — old DXVK or GL-only games via... there is no GL driver for Tegra in
+Mesa. Realistic device story: GLES-heavy Android-side rendering (proven), UI
+via SwiftShader/CEF, streaming clients for real games.
