@@ -23,6 +23,9 @@ pacman -Syu --disable-sandbox --noconfirm --needed "${P[@]}" \
 cd /work
 rm -rf angle-src angle-out gn-src
 git clone --quiet --depth 1 --branch chromium/6478 https://github.com/google/angle.git angle-src
+# build/ and buildtools/ are submodules (Chromium's build root) — empty in a
+# plain clone; gn gen cannot even parse .gn without them.
+git -C angle-src submodule update --init --depth 1
 git clone --quiet --depth 1 https://gn.googlesource.com/gn gn-src
 
 echo "== build gn from source"
