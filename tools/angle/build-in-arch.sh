@@ -28,6 +28,16 @@ git clone --quiet --depth 1 --branch chromium/6478 https://github.com/google/ang
 # the rest include chrome-internal remotes that always fail. tools/clang would
 # come from a gclient sync we deliberately skip (system clang instead).
 git -C angle-src submodule update --init --depth 1 build buildtools || true
+# gclient would generate this; a standalone build just needs the flags from
+# ANGLE's DEPS gclient_gn_args list.
+cat > angle-src/build/config/gclient_args.gni <<'GNARGS'
+# Generated-by-gclient replacement for a standalone build.
+checkout_angle_internal = false
+checkout_angle_mesa = false
+checkout_angle_restricted_traces = false
+generate_location_tags = false
+build_with_chromium = false
+GNARGS
 git clone --quiet --depth 1 https://gn.googlesource.com/gn gn-src
 
 echo "== build gn from source"
