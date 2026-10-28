@@ -24,8 +24,10 @@ cd /work
 rm -rf angle-src angle-out gn-src
 git clone --quiet --depth 1 --branch chromium/6478 https://github.com/google/angle.git angle-src
 # build/ and buildtools/ are submodules (Chromium's build root) — empty in a
-# plain clone; gn gen cannot even parse .gn without them.
-git -C angle-src submodule update --init --depth 1
+# plain clone; gn gen cannot even parse .gn without them. Only fetch those two:
+# the rest include chrome-internal remotes that always fail. tools/clang would
+# come from a gclient sync we deliberately skip (system clang instead).
+git -C angle-src submodule update --init --depth 1 build buildtools || true
 git clone --quiet --depth 1 https://gn.googlesource.com/gn gn-src
 
 echo "== build gn from source"
