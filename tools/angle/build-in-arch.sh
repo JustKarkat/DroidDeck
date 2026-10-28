@@ -7,12 +7,13 @@
 # swiftshader/vulkan). Without it, --use-angle=gles-egl silently falls back
 # to SwiftShader even though the shim + Tegra driver path works.
 #
-# chromium/6478 has no CMakeLists — the standalone path is GN. The checked-in
-# buildtools/ are x64-only and this runner is aarch64, so we build gn itself
-# from source first, then use system clang (no sysroot, no hermetic toolchain).
+# Standalone ANGLE is a gclient project (build/, testing/, third_party/* all
+# come from DEPS; the checked-in buildtools are x64-only), so: depot_tools +
+# gclient sync at the chromium/6478 branch, then a GN build with system clang
+# (no sysroot — the runner is aarch64 and sysroots are x64).
 set -euxo pipefail
 
-P=(git cmake ninja python3 clang lld zlib libx11 libxcb libxext)
+P=(git python3 clang lld ninja zlib libx11 libxcb libxext)
 pacman-key --init >/dev/null 2>&1 || true
 pacman-key --populate archlinuxarm >/dev/null 2>&1 || true
 pacman -Sy archlinuxarm-keyring --noconfirm >/dev/null 2>&1 || true
@@ -21,36 +22,34 @@ pacman -Syu --disable-sandbox --noconfirm --needed "${P[@]}" \
   || pacman -S --noconfirm --needed "${P[@]}"
 
 cd /work
-rm -rf angle-src angle-out gn-src
-git clone --quiet --depth 1 --branch chromium/6478 https://github.com/google/angle.git angle-src
-# build/ and buildtools/ are submodules (Chromium's build root) — empty in a
-# plain clone; gn gen cannot even parse .gn without them. Only fetch those two:
-# the rest include chrome-internal remotes that always fail. tools/clang would
-# come from a gclient sync we deliberately skip (system clang instead).
-git -C angle-src submodule update --init --depth 1 build buildtools || true
-# gclient would generate this; a standalone build just needs the flags from
-# ANGLE's DEPS gclient_gn_args list.
-cat > angle-src/build/config/gclient_args.gni <<'GNARGS'
-# Generated-by-gclient replacement for a standalone build.
-checkout_angle_internal = false
-checkout_angle_mesa = false
-checkout_angle_restricted_traces = false
-generate_location_tags = false
-build_with_chromium = false
-GNARGS
-git clone --quiet --depth 1 https://gn.googlesource.com/gn gn-src
+rm -rf depot_tools angle angle-out
+git clone --quiet --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
+export PATH=/work/depot_tools:$PATH
 
-echo "== build gn from source"
-cd /work/gn-src
-# CXX set -> gen.py skips its cipd clang download and uses the system toolchain
-export CC=clang CXX=clang++ AR=llvm-ar
-python3 build/gen.py --no-last-commit-position
-ninja -C out gn
-export PATH=/work/gn-src/out:$PATH
-gn --version
+mkdir -p /work/angle
+git clone --quiet --depth 1 --branch chromium/6478 https://github.com/google/angle.git /work/angle/angle
 
-echo "== configure ANGLE"
-cd /work/angle-src
+cat > /work/angle/.gclient <<'GCLIENT'
+solutions = [
+  {
+    "name": "angle",
+    "url": None,
+    "managed": False,
+    "custom_deps": {},
+    "custom_vars": {"checkout_angle_internal": False, "checkout_angle_mesa": False,
+                    "checkout_angle_restricted_traces": False},
+    "safesync_url": "",
+  },
+]
+GCLIENT
+cd /work/angle
+echo "== gclient sync (DEPS: build, testing, third_party)"
+gclient sync --no-history --shallow 2>&1 | tail -15
+
+cd /work/angle/angle
+echo "== gn (hermetic depot_tools gn, aarch64 host)"
+gn --version || { ls /work/depot_tools | head; exit 1; }
+
 cat > out.gn.args <<'ARGS'
 is_debug = false
 is_clang = true
