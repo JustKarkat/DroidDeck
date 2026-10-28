@@ -15,7 +15,7 @@ set -euxo pipefail
 pacman-key --init >/dev/null 2>&1 || true
 pacman-key --populate archlinuxarm >/dev/null 2>&1 || true
 pacman -Sy archlinuxarm-keyring --noconfirm >/dev/null 2>&1 || true
-P=(cmake ninja python3 zlib libx11 libxcb libxext)
+P=(git cmake ninja python3 zlib libx11 libxcb libxext)
 pacman -Syu --disable-sandbox --noconfirm --needed "${P[@]}" \
   || pacman -S --disable-sandbox --noconfirm --needed "${P[@]}" \
   || pacman -S --noconfirm --needed "${P[@]}"
