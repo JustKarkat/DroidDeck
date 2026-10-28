@@ -27,6 +27,8 @@ git clone --quiet --depth 1 https://gn.googlesource.com/gn gn-src
 
 echo "== build gn from source"
 cd /work/gn-src
+# CXX set -> gen.py skips its cipd clang download and uses the system toolchain
+export CC=clang CXX=clang++ AR=llvm-ar
 python3 build/gen.py --no-last-commit-position
 ninja -C out gn
 export PATH=/work/gn-src/out:$PATH
