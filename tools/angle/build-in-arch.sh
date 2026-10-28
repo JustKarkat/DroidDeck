@@ -7,42 +7,58 @@
 # swiftshader/vulkan). Without it, --use-angle=gles-egl silently falls back
 # to SwiftShader even though the shim + Tegra driver path works.
 #
-# This builds a standalone ANGLE with the OpenGL(ES) backend for aarch64
-# glibc; the resulting libEGL.so/libGLESv2.so replace Valve's pair in
-# steamrtarm64 (session script applies them with a backup).
+# chromium/6478 has no CMakeLists — the standalone path is GN. The checked-in
+# buildtools/ are x64-only and this runner is aarch64, so we build gn itself
+# from source first, then use system clang (no sysroot, no hermetic toolchain).
 set -euxo pipefail
 
+P=(git cmake ninja python3 clang lld zlib libx11 libxcb libxext)
 pacman-key --init >/dev/null 2>&1 || true
 pacman-key --populate archlinuxarm >/dev/null 2>&1 || true
 pacman -Sy archlinuxarm-keyring --noconfirm >/dev/null 2>&1 || true
-P=(git cmake ninja python3 zlib libx11 libxcb libxext)
 pacman -Syu --disable-sandbox --noconfirm --needed "${P[@]}" \
   || pacman -S --disable-sandbox --noconfirm --needed "${P[@]}" \
   || pacman -S --noconfirm --needed "${P[@]}"
 
 cd /work
-rm -rf angle-src angle-build angle-out
+rm -rf angle-src angle-out gn-src
 git clone --quiet --depth 1 --branch chromium/6478 https://github.com/google/angle.git angle-src
-cd angle-src
-echo "== ANGLE at $(git rev-parse --short HEAD)"
+git clone --quiet --depth 1 https://gn.googlesource.com/gn gn-src
 
-cmake -GNinja -B /work/angle-build -S . \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DANGLE_ENABLE_OPENGL=ON \
-  -DANGLE_ENABLE_VULKAN=OFF \
-  -DANGLE_ENABLE_NULL=ON \
-  -DANGLE_BUILD_TESTS=OFF \
-  -DANGLE_ENABLE_TESTS=OFF \
-  -DANGLE_BUILD_SAMPLES=OFF \
-  -DANGLE_ENABLE_DEBUG_ANNOTATIONS=OFF 2>&1 | tail -25
+echo "== build gn from source"
+cd /work/gn-src
+python3 build/gen.py --no-last-commit-position
+ninja -C out gn
+export PATH=/work/gn-src/out:$PATH
+gn --version
 
-echo "== targets containing GL:"
-ninja -C /work/angle-build -t targets all 2>/dev/null | grep -iE "libEGL|libGLESv2" | head -8 || true
+echo "== configure ANGLE"
+cd /work/angle-src
+cat > out.gn.args <<'ARGS'
+is_debug = false
+is_clang = true
+clang_base_path = "/usr"
+clang_use_chrome_plugins = false
+use_sysroot = false
+use_lld = true
+treat_warnings_as_errors = false
+use_custom_libcxx = false
+angle_enable_gl = true
+angle_enable_vulkan = false
+angle_enable_null = true
+angle_enable_d3d9 = false
+angle_enable_d3d11 = false
+angle_standalone = true
+angle_build_tests = false
+angle_build_samples = false
+ARGS
+gn gen out/Default --args="$(cat out.gn.args)" 2>&1 | tail -20
 
-ninja -C /work/angle-build EGL GLESv2
+echo "== build"
+ninja -C out/Default EGL GLESv2
 
 mkdir -p /work/angle-out
-for f in /work/angle-build/libEGL.so* /work/angle-build/libGLESv2.so*; do
+for f in out/Default/libEGL.so* out/Default/libGLESv2.so*; do
   [ -f "$f" ] && cp -L "$f" /work/angle-out/
 done
 cd /work/angle-out
@@ -51,7 +67,7 @@ for n in libEGL.so libGLESv2.so; do
 done
 ls -la
 file libEGL.so libGLESv2.so
-echo "== backend sanity (expect DisplayEGL/DisplayGLX strings):"
+echo "== backend sanity (expect DisplayEGL / libEGL.so.1 strings):"
 strings -a libGLESv2.so | grep -cE "DisplayEGL|libEGL\.so\.1" || echo "MISSING GL BACKEND"
 echo "== sonames:"
 readelf -d libEGL.so | grep -E SONAME || true
