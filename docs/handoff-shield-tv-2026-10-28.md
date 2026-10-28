@@ -300,3 +300,48 @@ value/display-type Valve's branch maps to an EGL-GLES display. Options:
 (c) reimplement the wrapper WITHOUT the stability regression (the raw
 forwarders are suspect — try dlopen-by-soname instead of RTLD_GLOBAL).
 The REA MCP tooling can decompile libcef around the string xrefs.
+
+## 7. Update 3 (night): Valve's selection REVERSED — the DT16 fix is in; a separate early GPU-child crash is the new frontier
+
+Decompiled Valve's selection chain around the patched string (local
+objdump + ADRP/ADD xref scanning; no full-decompiler needed):
+
+- The Valve string site (2nd `gles-egl`, ex-`swiftshader-webgl`, at
+  libcef+0x20dec0e) has 4 code xrefs: the ANGLE-implementation parser
+  (→ value 2), a feature/flag recorder, and **the display-list builder**
+  (libcef+0x7872ba0): on match it stores `mov w10, #0xe` = **DisplayType 14**.
+- The DisplayType switch (`GetDisplayFromType`, dispatch at libcef+0x77dca98,
+  byte table at 0x20dead8, base 0x77dcab8): **DT14 → the SwiftShader-device
+  path** (attribs DEVICE_TYPE=0x3209 + 0x3487). **DT16 → the real
+  ANGLE_OPENGLES_EGL case** (0x77dcc28: attribs 0x3209 + 0x348e, worker
+  type 0x320e). So patching the string alone still lands on SwiftShader —
+  the value had to change too.
+- **Fix applied and verified:** 4 bytes at libcef vaddr 0x7872bd0
+  (`mov w10, #14` → `mov w10, #16`; 12-byte idempotent pattern), now baked
+  into `droiddeck-cef-patch` (handles fresh/already-patched/re-run states).
+
+**Result so far:** with DT16 the GPU child still crash-loops (6×
+exit_code=11 at startup, same pre-EGL signature: main thread in a raw
+rt_sigtimedwait in libcef+0x5381868, or libc+0x91c6c with x0=0x28; fault
+address always <mapping>+0x1b70). Key negatives:
+- The crash is NOT the WSI layer (still disabled), NOT crashpad
+  (`--disable-crash-reporter` doesn't change it), NOT the sandbox flag.
+- The children DID load the shim (SDL3) and ARMED the fault logger, but the
+  shim's `load_real` never ran — **no shim EGL function is ever called**, so
+  the crash is between display selection and ANGLE's first shim call.
+- The first child of the burst dies before the shim even arms (no maps
+  snapshot) — a very early death that then poisons the relaunch loop.
+
+### Next session's first moves
+
+1. Instrument the shim's `eglGetDisplay`/`eglGetPlatformDisplay` to log
+   BEFORE `load_real` (current code logs after `pthread_once` — a crash
+   inside `load_real`'s `dlopen(hybris EGL, RTLD_GLOBAL)` would be
+   invisible). That splits "ANGLE never calls the shim" from "the shim's
+   bionic-stack load crashes the child".
+2. If the crash is inside `load_real`: try `RTLD_LOCAL`, or preload the
+   hybris/bionic stack pieces before Steam, or compare the GPU child's
+   loaded-library set at crash time vs the working probe process.
+3. The `dt14→dt16` patch is independent of the crash — keep it.
+4. CI works again (owner changed `allowed_actions`); the ANGLE workflow runs
+   (40779394546). Rebuild-hybris can rebuild the shim properly once needed.

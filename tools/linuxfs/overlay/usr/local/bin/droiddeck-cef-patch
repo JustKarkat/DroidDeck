@@ -13,18 +13,41 @@ OLD = b"swiftshader-webgl\0"
 NEW = (os.environ.get("BL_CEF_ANGLE", "gles-egl").encode() + b"\0")[: len(OLD) - 1]
 assert len(NEW) <= len(OLD) - 1
 
-data = open(LIB, "rb").read()
+data = bytearray(open(LIB, "rb").read())
 n_old = data.count(OLD)
-n_new = data.count(NEW.ljust(len(OLD), b"\0"))
-if n_old == 0:
-    sys.exit(0 if n_new else 3)
+n_new = data.count(bytes(NEW.ljust(len(OLD), b"\0")))
 if n_old > 4:
     sys.exit(4)
+if n_old == 0 and n_new == 0:
+    sys.exit(3)
 bak = LIB + ".droiddeck-bak"
 if not os.path.exists(bak):
     shutil.copy2(LIB, bak)
     open(bak + ".sha256", "w").write(hashlib.sha256(data).hexdigest())
-open(LIB + ".tmp", "wb").write(data.replace(OLD, NEW.ljust(len(OLD), b"\0")))
+
+# DisplayType fix: Valve's fork maps its forced-backend string to its OWN
+# DisplayType 14 (the SwiftShader-device path) in the display-list builder —
+# patching the string alone still lands on SwiftShader. Valve's enum puts
+# ANGLE_OPENGLES_EGL at 16 (switch case at libcef+0x77dcc28: attribs
+# DEVICE_TYPE=0x3209 + EGL=0x348e, GetPlatformANGLEDisplay type 0x320e), so
+# rewrite the `mov w10, #14` at the string-match site (vaddr 0x7872bd0) to
+# `mov w10, #16`. Idempotent via the surrounding 12-byte pattern.
+DT_SITE = 0x7862bcc  # file offset of the 12-byte pattern (vaddr 0x7872bcc; file = vaddr - 0x10000)
+DT_OLD = bytes.fromhex("682640a9ca018052aac31fb8")   # ldp x8,x9,[x19]; mov w10,#14; stur w10,[x29,#-4]
+DT_NEW = bytes.fromhex("682640a90a028052aac31fb8")   # same, mov w10,#16
+if n_old:
+    data[n_old and 0:0] = b""  # no-op, keep bytearray type
+    data[:] = bytes(data).replace(OLD, NEW.ljust(len(OLD), b"\0"))
+    data = bytearray(data)
+if bytes(data[DT_SITE:DT_SITE + len(DT_OLD)]) == DT_OLD:
+    data[DT_SITE:DT_SITE + len(DT_OLD)] = DT_NEW
+    dt_msg = "dt14->dt16 patched"
+elif bytes(data[DT_SITE:DT_SITE + len(DT_OLD)]) == DT_NEW:
+    dt_msg = "dt14->dt16 already patched"
+else:
+    dt_msg = "dt site moved (client layout changed?); string-only patch"
+
+open(LIB + ".tmp", "wb").write(bytes(data))
 shutil.copymode(LIB, LIB + ".tmp")
 os.replace(LIB + ".tmp", LIB)
-print("patched", n_old, "site(s) ->", NEW.decode().strip("\0"))
+print("patched", n_old, "site(s) ->", NEW.decode().strip("\0") + ";" + dt_msg)
