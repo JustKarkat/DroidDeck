@@ -113,7 +113,8 @@ static void load_real(void) {
         ENTRY(eglCreatePbufferSurface), ENTRY(eglCreatePixmapSurface), ENTRY(eglDestroySurface),
         ENTRY(eglGetConfigAttrib), ENTRY(eglGetConfigs), ENTRY(eglGetCurrentDisplay),
         ENTRY(eglGetCurrentSurface), ENTRY(eglGetDisplay), ENTRY(eglGetError),
-        ENTRY(eglGetProcAddressReal), ENTRY(eglInitialize), ENTRY(eglMakeCurrent),
+        { "eglGetProcAddress", (void **)&p_eglGetProcAddressReal },
+        ENTRY(eglInitialize), ENTRY(eglMakeCurrent),
         ENTRY(eglQueryContext), ENTRY(eglQueryString), ENTRY(eglQuerySurface),
         ENTRY(eglSwapInterval), ENTRY(eglTerminate), ENTRY(eglBindAPI), ENTRY(eglQueryAPI),
         ENTRY(eglReleaseThread), ENTRY(eglGetCurrentContext),
@@ -392,17 +393,17 @@ EGLContext eglGetCurrentContext(void) { pthread_once(&real_once, load_real); ret
 EGLSurface eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig c, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePbufferSurface(dpy, c, a); }
 EGLSurface eglCreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum t, void *b, EGLConfig c, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePbufferFromClientBuffer(dpy, t, b, c, a); }
 EGLSurface eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig c, void *pm, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePixmapSurface(dpy, c, pm, a); }
-EGLSurface eglCreatePlatformPixmapSurface(EGLDisplay dpy, EGLConfig c, void *pm, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePlatformPixmapSurface(dpy, c, pm, a); }
+EGLSurface eglCreatePlatformPixmapSurface(EGLDisplay dpy, EGLConfig c, void *pm, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreatePlatformPixmapSurface ? p_eglCreatePlatformPixmapSurface(dpy, c, pm, a) : EGL_NO_SURFACE; }
 EGLBoolean eglWaitClient(void) { pthread_once(&real_once, load_real); return p_eglWaitClient(); }
 EGLBoolean eglWaitGL(void) { pthread_once(&real_once, load_real); return p_eglWaitGL(); }
 EGLBoolean eglWaitNative(EGLint e) { pthread_once(&real_once, load_real); return p_eglWaitNative(e); }
-EGLSync eglCreateSync(EGLDisplay dpy, EGLenum t, const EGLAttrib *a) { pthread_once(&real_once, load_real); return p_eglCreateSync(dpy, t, a); }
-EGLBoolean eglDestroySync(EGLDisplay dpy, EGLSync s) { pthread_once(&real_once, load_real); return p_eglDestroySync(dpy, s); }
-EGLint eglClientWaitSync(EGLDisplay dpy, EGLSync s, EGLint f, EGLTime t) { pthread_once(&real_once, load_real); return p_eglClientWaitSync(dpy, s, f, t); }
-EGLBoolean eglGetSyncAttrib(EGLDisplay dpy, EGLSync s, EGLint a, EGLAttrib *v) { pthread_once(&real_once, load_real); return p_eglGetSyncAttrib(dpy, s, a, v); }
-EGLBoolean eglWaitSync(EGLDisplay dpy, EGLSync s, EGLint f) { pthread_once(&real_once, load_real); return p_eglWaitSync(dpy, s, f); }
-EGLImage eglCreateImage(EGLDisplay dpy, EGLContext c, EGLenum t, EGLClientBuffer b, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreateImage(dpy, c, t, b, a); }
-EGLBoolean eglDestroyImage(EGLDisplay dpy, EGLImage i) { pthread_once(&real_once, load_real); return p_eglDestroyImage(dpy, i); }
+EGLSync eglCreateSync(EGLDisplay dpy, EGLenum t, const EGLAttrib *a) { pthread_once(&real_once, load_real); return p_eglCreateSync ? p_eglCreateSync(dpy, t, a) : EGL_NO_SYNC; }
+EGLBoolean eglDestroySync(EGLDisplay dpy, EGLSync s) { pthread_once(&real_once, load_real); return p_eglDestroySync ? p_eglDestroySync(dpy, s) : EGL_FALSE; }
+EGLint eglClientWaitSync(EGLDisplay dpy, EGLSync s, EGLint f, EGLTime t) { pthread_once(&real_once, load_real); return p_eglClientWaitSync ? p_eglClientWaitSync(dpy, s, f, t) : 0; }
+EGLBoolean eglGetSyncAttrib(EGLDisplay dpy, EGLSync s, EGLint a, EGLAttrib *v) { pthread_once(&real_once, load_real); return p_eglGetSyncAttrib ? p_eglGetSyncAttrib(dpy, s, a, v) : EGL_FALSE; }
+EGLBoolean eglWaitSync(EGLDisplay dpy, EGLSync s, EGLint f) { pthread_once(&real_once, load_real); return p_eglWaitSync ? p_eglWaitSync(dpy, s, f) : EGL_FALSE; }
+EGLImage eglCreateImage(EGLDisplay dpy, EGLContext c, EGLenum t, EGLClientBuffer b, const EGLint *a) { pthread_once(&real_once, load_real); return p_eglCreateImage ? p_eglCreateImage(dpy, c, t, b, a) : EGL_NO_IMAGE; }
+EGLBoolean eglDestroyImage(EGLDisplay dpy, EGLImage i) { pthread_once(&real_once, load_real); return p_eglDestroyImage ? p_eglDestroyImage(dpy, i) : EGL_FALSE; }
 EGLBoolean eglCopyBuffers(EGLDisplay dpy, EGLSurface s, void *t) { pthread_once(&real_once, load_real); return p_eglCopyBuffers(dpy, s, t); }
 
 __attribute__((constructor))
