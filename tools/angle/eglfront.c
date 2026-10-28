@@ -17,9 +17,21 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #define REAL_LIB "/usr/local/hybris/usr/lib/angle/libEGL.so"
+
+static void logpid(char *buf, size_t n) {
+    char cmd[300] = {0};
+    int fd = open("/proc/self/cmdline", O_RDONLY);
+    if (fd >= 0) {
+        ssize_t r = read(fd, cmd, sizeof cmd - 2);
+        if (r > 0) for (ssize_t i = 0; i < r - 1; i++) if (cmd[i] == '\0') cmd[i] = ' ';
+        close(fd);
+    }
+    snprintf(buf, n, "[pid %d %.200s] ", (int)getpid(), cmd);
+}
 
 static void logline(const char *fmt, ...) {
     va_list ap; va_start(ap, fmt);
@@ -29,7 +41,10 @@ static void logline(const char *fmt, ...) {
     if (n <= 0) return;
     int fd = open("/tmp/ddcef-egl.log", O_WRONLY | O_CREAT | O_APPEND, 0666);
     if (fd < 0) return;
+    char pbuf[340];
+    logpid(pbuf, sizeof pbuf);
     write(fd, "[eglfront] ", 11);
+    write(fd, pbuf, strlen(pbuf));
     write(fd, buf, (size_t)n);
     write(fd, "\n", 1);
     close(fd);
@@ -160,8 +175,6 @@ static __attribute__((used)) void *p_eglGetCurrentDisplay;
 __asm__(".text\n.globl eglGetCurrentDisplay\n.type eglGetCurrentDisplay,%function\neglGetCurrentDisplay:\n\tadrp x16, p_eglGetCurrentDisplay\n\tldr x16, [x16, :lo12:p_eglGetCurrentDisplay]\n\tbr x16\n");
 static __attribute__((used)) void *p_eglGetCurrentSurface;
 __asm__(".text\n.globl eglGetCurrentSurface\n.type eglGetCurrentSurface,%function\neglGetCurrentSurface:\n\tadrp x16, p_eglGetCurrentSurface\n\tldr x16, [x16, :lo12:p_eglGetCurrentSurface]\n\tbr x16\n");
-static __attribute__((used)) void *p_eglGetDisplay;
-__asm__(".text\n.globl eglGetDisplay\n.type eglGetDisplay,%function\neglGetDisplay:\n\tadrp x16, p_eglGetDisplay\n\tldr x16, [x16, :lo12:p_eglGetDisplay]\n\tbr x16\n");
 static __attribute__((used)) void *p_eglGetError;
 __asm__(".text\n.globl eglGetError\n.type eglGetError,%function\neglGetError:\n\tadrp x16, p_eglGetError\n\tldr x16, [x16, :lo12:p_eglGetError]\n\tbr x16\n");
 static __attribute__((used)) void *p_eglGetFrameTimestampsANDROID;
@@ -174,10 +187,6 @@ static __attribute__((used)) void *p_eglGetNativeClientBufferANDROID;
 __asm__(".text\n.globl eglGetNativeClientBufferANDROID\n.type eglGetNativeClientBufferANDROID,%function\neglGetNativeClientBufferANDROID:\n\tadrp x16, p_eglGetNativeClientBufferANDROID\n\tldr x16, [x16, :lo12:p_eglGetNativeClientBufferANDROID]\n\tbr x16\n");
 static __attribute__((used)) void *p_eglGetNextFrameIdANDROID;
 __asm__(".text\n.globl eglGetNextFrameIdANDROID\n.type eglGetNextFrameIdANDROID,%function\neglGetNextFrameIdANDROID:\n\tadrp x16, p_eglGetNextFrameIdANDROID\n\tldr x16, [x16, :lo12:p_eglGetNextFrameIdANDROID]\n\tbr x16\n");
-static __attribute__((used)) void *p_eglGetPlatformDisplay;
-__asm__(".text\n.globl eglGetPlatformDisplay\n.type eglGetPlatformDisplay,%function\neglGetPlatformDisplay:\n\tadrp x16, p_eglGetPlatformDisplay\n\tldr x16, [x16, :lo12:p_eglGetPlatformDisplay]\n\tbr x16\n");
-static __attribute__((used)) void *p_eglGetPlatformDisplayEXT;
-__asm__(".text\n.globl eglGetPlatformDisplayEXT\n.type eglGetPlatformDisplayEXT,%function\neglGetPlatformDisplayEXT:\n\tadrp x16, p_eglGetPlatformDisplayEXT\n\tldr x16, [x16, :lo12:p_eglGetPlatformDisplayEXT]\n\tbr x16\n");
 static __attribute__((used)) void *p_eglGetSyncAttrib;
 __asm__(".text\n.globl eglGetSyncAttrib\n.type eglGetSyncAttrib,%function\neglGetSyncAttrib:\n\tadrp x16, p_eglGetSyncAttrib\n\tldr x16, [x16, :lo12:p_eglGetSyncAttrib]\n\tbr x16\n");
 static __attribute__((used)) void *p_eglGetSyncAttribKHR;
@@ -340,15 +349,12 @@ static struct { const char *name; void **slot; } kForwards[] = {
     {"eglGetCurrentContext", &p_eglGetCurrentContext},
     {"eglGetCurrentDisplay", &p_eglGetCurrentDisplay},
     {"eglGetCurrentSurface", &p_eglGetCurrentSurface},
-    {"eglGetDisplay", &p_eglGetDisplay},
     {"eglGetError", &p_eglGetError},
     {"eglGetFrameTimestampsANDROID", &p_eglGetFrameTimestampsANDROID},
     {"eglGetFrameTimestampSupportedANDROID", &p_eglGetFrameTimestampSupportedANDROID},
     {"eglGetMscRateANGLE", &p_eglGetMscRateANGLE},
     {"eglGetNativeClientBufferANDROID", &p_eglGetNativeClientBufferANDROID},
     {"eglGetNextFrameIdANDROID", &p_eglGetNextFrameIdANDROID},
-    {"eglGetPlatformDisplay", &p_eglGetPlatformDisplay},
-    {"eglGetPlatformDisplayEXT", &p_eglGetPlatformDisplayEXT},
     {"eglGetSyncAttrib", &p_eglGetSyncAttrib},
     {"eglGetSyncAttribKHR", &p_eglGetSyncAttribKHR},
     {"eglGetSyncValuesCHROMIUM", &p_eglGetSyncValuesCHROMIUM},
@@ -411,8 +417,53 @@ static struct { const char *name; void **slot; } kForwards[] = {
 };
 
 
+
+static void log_attribs(const char *fn, unsigned platform, void *native, void *attribs, int attrib_is_int) {
+    char buf[400];
+    int n = snprintf(buf, sizeof buf, "%s(platform=%#x native=%p attribs=%p:", fn, platform, native, attribs);
+    int fd = open("/tmp/ddcef-egl.log", O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd >= 0) { write(fd, "[eglfront] ", 11); write(fd, buf, n); }
+    if (attribs) {
+        char v[200];
+        int m = 0;
+        for (int i = 0; i < 8; i++) {
+            long long val = attrib_is_int
+                ? (long long)((int *)attribs)[i]
+                : ((long long *)attribs)[i];
+            if (attrib_is_int ? val == 0x3038 : val == 0x3038) { m += snprintf(v+m, sizeof v-m, " NONE"); break; }
+            m += snprintf(v+m, sizeof v-m, " %#llx", val);
+        }
+        if (fd >= 0) write(fd, v, m);
+    }
+    if (fd >= 0) { write(fd, ")\n", 2); close(fd); }
+}
+
+void *eglGetDisplay(void *native_display) {
+    log_attribs("eglGetDisplay", 0, native_display, NULL, 0);
+    static void *(*real)(void *);
+    if (!real) real = dlsym(real_handle, "eglGetDisplay");
+    return real ? real(native_display) : NULL;
+}
+
+void *eglGetPlatformDisplay(unsigned platform, void *native_display, long long *attribs) {
+    log_attribs("eglGetPlatformDisplay", platform, native_display, attribs, 0);
+    static void *(*real)(unsigned, void *, long long *);
+    if (!real) real = dlsym(real_handle, "eglGetPlatformDisplay");
+    return real ? real(platform, native_display, attribs) : NULL;
+}
+
+void *eglGetPlatformDisplayEXT(unsigned platform, void *native_display, int *attribs) {
+    log_attribs("eglGetPlatformDisplayEXT", platform, native_display, attribs, 1);
+    static void *(*real)(unsigned, void *, int *);
+    if (!real) real = dlsym(real_handle, "eglGetPlatformDisplayEXT");
+    return real ? real(platform, native_display, attribs) : NULL;
+}
+
 void *eglGetProcAddress(const char *name) {
     if (name && !strcmp(name, "eglQueryString")) return (void *)&eglQueryString;
+    if (name && !strcmp(name, "eglGetDisplay")) return (void *)&eglGetDisplay;
+    if (name && !strcmp(name, "eglGetPlatformDisplay")) return (void *)&eglGetPlatformDisplay;
+    if (name && !strcmp(name, "eglGetPlatformDisplayEXT")) return (void *)&eglGetPlatformDisplayEXT;
     if (!real_handle) return NULL;
     static void *(*real)(const char *);
     if (!real) real = dlsym(real_handle, "eglGetProcAddress");

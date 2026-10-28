@@ -255,3 +255,48 @@ that names the rejecting validation. The wrapper is env-gated off
 - An orphaned GPU process from session 31 (pid ~27124) may linger until reboot; harmless.
 - `angle.hidden/`, `libEGL.so.1.0.0.hidden` leftovers from the bisect are still in
   `usr/local/hybris/usr/lib/` — safe to delete.
+
+## 6. Update 2 (evening, after §3): the client-ext theory is DEAD; the drop is in Valve's fork
+
+Follow-up experiments corrected §3's conclusion:
+
+- **ANGLE 6478 answers `eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS)`
+  correctly** (408-char string with `EGL_ANGLE_platform_angle_opengl` and
+  `EGL_ANGLE_platform_angle_device_type_egl_angle`). Earlier probes that
+  "showed ANGLE rejecting the query" used name 0x3053 (EGL_VENDOR) by
+  mistake. The raw-front baseline therefore has a GOOD client_ext in the GPU
+  child — the wrapper was never needed for that.
+- A pid-tagged wrapper run confirmed **the GPU child queries client
+  extensions and receives the correct string** — and still ends up with an
+  init-displays list of `[DEFAULT]` (the wrapper logged only
+  `eglGetDisplay(X11Display*)` calls — the DEFAULT display type — never an
+  ANGLE-platform `eglGetPlatformDisplay`).
+- Therefore the gles-egl drop happens in **Valve's fork of the selection
+  code**, upstream of display creation. Upstream's `GetEGLInitDisplays`
+  (gl_display_initializer.cc) would have added `ANGLE_OPENGLES_EGL`; Valve's
+  libcef apparently only maps its own value (`swiftshader-webgl`) — which is
+  exactly why their stock build always renders SwiftShader.
+- The probe (`/tmp/angleprobe2.py` in the guest, preserved in this handoff)
+  proved the whole downstream works: with
+  `{TYPE=OPENGLES, DEVICE_TYPE=EGL, DEBUG_LAYERS=0}` via
+  `eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, ...)`, ANGLE creates a
+  DisplayEGL and calls its dlopen of `libddcef.so` (the shim). In a probe
+  process without hybris-cef on LD_LIBRARY_PATH that dlopen fails with
+  error 12289 — in the GPU child (which has hybris-cef first) it would
+  succeed. **The only missing link is making Valve's selection code request
+  that display type.**
+- The `eglfront.so` wrapper is **destabilizing** (GPU crash loops or
+  max_vertex_attribs=0 contexts in every wrapper session) — it stays
+  env-gated off (`BL_CEF_EGLFRONT=1`); the raw ANGLE front is the default.
+
+### Next session's first move
+
+Reverse Valve's selection code in libcef: find the code consuming the
+patched string site (`swiftshader-webgl` → `gles-egl`, ~2 occurrences; the
+Valve fork's copy of the display-list builder), and determine what
+value/display-type Valve's branch maps to an EGL-GLES display. Options:
+(a) find a Valve value that maps to `ANGLE_OPENGLES_EGL` and patch to that;
+(b) patch the branch's comparison bytes so the gles-egl path is taken;
+(c) reimplement the wrapper WITHOUT the stability regression (the raw
+forwarders are suspect — try dlopen-by-soname instead of RTLD_GLOBAL).
+The REA MCP tooling can decompile libcef around the string xrefs.
