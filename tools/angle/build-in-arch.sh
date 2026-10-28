@@ -15,8 +15,10 @@ set -euxo pipefail
 pacman-key --init >/dev/null 2>&1 || true
 pacman-key --populate archlinuxarm >/dev/null 2>&1 || true
 pacman -Sy archlinuxarm-keyring --noconfirm >/dev/null 2>&1 || true
-pacman -Syu --noconfirm --needed cmake ninja python3 zlib libx11 libxcb libxext \
-  || pacman -S --noconfirm --needed cmake ninja python3 zlib libx11 libxcb libxext
+P=(cmake ninja python3 zlib libx11 libxcb libxext)
+pacman -Syu --disable-sandbox --noconfirm --needed "${P[@]}" \
+  || pacman -S --disable-sandbox --noconfirm --needed "${P[@]}" \
+  || pacman -S --noconfirm --needed "${P[@]}"
 
 cd /work
 rm -rf angle-src angle-build angle-out
