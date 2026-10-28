@@ -674,7 +674,11 @@ BUSCONF
       if [ "${BL_CEF_GLES:-1}" = 1 ]; then
         # -disable-gpu-sandbox: the vendor driver faults in the GPU process
         # when the sandbox is up; 4 crashes -> CEF silently falls back.
-        _bl_cef=(-cef-force-gpu -disable-gpu-sandbox)
+        # The ANGLE selectors are NOT optional here: without them Chromium
+        # defaults to its Vulkan backend, which dies in Gamescope-WSI on
+        # lavapipe (SIGSEGV before any GL init -> --use-gl=disabled).
+        _bl_cef=(-cef-force-gpu -disable-gpu-sandbox
+                 -cef-use-gl=angle -cef-use-angle="${BL_CEF_ANGLE:-gles-egl}")
         if [ "${BL_CEF_DIAG:-}" = 1 ]; then
           # make a hardware-init failure an immediate visible GPU exit
           # instead of a silent SwiftShader fallback (diagnosing only)
@@ -687,15 +691,19 @@ BUSCONF
           echo "== steam: cef-patch exit $rc (client layout changed?); CEF software raster"
           _bl_cef=(-cef-disable-gpu)
         fi
-        # GPU-process GL failure visibility (external review §3.4)
-        BL_WEBHELPER_ARGS="$BL_WEBHELPER_ARGS --enable-logging=stderr --log-severity=verbose --vmodule=gl_*=1,gpu_init=1,gpu_info_collector=1,gpu_process_host=1,angle_platform_impl=1"
+        # GPU-process GL failure visibility (external review §3.4).
+        # The ANGLE selectors ride here as well: BL_WEBHELPER_ARGS is applied
+        # by the execve preload directly to steamwebhelper's argv, which is the
+        # only channel proven to reach the GPU child (the -cef-* forms above
+        # only reach the Steam client, and Chromium then defaults to Vulkan).
+        BL_WEBHELPER_ARGS="$BL_WEBHELPER_ARGS --enable-logging=stderr --log-severity=verbose --vmodule=gl_*=1,gpu_init=1,gpu_info_collector=1,gpu_process_host=1,angle_platform_impl=1 --use-gl=angle --use-angle=${BL_CEF_ANGLE:-gles-egl}"
         export BL_WEBHELPER_ARGS
         # Inside (under gamescope, before steam): put the shim + hybris EGL/GLES
         # sonames first so the GL path binds the vendor driver instead of Mesa.
-        # /usr/local/hybris-cef holds ONLY the window-surface shim as
-        # libEGL.so.1 — ANGLE's gles-egl dlopens that name and gets the shim,
-        # which forwards to the real hybris EGL and emulates X11 window
-        # surfaces (pbuffer + readback blit) that hybris platform=null lacks.
+        # /usr/local/hybris-cef holds ONLY the window-surface shim, under the
+        # unique name our ANGLE build dlopens (libddcef.so). The shim forwards
+        # to the real hybris EGL and emulates X11 window surfaces (pbuffer +
+        # readback blit) that hybris platform=null lacks.
         # libvulkan is deliberately excluded everywhere (the hybris wrapper
         # would hijack the guest's Vulkan). Inner script only — gamescope
         # (outer) is already running and must not see this.
@@ -709,6 +717,15 @@ BUSCONF
           case "${f##*/}" in *vulkan*|*.la|*.a|*.so) continue ;; esac
           ln -sfn "$f" "/usr/local/hybris-egl/${f##*/}"
         done
+        # Only the unique name. Our ANGLE build's DisplayEGL dlopens
+        # "libddcef.so" (its loader string is binary-patched to that unique
+        # name so it cannot dedup onto the Mesa libEGL Chromium maps early) —
+        # device-verified: with this dir first on LD_LIBRARY_PATH, ANGLE's
+        # DisplayEGL reports VENDOR="Google Inc. (NVIDIA Corporation)".
+        # Do NOT also stage the shim as libEGL.so.1: libcef.so dlopens that
+        # name to load ANGLE's *front* lib, so a shim under that name shadows
+        # our real ANGLE and hands CEF raw hybris EGL (platform=null, rejects
+        # X11 windows -> SIGSEGV in the GPU process).
         [ -f /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 ] && \
           ln -sfn /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 /usr/local/hybris-cef/libddcef.so
         # Our ANGLE build (GL backend enabled — Valve's has it compiled out):

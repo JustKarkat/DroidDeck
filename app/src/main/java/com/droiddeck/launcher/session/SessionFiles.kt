@@ -148,6 +148,8 @@ object SessionFiles {
             "usr/lib/libhwc2.so.1.0.0",
             "usr/lib/libhybris-common.so.1.0.0",
             "usr/lib/libddcefgl.so.1.0.0",
+            "usr/lib/angle/libEGL.so",
+            "usr/lib/angle/libGLESv2.so",
             "usr/lib/libhybris-eglplatformcommon.so.1.0.0",
             "usr/lib/libhybris/eglplatform_fbdev.so",
             "usr/lib/libhybris/eglplatform_hwcomposer.so",

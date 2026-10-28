@@ -228,3 +228,62 @@ staging is `tools/hybris/stage-payload.sh` (CI artifact → APK assets).
 
 Open: device creation (`vkCreateDevice`) unexercised through sysvk; gamescope
 on the Tegra is the next frontier (see handoff doc).
+
+## Update 2026-10-28: ANGLE → shim → Tegra proven directly; CEF still misses it
+
+**Proven:** when ANGLE's DisplayEGL actually loads the shim, the whole chain
+binds the Tegra. Measured in a quiet guest session (our ANGLE `libEGL.so` from
+CI run 40626002076, `LD_LIBRARY_PATH=/usr/local/hybris-cef:/usr/local/hybris-egl`,
+`DDEGL_DEBUG=1`):
+
+```
+[ddcef-egl] shim loaded (pid ...)      <-- the load is the tell
+[ddcef-egl] real lib loaded
+GLES+EGLdev  init=1 1.5 VENDOR=b"Google Inc. (NVIDIA Corporation)"
+GL+EGLdev    init=1 1.5 VENDOR=b"Google Inc. (NVIDIA Corporation)"
+```
+
+So ANGLE → window-surface shim → Tegra works, including
+`eglCreateWindowSurface` on a real X11 XID, `eglMakeCurrent` and `eglSwapBuffers`.
+
+**The failure mode, precisely:** if the probe initialises the *default* display
+first (ANGLE's GLX backend), ANGLE stays on GLX for the rest of the process and
+reports `Google Inc. (Mesa)`; `libddcef.so` is then never loaded at all. The same
+binary, same env, same session, different probe shape gives different answers —
+so "which backend won" depends on which EGL entry point the host touches first.
+Probe shapes that go straight to `eglGetPlatformDisplayEXT` get NVIDIA; shapes
+that call `eglGetDisplay(NULL)` and initialise it first get Mesa.
+
+**Config selection is not a blocker.** A ctypes census of the Tegra driver
+reports 56 configs, all with `WINDOW_BIT | PBUFFER_BIT`; an ANGLE-shaped query
+(`ES3 + WINDOW + RGBA8 + D24S8`) returns 4. Open risk #1 in the 10-27 handoff is
+closed.
+
+### What still does not bind inside Steam's GPU process
+
+The GPU process now receives `--use-angle=gles-egl` (via `BL_WEBHELPER_ARGS`,
+applied by the execve preload — the `-cef-use-angle` client flag alone does not
+reach the GPU child) and does load the shim (`[ddcef-egl] shim loaded`, 14
+processes seen), but still exits 6× with `exit_code=11` before calling a single
+`egl*` entry point, then settles on `--use-gl=disabled`. Given the probe result
+above, the likely reason is that CEF drives ANGLE through the default-display /
+GLX path (or the raw null-platform hybris EGL) rather than the
+`EGL_PLATFORM_ANGLE_DEVICE_TYPE_EGL_ANGLE` platform path, so the shim is loaded
+as a dependency but never used. Next step is to make CEF request the platform
+display + EGL device type, not to touch the shim.
+
+### Wiring fixes that landed this session
+
+- `droiddeck-session`: the `BL_TEGRA` branch had replaced `_bl_cef` and dropped
+  the ANGLE selectors entirely, so the GPU process defaulted to Vulkan (which
+  dies in Gamescope-WSI on lavapipe). It now keeps
+  `-cef-use-gl=angle -cef-use-angle=$BL_CEF_ANGLE` and also appends the plain
+  `--use-gl/--use-angle` forms to `BL_WEBHELPER_ARGS`.
+- `droiddeck-session`: do **not** stage the shim as `libEGL.so.1` in
+  `/usr/local/hybris-cef`. `libcef.so` dlopens that name to load ANGLE's front
+  lib; a shim there shadows our ANGLE and hands CEF raw hybris EGL
+  (platform=null, rejects X11 windows → the SIGSEGV).
+- New `tools/angle/stage-libs.sh`: stages the CI `angle-libs` artifact into the
+  APK assets and refuses artifacts without the `libddcef.so` loader string.
+  Needed because `tools/hybris/stage-payload.sh` `rm -rf`s `usr/local/hybris`,
+  silently deleting `usr/lib/angle`.
