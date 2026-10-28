@@ -12,7 +12,11 @@
 # steamrtarm64 (session script applies them with a backup).
 set -euxo pipefail
 
-pacman -Syu --noconfirm --needed cmake ninja python3 zlib libx11 libxcb libxext >/dev/null 2>&1
+pacman-key --init >/dev/null 2>&1 || true
+pacman-key --populate archlinuxarm >/dev/null 2>&1 || true
+pacman -Sy archlinuxarm-keyring --noconfirm >/dev/null 2>&1 || true
+pacman -Syu --noconfirm --needed cmake ninja python3 zlib libx11 libxcb libxext \
+  || pacman -S --noconfirm --needed cmake ninja python3 zlib libx11 libxcb libxext
 
 cd /work
 rm -rf angle-src angle-build angle-out
