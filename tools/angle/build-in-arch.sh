@@ -13,7 +13,7 @@
 # (no sysroot — the runner is aarch64 and sysroots are x64).
 set -euxo pipefail
 
-P=(git python3 clang lld ninja zlib libx11 libxcb libxext)
+P=(git python3 clang lld ninja zlib libx11 libxcb libxext libdrm pkgconf)
 pacman-key --init >/dev/null 2>&1 || true
 pacman-key --populate archlinuxarm >/dev/null 2>&1 || true
 pacman -Sy archlinuxarm-keyring --noconfirm >/dev/null 2>&1 || true
