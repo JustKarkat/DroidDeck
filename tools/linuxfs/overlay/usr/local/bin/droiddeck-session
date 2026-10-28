@@ -710,7 +710,7 @@ BUSCONF
           ln -sfn "$f" "/usr/local/hybris-egl/${f##*/}"
         done
         [ -f /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 ] && \
-          ln -sfn /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 /usr/local/hybris-cef/libEGL.so.1
+          ln -sfn /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 /usr/local/hybris-cef/libddcef.so
         # Our ANGLE build (GL backend enabled — Valve's has it compiled out):
         # replace steamrtarm64/libEGL.so + libGLESv2.so, keeping Valve's pair.
         if [ -f /usr/local/hybris/usr/lib/angle/libEGL.so ] && [ -d /root/.local/share/Steam/steamrtarm64 ]; then
