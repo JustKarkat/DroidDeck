@@ -85,6 +85,20 @@ cd /work/angle-out
 for n in libEGL.so libGLESv2.so; do
   [ -f "$n" ] || { real=$(ls ${n}.* 2>/dev/null | head -1); [ -n "$real" ] && cp -L "$real" "$n"; }
 done
+# Point ANGLE's GL-backend EGL loader at our window-surface shim by a unique
+# name: a plain dlopen("libEGL.so.1") can dedup against an already-loaded
+# Mesa libEGL (Chromium maps one early), which silently sends ANGLE to
+# llvmpipe. Same-length in-place patch; libddcef.so is staged by the session
+# script next to the ANGLE libs.
+python3 - <<'PATCH'
+data = bytearray(open('libGLESv2.so', 'rb').read())
+old, new = b'libEGL.so.1\x00', b'libddcef.so\x00'
+n = data.count(old)
+assert n >= 1, "libEGL.so.1 string not found"
+data = data.replace(old, new)
+open('libGLESv2.so', 'wb').write(bytes(data))
+print('patched', n, 'loader-name site(s)')
+PATCH
 ls -la
 file libEGL.so libGLESv2.so
 echo "== backend sanity (expect DisplayEGL / libEGL.so.1 strings):"
