@@ -27,6 +27,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <dlfcn.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -42,13 +43,21 @@
 #define GL_UNSIGNED_BYTE 0x1401
 
 static int g_debug;
+/* Diagnostic build: log to a file, not stderr — the CEF GPU child's stderr
+ * is suppressed (no --enable-logging reaches it), so file logging is the
+ * only way to see the shim's side of the story. */
 static void logline(const char *fmt, ...) {
-    if (!g_debug) return;
     va_list ap; va_start(ap, fmt);
-    fprintf(stderr, "[ddcef-egl] ");
-    vfprintf(stderr, fmt, ap);
-    fputc('\n', stderr);
+    char buf[512];
+    int n = vsnprintf(buf, sizeof buf, fmt, ap);
     va_end(ap);
+    if (n <= 0) return;
+    int fd = open("/tmp/ddcef-egl.log", O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd < 0) return;
+    write(fd, "[ddcef-egl] ", 12);
+    write(fd, buf, (size_t)n);
+    write(fd, "\n", 1);
+    close(fd);
 }
 
 /* ---- real library binding ---- */
@@ -412,5 +421,19 @@ __attribute__((constructor))
 static void shim_init(void) {
     const char *env = getenv("DDEGL_DEBUG");
     g_debug = env && *env && *env != '0';
-    logline("shim loaded (pid %d)", (int)getpid());
+    char cmd[512] = {0};
+    int fd = open("/proc/self/cmdline", O_RDONLY);
+    if (fd >= 0) {
+        ssize_t r = read(fd, cmd, sizeof cmd - 2);
+        if (r > 0) for (ssize_t i = 0; i < r - 1; i++) if (cmd[i] == '\0') cmd[i] = ' ';
+        close(fd);
+    }
+    logline("shim loaded (pid %d) cmd=%.380s LD_LIBRARY_PATH=%s",
+            (int)getpid(), cmd, getenv("LD_LIBRARY_PATH") ?: "(unset)");
 }
+
+/* Diagnostic: the GPU process dies pre-EGL (before any shim call) and its
+ * stderr is suppressed, so the fault logger rides in the shim — the one lib
+ * every steamwebhelper child loads eagerly via SDL3's DT_NEEDED. It only
+ * arms itself in --type=gpu-process processes. See crashlog_embed.c. */
+#include "crashlog_embed.c"

@@ -154,3 +154,104 @@ Two traps that cost real time here:
 4. When the renderer string says NVIDIA Tegra: screenshot the OOBE, take the
    before/after CPU snapshot, clear debug env, restore `suspendPolicy.steam`
    to manual, commit, and update `docs/hybris-gpu-status.md`.
+
+---
+
+# Update 2026-10-28 (later): GPU crash loop SOLVED; the EGL-selection gap is now precisely scoped
+
+## 1. The GPU process crash loop is root-caused and fixed
+
+Every `exit_code=11` GPU-process crash (the "6× before any egl* call" mystery
+from the morning) is the **Gamescope WSI Vulkan layer**. The GPU process
+initializes Vulkan before GL; gamescope injects its WSI layer via
+`ENABLE_GAMESCOPE_WSI=1`, and the layer + lavapipe init SIGSEGVs the process
+(`[Gamescope WSI] Application info` lines immediately precede every exit in
+steamwebhelper.log).
+
+**Fix (verified, sessions 44/45/50):** `ENABLE_GAMESCOPE_WSI=0` in the session
+env → zero WSI lines, GPU processes stable (one first-attempt crashpad
+`NOTREACHED` crash, then a survivor — see below). It is currently set
+persistent via `dd env`; it should move into the session script's BL_TEGRA
+branch (Tegra Vulkan is a renderless stub, so the layer buys nothing here).
+
+The 10-26 handoff's "-disable-gpu-sandbox fixes it" was a coincidental
+correlation, not the mechanism.
+
+## 2. Crash forensics tooling (all committed, reusable)
+
+- The shim (`libddcefgl`) now embeds a fault logger (`crashlog_embed.c`):
+  arms sigaction interposers in `--type=gpu-process` processes only, dumps
+  PC/LR/SP + maps + stack to `/tmp/crashlog.txt`; interposes
+  `exit/_exit/_Exit/abort`; runs a 20 ms `/proc/self/maps` poller writing
+  `/tmp/ddmaps-<pid>.txt`; interposes kill/tgkill/raise/pthread_kill.
+  Trap learned the hard way: in the GPU process the shim is LAST in the link
+  map, so `dlsym(RTLD_NEXT, …)` returns NULL — resolve libc symbols via
+  `dlopen("libc.so.6", RTLD_NOLOAD)` instead.
+- Valve's crashpad writes real minidumps to `/tmp/dumps/completed/*.dmp`.
+  They lack a module list, but the exception PC + the maps snapshot resolves
+  the crashing module (this is how libcef+0x5381868 was identified).
+- The shim logs to `/tmp/ddcef-egl.log` (file, not stderr — the GPU child's
+  stderr IS captured in steamwebhelper.log, but only via
+  `--enable-logging=stderr`, which does reach the child; the file log is the
+  reliable channel).
+
+## 3. The EGL-selection gap: precisely scoped, one experiment short
+
+With the crash loop gone, the GPU process survives but ANGLE lands on
+Mesa GLX/llvmpipe instead of the shim/Tegra. Root cause chain (verified
+against Chromium 126.0.6478 + ANGLE chromium/6478 sources):
+
+1. Chromium builds the ANGLE display-init list in
+   `ui/gl/init/gl_display_initializer.cc::GetEGLInitDisplays`. The
+   `gles-egl` request only adds `ANGLE_OPENGLES_EGL` when
+   `supports_angle_opengl_egl` is true — which is
+   `client_ext.b_EGL_ANGLE_platform_angle_device_type_egl_angle`.
+2. If nothing matches, the list is empty and Chromium silently requests the
+   `DEFAULT` display type — ANGLE's default on X11 = DisplayGLX → Mesa
+   llvmpipe. No error is logged anywhere.
+3. `client_ext` comes from `eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS)`.
+   **EGL_EXTENSIONS is 0x3055** (0x3053 is EGL_VENDOR — earlier probes that
+   "proved ANGLE rejects the query" were querying the wrong name).
+4. `tools/angle/eglfront.c` is a wrapper front-lib (built, staged as
+   `usr/lib/angle/eglfront.so`) that forwards everything to the real ANGLE
+   front and answers the client-extension query itself. With it served
+   (intercept on `eglGetProcAddress("eglQueryString")` too — Chromium binds
+   through eglGetProcAddress, not dlsym), the GPU child gets PAST display
+   selection but GL contexts then fail with
+   `SharedContextState::InitializeGL failure max_vertex_attribs : 0` —
+   ANGLE's DisplayEGL still never calls the shim (no
+   `eglGetPlatformDisplay`/`load_real` lines, no Tegra libs in maps).
+
+**Remaining unknown:** why ANGLE's display creation doesn't reach
+DisplayEGL's dlopen of `libddcef.so` even with client_ext served. Next
+probe: in a guest python session, call our ANGLE's
+`eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, native, attribs)` with
+Chromium's exact attrib list (TYPE=OPENGLES, DEVICE_TYPE=EGL, plus the
+feature-control/debug-layers attribs Chromium appends) and read the error —
+that names the rejecting validation. The wrapper is env-gated off
+(`BL_CEF_EGLFRONT=1` to A/B it); the raw ANGLE front is the default.
+
+## 4. Other findings this session
+
+- Hiding **Mesa's** `usr/lib/libEGL.so.1.1.0` (instead of the hybris one)
+  kills Xwayland (`libepoxy` can't find libEGL.so.1 → abort → gamescope
+  "Xwayland startup failed"). Restored. Don't hide guest-system EGL.
+- The GPU child's stderr DOES reach steamwebhelper.log (shim fprintf lines
+  appear); Chromium LOG() lines from the child appear too
+  (`--enable-logging=stderr` propagates — it was past the 400-char cmdline
+  truncation in earlier reads).
+- `--disable-gpu-sandbox` and `--use-angle` DO propagate to the GPU child
+  via the browser argv (BL_WEBHELPER_ARGS); `--disable-vulkan` does not
+  (not in the child's switch list).
+- CI is still blocked: repo setting `allowed_actions=local_only` makes every
+  GitHub Actions workflow startup_fail (build-hybris/build-angle included).
+  The shim/wrapper here were built locally with host clang +
+  `/tmp/arm64root` (docker-exported archlinuxarm rootfs) as sysroot.
+
+## 5. Device state at this update
+
+- Session 50 running (stable, llvmpipe). Persistent env: `BL_WEBHELPER_ARGS=--disable-gpu-sandbox --disable-vulkan`, `ENABLE_GAMESCOPE_WSI=0`.
+- APK: shim v3 (file logging + embedded crash logger), eglfront.so staged but inactive.
+- An orphaned GPU process from session 31 (pid ~27124) may linger until reboot; harmless.
+- `angle.hidden/`, `libEGL.so.1.0.0.hidden` leftovers from the bisect are still in
+  `usr/local/hybris/usr/lib/` — safe to delete.

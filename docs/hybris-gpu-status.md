@@ -287,3 +287,24 @@ display + EGL device type, not to touch the shim.
   APK assets and refuses artifacts without the `libddcef.so` loader string.
   Needed because `tools/hybris/stage-payload.sh` `rm -rf`s `usr/local/hybris`,
   silently deleting `usr/lib/angle`.
+
+## Update 2026-10-28 (evening): crash loop solved; selection gap scoped
+
+- **GPU process crash loop (exit_code=11 ×N, pre-EGL) = the Gamescope WSI
+  Vulkan layer.** `ENABLE_GAMESCOPE_WSI=0` in the session env fixes it
+  (verified: 0 WSI lines, GPU processes stable). Proven by correlating
+  crashpad minidumps (`/tmp/dumps/completed`) with per-process maps snapshots
+  written by the shim's embedded poller: PC = libcef+0x5381868, a raw
+  rt_sigtimedwait site, faulting at mapping+0x1b70.
+- **ANGLE→shim→Tegra still not reached by CEF.** Chromium's
+  `GetEGLInitDisplays` silently drops `--use-angle=gles-egl` unless the
+  driver EGL advertises `EGL_ANGLE_platform_angle_device_type_egl_angle` in
+  its CLIENT extensions (`eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS)`,
+  name value 0x3055). The `eglfront.so` wrapper (tools/angle/eglfront.c)
+  serves that string; display selection then proceeds but ANGLE's DisplayEGL
+  still never dlopens the shim (contexts fail with max_vertex_attribs=0).
+  Wrapper is env-gated off (`BL_CEF_EGLFRONT=1`); see the 10-28 handoff
+  update for the exact next probe.
+- The shim now carries an embedded fault logger + maps poller + exit/signal
+  interposers (tools/hybris/eglshim/crashlog_embed.c) — the reusable
+  GPU-process forensic harness.

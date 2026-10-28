@@ -696,7 +696,12 @@ BUSCONF
         # by the execve preload directly to steamwebhelper's argv, which is the
         # only channel proven to reach the GPU child (the -cef-* forms above
         # only reach the Steam client, and Chromium then defaults to Vulkan).
-        BL_WEBHELPER_ARGS="$BL_WEBHELPER_ARGS --enable-logging=stderr --log-severity=verbose --vmodule=gl_*=1,gpu_init=1,gpu_info_collector=1,gpu_process_host=1,angle_platform_impl=1 --use-gl=angle --use-angle=${BL_CEF_ANGLE:-gles-egl}"
+        # --disable-gpu-sandbox must ride here too: the GPU child checks its
+        # OWN cmdline for the switch before arming the sandbox (the -cef-* /
+        # single-dash form only reaches the Steam client, and GpuProcessHost
+        # does not forward it), and the Tegra driver faults inside the armed
+        # sandbox -> exit_code=11 crash loop (handoff 2026-10-26 finding).
+        BL_WEBHELPER_ARGS="$BL_WEBHELPER_ARGS --enable-logging=stderr --log-severity=verbose --vmodule=gl_*=1,gpu_init=1,gpu_info_collector=1,gpu_process_host=1,angle_platform_impl=1 --use-gl=angle --use-angle=${BL_CEF_ANGLE:-gles-egl} --disable-gpu-sandbox"
         export BL_WEBHELPER_ARGS
         # Inside (under gamescope, before steam): put the shim + hybris EGL/GLES
         # sonames first so the GL path binds the vendor driver instead of Mesa.
@@ -717,25 +722,47 @@ BUSCONF
           case "${f##*/}" in *vulkan*|*.la|*.a|*.so) continue ;; esac
           ln -sfn "$f" "/usr/local/hybris-egl/${f##*/}"
         done
-        # Only the unique name. Our ANGLE build's DisplayEGL dlopens
-        # "libddcef.so" (its loader string is binary-patched to that unique
-        # name so it cannot dedup onto the Mesa libEGL Chromium maps early) —
-        # device-verified: with this dir first on LD_LIBRARY_PATH, ANGLE's
-        # DisplayEGL reports VENDOR="Google Inc. (NVIDIA Corporation)".
-        # Do NOT also stage the shim as libEGL.so.1: libcef.so dlopens that
-        # name to load ANGLE's *front* lib, so a shim under that name shadows
-        # our real ANGLE and hands CEF raw hybris EGL (platform=null, rejects
-        # X11 windows -> SIGSEGV in the GPU process).
-        [ -f /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 ] && \
-          ln -sfn /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 /usr/local/hybris-cef/libddcef.so
+        # Two names, one shim, for two different consumers:
+        # - libddcef.so is what our ANGLE build's DisplayEGL dlopens (its loader
+        #   string is binary-patched to that unique name so it cannot dedup onto
+        #   the Mesa libEGL Chromium maps early). Device-verified: through this
+        #   path ANGLE reports VENDOR="Google Inc. (NVIDIA Corporation)".
+        # - libEGL.so.1 is a HARD DT_NEEDED of steamrtarm64/libSDL3.so.0, which
+        #   the GPU process loads at startup. Without the shim here it resolves
+        #   to the real hybris EGL, eagerly pulling the whole bionic stack into
+        #   the GPU process before main() — the crash-loop regression vs the
+        #   10-27 state. The shim defers that load until first use.
+        # Neither name is consulted by Chromium's own GL loading, which uses the
+        # steamrtarm64/libEGL.so+libGLESv2.so pair we replace below.
+        if [ -f /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 ]; then
+          for n in libddcef.so libEGL.so.1; do
+            ln -sfn /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 "/usr/local/hybris-cef/$n"
+          done
+        fi
         # Our ANGLE build (GL backend enabled — Valve's has it compiled out):
         # replace steamrtarm64/libEGL.so + libGLESv2.so, keeping Valve's pair.
+        # libEGL.so gets the eglfront wrapper (not the raw ANGLE front): it
+        # forwards to angle/libEGL.so but answers eglQueryString(EGL_NO_DISPLAY,
+        # EGL_EXTENSIONS) itself — ANGLE 6478 rejects that query with
+        # EGL_BAD_DISPLAY, and without the client extension string Chromium
+        # silently drops every explicit --use-angle request to the DEFAULT
+        # display (GLX -> llvmpipe).
         if [ -f /usr/local/hybris/usr/lib/angle/libEGL.so ] && [ -d /root/.local/share/Steam/steamrtarm64 ]; then
-          for n in libEGL.so libGLESv2.so; do
+          for n in libGLESv2.so; do
             [ -f "/root/.local/share/Steam/steamrtarm64/$n.droiddeck-orig" ] || \
               cp -L "/root/.local/share/Steam/steamrtarm64/$n" "/root/.local/share/Steam/steamrtarm64/$n.droiddeck-orig"
             cp -L "/usr/local/hybris/usr/lib/angle/$n" "/root/.local/share/Steam/steamrtarm64/$n"
           done
+          # eglfront wrapper: serves the client-extension query that ANGLE 6478
+          # answers wrongly for EGL_NO_DISPLAY (see tools/angle/eglfront.c).
+          # With it the GPU child gets PAST display selection but contexts
+          # still fail (max_vertex_attribs=0) — ANGLE's display creation never
+          # reaches the shim. Off by default; BL_CEF_EGLFRONT=1 to A/B.
+          if [ -f /usr/local/hybris/usr/lib/angle/eglfront.so ] && [ "${BL_CEF_EGLFRONT:-0}" = 1 ]; then
+            cp -L /usr/local/hybris/usr/lib/angle/eglfront.so /root/.local/share/Steam/steamrtarm64/libEGL.so
+          else
+            cp -L /usr/local/hybris/usr/lib/angle/libEGL.so /root/.local/share/Steam/steamrtarm64/libEGL.so
+          fi
           echo "== steam: ANGLE front libs replaced (our GL-backend build)"
         fi
         export LD_LIBRARY_PATH=/usr/local/hybris-cef:/usr/local/hybris-egl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
