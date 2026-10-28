@@ -47,6 +47,8 @@ echo "== gclient sync (DEPS: build, testing, third_party)"
 gclient sync --no-history --shallow 2>&1 | tail -15
 
 cd /work/angle/angle
+# standalone-build fixes: hermetic-clang headers mask missing includes
+grep -q "include <stdint.h>" src/image_util/AstcDecompressor.h ||   sed -i '1i #include <stdint.h>' src/image_util/AstcDecompressor.h
 echo "== gn (hermetic depot_tools gn, aarch64 host)"
 gn --version || { ls /work/depot_tools | head; exit 1; }
 
