@@ -102,7 +102,9 @@ static pthread_once_t real_once = PTHREAD_ONCE_INIT;
 static void load_real(void) {
     const char *env = getenv("DDEGL_DEBUG");
     g_debug = env && *env && *env != '0';
+    logline("load_real: dlopen %s (RTLD_NOW|GLOBAL) starting", REAL_LIB);
     real_lib = dlopen(REAL_LIB, RTLD_NOW | RTLD_GLOBAL);
+    logline("load_real: dlopen returned %p", real_lib);
     if (!real_lib) {
         fprintf(stderr, "[ddcef-egl] FATAL: dlopen %s: %s\n", REAL_LIB, dlerror());
         abort();
