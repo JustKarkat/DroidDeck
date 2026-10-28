@@ -70,8 +70,10 @@ angle_build_samples = false
 ARGS
 gn gen out/Default --args="$(cat out.gn.args)" 2>&1 | tail -20
 
+echo "== targets:"
+ninja -C out/Default -t targets all 2>/dev/null | grep -iE "libEGL|libGLESv2" | head -5 || true
 echo "== build"
-ninja -C out/Default EGL GLESv2
+ninja -C out/Default
 
 mkdir -p /work/angle-out
 for f in out/Default/libEGL.so* out/Default/libGLESv2.so*; do
