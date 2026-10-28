@@ -1,10 +1,45 @@
 # ShieldDeck handoff — CEF-on-Tegra, the chain is proven, the GPU process still exits, 2026-10-28
 
-Companion to `docs/agent-playbook.md` (device access, build loops — read first),
-`docs/hybris-gpu-status.md` (the GPU stack, now with the 10-28 update) and
-`docs/handoff-shield-tv-2026-10-27.md` (previous state).
+## ⚡ START HERE — current state after 3 update rounds (read before anything below)
 
-## TL;DR
+The sections below are in chronological order and **some early conclusions
+were later disproven**. Trust §7 (latest) over earlier text. Current facts:
+
+- **Commit `7c3c9295`** (pushed). CI is **UNBLOCKED** (owner fixed
+  `allowed_actions` on 2026-10-28); `gh workflow run "Build ANGLE (GL backend)"`
+  works, ~45 min, artifact `angle-libs` — already downloaded and staged into
+  the APK assets (sizes match the locally built ones).
+- **SOLVED:** the GPU-process crash loop's *first* cause was the Gamescope WSI
+  Vulkan layer → `ENABLE_GAMESCOPE_WSI=0` (persistent `dd env`). Also solved:
+  Valve's fork silently maps its backend string to **DisplayType 14 =
+  SwiftShader**; `droiddeck-cef-patch` now also rewrites that `mov w10,#14`
+  to **#16 = ANGLE_OPENGLES_EGL** (verified fresh/patched/re-run states).
+- **STILL BROKEN:** the GPU child crash-loops anyway (6× `exit_code=11` in the
+  first seconds, then gives up). The crash is **pre-EGL**: the child loads the
+  shim (SDL3) and arms the fault logger, but `load_real` never runs — no shim
+  EGL function is ever called. It is NOT the WSI layer, NOT crashpad
+  (`--disable-crash-reporter` no effect), NOT the sandbox flag. First child of
+  the burst dies before the shim even arms. Signature: main thread in a raw
+  `rt_sigtimedwait` at libcef+0x5381868, or libc+0x91c6c with x0=0x28; fault
+  address always `<mapping>+0x1b70`.
+- **Your first moves (details in §7):** (1) instrument the shim to log BEFORE
+  `load_real` — a crash inside its `dlopen(hybris EGL, RTLD_GLOBAL)` of the
+  bionic stack is currently invisible; (2) try `RTLD_LOCAL`; (3) compare the
+  GPU child's loaded-library set at crash time vs the working probe process
+  (probes: `/tmp/angleprobe2.py` recipe in §7 and the guest `python3`).
+- **Dead ends — do NOT re-derive:** client-extension query is fine (ANGLE
+  answers correctly; earlier "ANGLE rejects it" was a probe bug —
+  EGL_EXTENSIONS is 0x3055, not 0x3053); `--disable-gpu-sandbox` reaching the
+  child is unrelated to the crash; the WSI layer is fixed, not the whole story;
+  the shim/ANGLE/hybris stack are individually good.
+- Device: session may be RUNNING (stable llvmpipe baseline). Persistent env:
+  `BL_WEBHELPER_ARGS=--disable-gpu-sandbox --disable-vulkan
+  --disable-crash-reporter`, `ENABLE_GAMESCOPE_WSI=0`. The device libcef
+  already carries both patches (string + DT16) — the cef-patch re-applies
+  per session and is idempotent. `eglfront.so` wrapper exists but is
+  env-gated OFF (`BL_CEF_EGLFRONT=1`) — it destabilizes the GPU process.
+
+## TL;DR (original, morning)
 
 - **ANGLE → shim → Tegra is proven directly.** Driven correctly in a quiet
   guest session, our ANGLE `libEGL.so` loads the shim and reports
