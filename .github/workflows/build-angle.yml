@@ -1,0 +1,30 @@
+name: Build ANGLE (GL backend)
+
+on:
+  push:
+    paths:
+      - 'tools/angle/**'
+      - '.github/workflows/build-angle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ANGLE in Arch Linux ARM
+        run: |
+          set -euo pipefail
+          chmod +x tools/angle/build-in-arch.sh
+          docker run --rm -v "$PWD:/work" -w /work menci/archlinuxarm:base-devel bash tools/angle/build-in-arch.sh
+          sudo chown -R "$(id -u):$(id -g)" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: angle-libs
+          path: |
+            angle-libs.tzst
+            angle-libs.tzst.sha256

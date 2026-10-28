@@ -703,11 +703,24 @@ BUSCONF
         rm -rf /usr/local/hybris-egl /usr/local/hybris-cef
         mkdir -p /usr/local/hybris-egl /usr/local/hybris-cef
         for f in /usr/local/hybris/usr/lib/*; do
-          case "${f##*/}" in *vulkan*|*.la|*.a) continue ;; esac
+          # *.so (unversioned) must NOT be propagated: LD_LIBRARY_PATH outranks
+          # the client's RUNPATH, and an unversioned libEGL.so/libGLESv2.so here
+          # would shadow Valve's ANGLE front libs in the GPU process.
+          case "${f##*/}" in *vulkan*|*.la|*.a|*.so) continue ;; esac
           ln -sfn "$f" "/usr/local/hybris-egl/${f##*/}"
         done
         [ -f /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 ] && \
           ln -sfn /usr/local/hybris/usr/lib/libddcefgl.so.1.0.0 /usr/local/hybris-cef/libEGL.so.1
+        # Our ANGLE build (GL backend enabled — Valve's has it compiled out):
+        # replace steamrtarm64/libEGL.so + libGLESv2.so, keeping Valve's pair.
+        if [ -f /usr/local/hybris/usr/lib/angle/libEGL.so ] && [ -d /root/.local/share/Steam/steamrtarm64 ]; then
+          for n in libEGL.so libGLESv2.so; do
+            [ -f "/root/.local/share/Steam/steamrtarm64/$n.droiddeck-orig" ] || \
+              cp -L "/root/.local/share/Steam/steamrtarm64/$n" "/root/.local/share/Steam/steamrtarm64/$n.droiddeck-orig"
+            cp -L "/usr/local/hybris/usr/lib/angle/$n" "/root/.local/share/Steam/steamrtarm64/$n"
+          done
+          echo "== steam: ANGLE front libs replaced (our GL-backend build)"
+        fi
         export LD_LIBRARY_PATH=/usr/local/hybris-cef:/usr/local/hybris-egl${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         export HYBRIS_LD_LIBRARY_PATH=/usr/local/hybris/bionic:/system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/egl:/apex/com.android.runtime/lib64/bionic
         [ "${BL_CEF_DIAG:-}" = 1 ] && export DDEGL_DEBUG=1
