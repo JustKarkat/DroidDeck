@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <link.h>
+#include <dirent.h>
 
 #define NSIGS 8
 static int g_sig[NSIGS];                 /* the signals we watch */
@@ -60,21 +61,41 @@ static void *maps_thread(void *arg) {
         int sin = open("/proc/self/task", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
         int sout = open(spath, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
         if (sin >= 0 && sout >= 0) {
+            /* per-thread state: name + blocked signals for EVERY thread —
+             * a thread that blocks SIGSEGV dies with the default action on a
+             * synchronous fault, bypassing every handler (the exit_code=11
+             * no-crashlog signature). */
+            DIR *tasks = fdopendir(sin);
             char eb[256];
             struct dirent *de;
-            while (read(sin, eb, sizeof eb) > 0); /* not a real scan; fallback below */
+            while (tasks && (de = readdir(tasks))) {
+                if (de->d_name[0] < '0' || de->d_name[0] > '9') continue;
+                char ps[96];
+                snprintf(ps, sizeof ps, "/proc/self/task/%s/status", de->d_name);
+                int pin = open(ps, O_RDONLY | O_CLOEXEC);
+                if (pin < 0) continue;
+                char pb[2048]; ssize_t pr = read(pin, pb, sizeof pb - 1);
+                close(pin);
+                if (pr <= 0) continue;
+                pb[pr] = 0;
+                char name[64] = "?", blk[64] = "?";
+                for (char *line = pb, *end = pb + pr; line < end; ) {
+                    char *nl = memchr(line, '\n', (size_t)(end - line));
+                    if (!nl) nl = end;
+                    if (!strncmp(line, "Name:", 5))
+                        snprintf(name, sizeof name, "%.*s", (int)(nl - line - 6), line + 6);
+                    else if (!strncmp(line, "SigBlk:", 7))
+                        snprintf(blk, sizeof blk, "%.*s", (int)(nl - line - 8), line + 8);
+                    line = nl + 1;
+                }
+                int n = snprintf(eb, sizeof eb, "tid=%s name=%s SigBlk=%s\n", de->d_name, name, blk);
+                if (write(sout, eb, (size_t)n) < 0) break;
+            }
+            if (tasks) closedir(tasks);
+            else close(sin);
+        } else if (sin >= 0) {
             close(sin);
-            (void)de;
         }
-        if (sin >= 0) close(sin);
-        /* simpler: status has the process-wide signal masks */
-        int sin2 = open("/proc/self/status", O_RDONLY | O_CLOEXEC);
-        if (sin2 >= 0 && sout >= 0) {
-            char b[4096]; ssize_t r;
-            while ((r = read(sin2, b, sizeof b)) > 0)
-                if (write(sout, b, (size_t)r) < 0) break;
-        }
-        if (sin2 >= 0) close(sin2);
         if (sout >= 0) close(sout);
         usleep(20000);
     }
@@ -86,6 +107,7 @@ static void *maps_thread(void *arg) {
  * thread sits in a raw rt_sigtimedwait loop. If the sender uses libc from any
  * steamwebhelper process (all of them load this shim), we see it here. */
 static void log_send(const char *fn, long a, long b, int sig) {
+    if (g_gpu != 1) return;   /* preloaded everywhere: only log GPU children */
     if (sig < 1 || sig > 64) return;
     char buf[256];
     int n = snprintf(buf, sizeof buf, "SEND %s(pid=%ld targ=%ld sig=%d) from pc=%p",

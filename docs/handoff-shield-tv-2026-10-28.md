@@ -608,3 +608,101 @@ handler was overwritten (review §0.2 explains how).
 6. `readelf -d` on `libvulkan_lvp`/`libgallium` for the **two-LLVM
    mismatch** (lvp links 22.1, gallium 23.1 — a stale-rootfs crash source
    in its own right).
+
+---
+
+# Update 6 (night, sessions 63–69): the child's SIGSEGV is MASKED by Mesa's LLVM; the DT16 chain works end-to-end outside the child; Vulkan/lvp init is the new prime suspect
+
+## 17. What was found
+
+1. **The whole EGL chain works with the GPU child's exact environment.**
+   Guest probe `/tmp/dt16probe.py` (committed as
+   `tools/hybris/dt16probe.py`): with the child's
+   `LD_LIBRARY_PATH=/usr/local/hybris-cef:/usr/local/hybris-egl` +
+   `HYBRIS_LD_LIBRARY_PATH`, `eglGetPlatformDisplay(PAA, X11dpy,
+   {TYPE=0x320E OPENGLES, DEVICE_TYPE=0x3209, 0x348E EGL_ANGLE})` →
+   `eglInitialize` → **`EGL_VENDOR = "Google Inc. (NVIDIA Corporation)"`**.
+   Also passes with `DEBUG_LAYERS=0` appended, with DEVICE_TYPE 0x345E
+   (ANGLE's SW variant, still routes to Tegra here), and with NULL native.
+   Only `{TYPE=0x3489}` is rejected (EGL_BAD_ATTRIBUTE, 0x3004) — that is
+   the one DT16-case variant that never works. Without the child's env the
+   SAME probe fails at exactly `Could not dlopen native EGL: libddcef.so`
+   (ANGLE error 12289) — the seam is real and env-dependent, and inside
+   the child nothing even attempts that dlopen.
+
+2. **ddcefdiag.so (LD_PRELOAD, first in the link map) made interposition
+   real.** The shim is LAST in the GPU child's link map (SDL3's
+   DT_NEEDED), so its libc interposers can never fire — the review's
+   correction. `tools/hybris/preload/ddcefdiag.c` is preloaded via
+   `/etc/ld.so.preload` (appended by `droiddeck-session` in the BL_TEGRA
+   branch, staged from the hybris payload): GPU-children-only it traces
+   every `dlopen` (name/flags/result/dlerror), interposes
+   `sigprocmask`/`pthread_sigmask`, rides in `crashlog_embed.c`'s fault
+   logger, and checks the live libcef DT16 instruction word. Non-GPU
+   processes are silent.
+
+3. **THE "no crashlog" MYSTERY IS SOLVED: the child blocks SIGSEGV.**
+   The tracer caught `pthread_sigmask(SIG_BLOCK)` calls that add SIGSEGV
+   to the blocked set in every GPU child — resolved against
+   `ddmaps-31738` to **`libLLVM.so.23.1` + 0xb7dffc (Mesa's LLVM, JIT
+   init)**. The per-thread `ddstat` scan (upgraded: now dumps every
+   thread's `Name:` + `SigBlk:`) shows the child's main threads AND Mesa's
+   `llvmpipe-0/1` threads all carry SIGSEGV blocked
+   (`SigBlk=fffffffe3ffbfaff` — recheck of session-62's 0x20400 also shows
+   bit 10 = SIGSEGV; §13's "SIGSEGV not blocked" was a decoding error).
+   A synchronous fault on a blocked thread forces the default action — no
+   handler, no crashlog, `exit_code=11`. This explains every observation.
+
+4. **The child enters Vulkan/llvmpipe BEFORE any GL work.** The dlopen
+   trace per GPU child: `steamrtarm64/libGLESv2.so`+`libEGL.so` (our
+   ANGLE front, absolute-path load) → `libvulkan.so` →
+   **`/usr/lib/libvulkan_lvp.so` ×4** (ICD scan) → VR layer → X11/GL/GLX/
+   Mesa. No `libddcef.so` attempt, no failed dlopen: the child dies in the
+   Vulkan/GPU-info phase with SIGSEGV masked — long before ANGLE's
+   DT16 display could ever be attempted. With lvp (LLVM 22.1) AND gallium
+   (LLVM 23.1) mapped into one process (the review's two-LLVM mismatch),
+   a fault there is expected.
+
+## 18. Attempted fixes + current state
+
+- `VK_ICD_FILENAMES=/VK_DRIVER_FILES=/dev/null` (persistent `dd env`) —
+  **insufficient**: the loader treats /dev/null as an unparsable manifest
+  and lvp still loads. Replaced with a **valid-but-empty ICD JSON**
+  (`usr/local/hybris/empty-icd.json`:
+  `{"file_format_version":"1.0.0","ICD":{"library_path":"","api_version":"1.1.0"}}`)
+  — explicit `VK_DRIVER_FILES` is exclusive, so this should yield zero
+  Vulkan drivers in every guest process. Verification cycle in flight at
+  handoff time.
+- If the crash loop stops with no ICDs, the GPU child should proceed into
+  GL display init and hit the DT16 path that the probe proves works —
+  shim entry lines (`eglGetPlatformDisplay(...) entry` in
+  `/tmp/ddcef-egl.log`) are the success signal, then
+  `real lib loaded` + `EGL_VENDOR ... NVIDIA`.
+- If ANGLE then fails at attrib validation INSIDE the child (entry lines
+  but no `real lib loaded`), the difference vs the working probe is
+  sandbox/exposure — next lever is the review's Option A (make DEFAULT=EGL
+  in our ANGLE build) or `--disable-gpu-process-for-...` style fallbacks.
+- Fallback if the empty-ICD env can't beat the loader: rename
+  `usr/share/vulkan/icd.d/lvp_icd*.json` in the guest rootfs (reversible;
+  watch for gamescope/zink dependence — the llvmpipe GLX path does not
+  need lvp).
+
+## 19. Infra notes for the next session
+
+- The overlay (`droiddeck-session`) and any new guest binaries MUST go
+  through the APK (`stageSessionScripts` copies the overlay at build time;
+  `SessionFiles.kt` hybrisPayload stages guest files). Ad hoc `adb`-pushed
+  copies are overwritten at every session start by asset staging.
+- Rebuild loop: edit → `install` into
+  `app/src/main/assets/linuxfs/usr/local/hybris/usr/lib/` →
+  `python3 tools/release/runtime_inputs.py record` → `./gradlew
+  :app:assembleRelease` → `adb install -r` → `am force-stop` +
+  `dd start steam --wait`.
+- Cross-compile: `clang --target=aarch64-linux-gnu
+  --sysroot=/tmp/arm64root -fuse-ld=lld -O2 -shared -fPIC -I
+  tools/hybris/eglshim tools/hybris/preload/ddcefdiag.c` (diag lib) and
+  the §8 recipe for the shim.
+- Persistent env at handoff: `ENABLE_GAMESCOPE_WSI=0`,
+  `BL_WEBHELPER_ARGS=--disable-gpu-sandbox --disable-vulkan
+  --disable-crash-reporter`, `VK_ICD_FILENAMES=`/`VK_DRIVER_FILES=` →
+  `/usr/local/hybris/empty-icd.json`.

@@ -775,6 +775,15 @@ BUSCONF
     # chmod not mkdir -m: app umask (077) strips the mode, breakpad then
     # endlessly "delete and recreate"s and no dump is ever written.
     [ "${BL_TEGRA:-}" = 1 ] && { rm -rf /tmp/dumps; mkdir /tmp/dumps; chmod 1777 /tmp/dumps; }
+    # GPU-child diagnostic (ddcefdiag.so): preloaded FIRST via /etc/ld.so.preload
+    # so its dlopen/sigaction/exit interposers are real (the shim is last in the
+    # GPU child's link map and can never interpose). Silent outside
+    # --type=gpu-process; traces ANGLE's dlopen("libddcef.so") failing inside
+    # the GPU sandbox (handoff §17).
+    if [ "${BL_TEGRA:-}" = 1 ] && [ -f /usr/local/hybris/usr/lib/ddcefdiag.so ]; then
+      grep -qs '/usr/local/hybris/usr/lib/ddcefdiag.so' /etc/ld.so.preload || \
+        echo /usr/local/hybris/usr/lib/ddcefdiag.so >> /etc/ld.so.preload
+    fi
     if [ "${BL_DESKTOP:-}" = 1 ] && [ "${BL_STEAM_UI:-}" = desktop ]; then
       _bl_cef=(-cef-disable-gpu)
       _bl_ui=(-nobigpicture)
