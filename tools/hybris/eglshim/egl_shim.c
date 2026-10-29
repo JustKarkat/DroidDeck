@@ -111,11 +111,21 @@ static pthread_once_t real_once = PTHREAD_ONCE_INIT;
 static void load_real(void) {
     const char *env = getenv("DDEGL_DEBUG");
     g_debug = env && *env && *env != '0';
-    logline("load_real: dlopen %s (RTLD_NOW|GLOBAL) starting", REAL_LIB);
-    real_lib = dlopen(REAL_LIB, RTLD_NOW | RTLD_GLOBAL);
+    /* DDEGL_DLOPEN_LOCAL=1: load the hybris EGL with RTLD_LOCAL instead of
+     * RTLD_GLOBAL. The GPU child dies pre-EGL with a signature that could be
+     * the bionic-stack load itself; GLOBAL vs LOCAL is the A/B that splits
+     * "the load's global namespace insertion breaks the child" from other
+     * causes. */
+    const char *localenv = getenv("DDEGL_DLOPEN_LOCAL");
+    int use_local = localenv && *localenv && *localenv != '0';
+    logline("load_real: dlopen %s (%s) starting", REAL_LIB,
+            use_local ? "RTLD_NOW|LOCAL" : "RTLD_NOW|GLOBAL");
+    real_lib = dlopen(REAL_LIB, RTLD_NOW | (use_local ? RTLD_LOCAL : RTLD_GLOBAL));
     logline("load_real: dlopen returned %p", real_lib);
     if (!real_lib) {
-        fprintf(stderr, "[ddcef-egl] FATAL: dlopen %s: %s\n", REAL_LIB, dlerror());
+        const char *err = dlerror();
+        logline("load_real: dlopen FAILED: %s", err ?: "(no dlerror)");
+        fprintf(stderr, "[ddcef-egl] FATAL: dlopen %s: %s\n", REAL_LIB, err ?: "?");
         abort();
     }
     struct { const char *n; void **p; } t[] = {
@@ -276,15 +286,17 @@ static void blit_to_x(struct Wnd *wn, int w, int h) {
 /* ---- exported EGL ---- */
 
 EGLDisplay eglGetDisplay(void *native_display) {
+    /* Log BEFORE load_real: a death inside the hybris dlopen must be
+     * distinguishable from "ANGLE never drove the shim at all". */
+    logline("eglGetDisplay(%p) entry", native_display);
     pthread_once(&real_once, load_real);
     (void)native_display; /* X11 Display* or anything else: always the default */
-    logline("eglGetDisplay(%p) -> default", (void *)native_display);
     return p_eglGetDisplay((void *)EGL_DEFAULT_DISPLAY);
 }
 
 EGLDisplay eglGetPlatformDisplay(EGLenum platform, void *native_display, const EGLAttrib *attribs) {
+    logline("eglGetPlatformDisplay(%#x, %p) entry", platform, native_display);
     pthread_once(&real_once, load_real);
-    logline("eglGetPlatformDisplay(%#x, %p) -> default", platform, native_display);
     return p_eglGetDisplay((void *)EGL_DEFAULT_DISPLAY);
 }
 
@@ -361,6 +373,11 @@ EGLBoolean eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attr, EGLi
 }
 
 __eglMustCastToProperFunctionPointerType eglGetProcAddress(const char *name) {
+    static int first_call = 1;
+    if (first_call) {
+        first_call = 0;
+        logline("eglGetProcAddress first call (%s)", name ?: "(null)");
+    }
     pthread_once(&real_once, load_real);
     if (!name) return NULL;
     if (!strcmp(name, "eglGetPlatformDisplayEXT")) return (__eglMustCastToProperFunctionPointerType)eglGetPlatformDisplayEXT;

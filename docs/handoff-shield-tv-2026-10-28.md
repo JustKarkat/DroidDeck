@@ -1,9 +1,9 @@
 # ShieldDeck handoff — CEF-on-Tegra, the chain is proven, the GPU process still exits, 2026-10-28
 
-## ⚡ START HERE — current state after 3 update rounds (read before anything below)
+## ⚡ START HERE — current state after 4 update rounds (read before anything below)
 
 The sections below are in chronological order and **some early conclusions
-were later disproven**. Trust §7 (latest) over earlier text. Current facts:
+were later disproven**. Trust §8–12 (latest) over earlier text. Current facts:
 
 - **Commit `7c3c9295`** (pushed). CI is **UNBLOCKED** (owner fixed
   `allowed_actions` on 2026-10-28); `gh workflow run "Build ANGLE (GL backend)"`
@@ -14,19 +14,22 @@ were later disproven**. Trust §7 (latest) over earlier text. Current facts:
   Valve's fork silently maps its backend string to **DisplayType 14 =
   SwiftShader**; `droiddeck-cef-patch` now also rewrites that `mov w10,#14`
   to **#16 = ANGLE_OPENGLES_EGL** (verified fresh/patched/re-run states).
-- **STILL BROKEN:** the GPU child crash-loops anyway (6× `exit_code=11` in the
-  first seconds, then gives up). The crash is **pre-EGL**: the child loads the
-  shim (SDL3) and arms the fault logger, but `load_real` never runs — no shim
-  EGL function is ever called. It is NOT the WSI layer, NOT crashpad
-  (`--disable-crash-reporter` no effect), NOT the sandbox flag. First child of
-  the burst dies before the shim even arms. Signature: main thread in a raw
-  `rt_sigtimedwait` at libcef+0x5381868, or libc+0x91c6c with x0=0x28; fault
-  address always `<mapping>+0x1b70`.
-- **Your first moves (details in §7):** (1) instrument the shim to log BEFORE
-  `load_real` — a crash inside its `dlopen(hybris EGL, RTLD_GLOBAL)` of the
-  bionic stack is currently invisible; (2) try `RTLD_LOCAL`; (3) compare the
-  GPU child's loaded-library set at crash time vs the working probe process
-  (probes: `/tmp/angleprobe2.py` recipe in §7 and the guest `python3`).
+- **STILL BROKEN (sharpened by session 62, §8–12):** the GPU child
+  crash-loops anyway (6× `exit_code=11`, then survivors on
+  `--use-gl=disabled`). Shim v4 instrumentation PROVED no shim EGL entry
+  point is ever called (88 armed children, zero entry lines) and the dying
+  child's maps show the **DEFAULT → Mesa GLX/llvmpipe** path fully loaded —
+  it crashes inside Mesa init, before ANGLE's DisplayEGL could ever dlopen
+  the shim. Prime suspect: the **DT16 patch did not take effect this
+  session** (unverified — the in-guest check timed out), or Valve's fork
+  gates the DT16 path upstream of the switch. NOT the WSI layer, NOT
+  crashpad, NOT the sandbox, NOT the shim's hybris dlopen (that theory is
+  dead).
+- **Your first moves (details in §12):** (1) verify the DT16 patch bytes at
+  libcef vaddr 0x7872bd0 in a quiet session; (2) if patched, reverse the
+  code between the string match and the `mov w10,#16` for an upstream gate;
+  (3) if not patched, fix the patcher ordering. `DDEGL_DLOPEN_LOCAL=1` is
+  wired into shim v4 (RTLD_LOCAL A/B) but is not the current blocker.
 - **Dead ends — do NOT re-derive:** client-extension query is fine (ANGLE
   answers correctly; earlier "ANGLE rejects it" was a probe bug —
   EGL_EXTENSIONS is 0x3055, not 0x3053); `--disable-gpu-sandbox` reaching the
@@ -380,3 +383,129 @@ address always <mapping>+0x1b70). Key negatives:
 3. The `dt14→dt16` patch is independent of the crash — keep it.
 4. CI works again (owner changed `allowed_actions`); the ANGLE workflow runs
    (40779394546). Rebuild-hybris can rebuild the shim properly once needed.
+
+---
+
+# Update 4 (night, session 62): shim v4 instrumentation ran — the child dies on the DEFAULT/Mesa-GLX path with the shim mapped but never called
+
+## 8. What shipped this session
+
+- **Shim v4** (`tools/hybris/eglshim/egl_shim.c`), built locally and staged
+  into the APK + installed on the device:
+  - `eglGetDisplay`/`eglGetPlatformDisplay` now log their **entry** BEFORE
+    `pthread_once(load_real)`.
+  - `eglGetProcAddress` logs its first call.
+  - `load_real` logs `RTLD_NOW|GLOBAL` vs `RTLD_NOW|LOCAL` and the
+    `dlerror()` text on failure.
+  - **`DDEGL_DLOPEN_LOCAL=1`** switches the hybris dlopen to `RTLD_LOCAL`
+    (the §7 move-2 A/B, no rebuild needed — set it via `dd env`).
+- Local cross-compile recipe that works (host clang 23, no cross-gcc
+  needed): `clang --target=aarch64-linux-gnu --sysroot=/tmp/arm64root
+  -fuse-ld=lld -O2 -shared -fPIC -o libddcefgl.so.1.0.0 egl_shim.c
+  /tmp/arm64root/usr/lib/libX11.so.6` — the sysroot has no `libX11.so` dev
+  symlink, so link the `.so.6` directly. Export surface identical to v3
+  (52 symbols). APK build requires `python3 tools/release/runtime_inputs.py
+  record` after touching any staged asset (the `verifyRuntimeInputs` guard).
+
+## 9. Session 62 evidence (APK with shim v4, fresh steam session)
+
+The v4 markers answer the §7 move-1 question decisively:
+
+1. **No shim EGL entry point was EVER called in any GPU child.** Zero
+   `eglGetDisplay(...) entry` / `eglGetPlatformDisplay(...) entry` /
+   `eglGetProcAddress first call` / `load_real: dlopen ... starting` lines
+   in the whole session, across **88 GPU children** that all armed the fault
+   logger with `--use-angle=gles-egl`. "ANGLE never calls the shim" is now
+   proven, not just suspected. The crash is upstream of any EGL call.
+2. **The 6× `exit_code=11` burst reproduced** (18:49:03–18:49:15), a
+   survivor settled on `--use-gl=disabled` (argv keeps
+   `--use-angle=gles-egl` too), and GPU children kept spawning/dying all
+   session long (88 armed) — the loop is not just the initial 6.
+3. **`/tmp/crashlog.txt` does not exist** despite armed loggers + interposed
+   `exit/_exit/_Exit/abort/kill/tgkill/raise/pthread_kill`. So the death
+   bypasses every libc path we cover: either a **raw syscall**
+   (`exit_group(11)`/`tgkill` via `syscall()`, not libc), or a **synchronous
+   SIGSEGV delivered to a thread that has SIGSEGV blocked** (the kernel then
+   forces the default action — no handler runs). The 20 ms maps poller DID
+   run in the dead children (`/tmp/ddmaps-<pid>.txt` exists), so the shim's
+   threads were alive until the end.
+4. **Dead child 15887's maps snapshot (`/tmp/ddmaps-15887.txt`, committed
+   under `docs/evidence/`) is the smoking gun**: at ~20 ms before death the
+   child had mapped **the full Mesa/GLX stack** — `libgallium-26.2.4`,
+   **two LLVMs** (`libLLVM.so.22.1` AND `libLLVM.so.23.1`),
+   `libGLX_mesa.so`, glvnd `libGLdispatch/libGLX/libGL.so.1.7.0/libEGL.so`,
+   **`libvulkan_lvp` (lavapipe)** — i.e. it went down the **DEFAULT display
+   type → DisplayGLX → Mesa** path. At the same time:
+   - our shim (`libddcefgl.so.1.0.0`) is mapped (SDL3 eager DT_NEEDED),
+   - our ANGLE front (`usr/local/hybris/usr/lib/angle/libEGL.so` +
+     `libGLESv2.so`) IS mapped,
+   - Valve's runtime `steamrtarm64/libEGL.so` + `libGLESv2.so` are ALSO
+     mapped (both ANGLEs resident; ours shadows theirs via
+     `LD_LIBRARY_PATH=/usr/local/hybris-egl` …),
+   - **`hybris-cef` mappings = 0** → ANGLE's DisplayEGL never dlopened
+     `libddcef.so` (the shim's loader name) — consistent with (1),
+   - swiftshader libs = 0 (it is NOT landing on SwiftShader; it crashes in
+     Mesa/GLX/llvmpipe init instead).
+
+## 10. Interpretation + the one open question
+
+The child behaves exactly like a process whose display-type selection
+returned **DEFAULT**: Valve's ANGLE front initializes, gets an empty/init
+list that matches nothing, silently falls to DEFAULT (DisplayGLX → Mesa),
+and dies inside Mesa/llvmpipe init — before ANGLE's DisplayEGL (and thus
+the shim) is ever touched. That is the §6 "init-displays list is
+`[DEFAULT]`" behavior, now seen from inside the dying child.
+
+**Which means the DT16 patch's effect is the open question**: either (a)
+the patch did not actually apply in session 62 (the idempotent patcher is
+supposed to run every session — the verification run inside the busy guest
+TIMED OUT, so it is unverified), or (b) the patch applied but Valve's
+selection still lands on DEFAULT (e.g. the patched `mov w10,#16` feeds a
+code path that is gated by something else upstream — the
+`supports_angle_opengl_egl` client-ext gate, or Valve's fork ignoring
+value 2's mapping). Distinguishing (a) from (b) is next session's FIRST
+move: run `droiddeck-cef-patch` in a quiet session (`dd run /bin/sleep -- 400`
+first — the agent wedges under Steam load) and read the bytes at libcef
+vaddr 0x7872bd0 directly, then re-run one session and compare.
+
+Note (1)+(4) also kill a lingering theory: the crash is NOT inside
+`load_real`'s hybris dlopen (RTLD_LOCAL A/B unneeded for now — keep the
+switch for later), and NOT crashpad/sandbox/WSI.
+
+## 11. Tooling quirks learned this session
+
+- Guest `/tmp` `ls`/`stat` fail with `Function not implemented` (proot
+  quirk) while `cat` works — never trust "No such file" from `ls`; use
+  `cat <exact path>`.
+- `dd guest` and the agent content-provider wedge under Steam load
+  (state polls time out at 30 s); `run-as com.droiddeck.launcher`
+  reads `files/logs/<session>/` directly over adb and always works.
+  `steamwebhelper.log` is inside the guest at
+  `/root/.local/share/Steam/logs/steamwebhelper.log` (reaches it via
+  `dd guest cat`, also wedgy under load).
+- Shim v4's `shim_init` cmdline logging has a buffer bug: log lines can end
+  in garbage after `LD_LIBRARY_PATH=...` (the 512-byte cmdline read is not
+  reliably terminated). Cosmetic, but fix next shim build.
+- The GPU child's argv now carries BOTH `--use-angle=gles-egl` (our
+  BL_WEBHELPER_ARGS wiring) and — on the survivor — `--use-gl=disabled`
+  (the post-crash fallback). Utility children get `--use-gl=angle
+  --use-angle=gles-egl`.
+- `ddmaps-1765.txt` (survivor) references a DIFFERENT APK install dir than
+  the dead children's (`~~9Bfr55…` vs `~~FEnaf…`) — either a stale file from
+  a pre-reinstall session or the launcher still binding the old APK dir;
+  unresolved, noted for later.
+
+## 12. Next moves (in order)
+
+1. Verify the DT16 patch bytes in the guest (quiet session first).
+2. If bytes are patched: the drop is in Valve's fork upstream of the switch
+   — decompile the code path BETWEEN the string match and the
+   `mov w10,#16` (libcef+0x7872ba0 region) for an upstream gate
+   (client-ext flag plumbing is prime suspect; §7 already proved the client
+   string itself is served correctly).
+3. If bytes are NOT patched: fix the patcher's session ordering/idempotency
+   and re-test before touching anything else.
+4. Keep `DDEGL_DLOPEN_LOCAL` in the back pocket; not the current blocker.
+5. Consider catching the death path: add a `SIGSEGV`-blocked-state audit or
+   a raw-syscall exit hook (ptrace/`prctl` SECCOMP on exit_group) if the
+   no-crashlog mystery needs closing once the display-type fix lands.

@@ -1,0 +1,559 @@
+00200000-00201000 r--p 00000000 103:00 520806                            /data/app/~~FEnafCjTpmYHYDSKqz7Urg==/com.droiddeck.launcher-CSWEtt9hIkS9VyOhOBOJBA==/lib/arm64/libproot-loader.so
+ffff00000-ffff01000 r-xp 00000000 00:00 0 
+2000000000-2000001000 r-xp 00001000 103:00 520806                        /data/app/~~FEnafCjTpmYHYDSKqz7Urg==/com.droiddeck.launcher-CSWEtt9hIkS9VyOhOBOJBA==/lib/arm64/libproot-loader.so
+2aa4c83000-2aa4c84000 r--p 00000000 00:00 0                              [vvar]
+2aa4c84000-2aa4c85000 r-xp 00000000 00:00 0                              [vdso]
+2aa4c85000-2aa4c8f000 rw-p 00000000 00:00 0 
+2aa4c90000-2aa4cb3000 r-xp 00000000 103:00 653580                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblsession.so
+2aa4cb3000-2aa4ccf000 ---p 00023000 103:00 653580                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblsession.so
+2aa4ccf000-2aa4cd0000 r--p 0002f000 103:00 653580                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblsession.so
+2aa4cd0000-2aa4cd1000 rw-p 00030000 103:00 653580                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblsession.so
+2aa4cd1000-2aa4d10000 rw-p 00000000 00:00 0 
+2aa4d10000-2aa4ecb000 r-xp 00000000 103:00 653582                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libfakeinput.so
+2aa4ecb000-2aa4ed7000 ---p 001bb000 103:00 653582                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libfakeinput.so
+2aa4ed7000-2aa4ee0000 r--p 001c7000 103:00 653582                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libfakeinput.so
+2aa4ee0000-2aa4ee1000 rw-p 001d0000 103:00 653582                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libfakeinput.so
+2aa4ee1000-2aa4ef0000 rw-p 00000000 00:00 0 
+2aa4ef0000-2aa4efe000 r-xp 00000000 103:00 690660                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblfastpath.so
+2aa4efe000-2aa4f0f000 ---p 0000e000 103:00 690660                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblfastpath.so
+2aa4f0f000-2aa4f10000 r--p 0000f000 103:00 690660                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblfastpath.so
+2aa4f10000-2aa4f11000 rw-p 00010000 103:00 690660                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/lib/libblfastpath.so
+2aa4f11000-2aa5080000 rw-p 00000000 00:00 0 
+2aa5080000-2aa5081000 r-xp 00000000 103:00 277680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdl.so.2
+2aa5081000-2aa509f000 ---p 00001000 103:00 277680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdl.so.2
+2aa509f000-2aa50a0000 r--p 0000f000 103:00 277680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdl.so.2
+2aa50a0000-2aa50a1000 rw-p 00010000 103:00 277680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdl.so.2
+2aa50a1000-2aa50af000 rw-p 00000000 00:00 0 
+2aa50b0000-2aa50b1000 r-xp 00000000 103:00 277880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/librt.so.1
+2aa50b1000-2aa50cf000 ---p 00001000 103:00 277880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/librt.so.1
+2aa50cf000-2aa50d0000 r--p 0000f000 103:00 277880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/librt.so.1
+2aa50d0000-2aa50d1000 rw-p 00010000 103:00 277880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/librt.so.1
+2aa50d1000-2aa53b6000 r-xp 00000000 103:00 130472                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libSDL3.so.0
+2aa53b6000-2aa53c0000 r--p 002e4000 103:00 130472                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libSDL3.so.0
+2aa53c0000-2aa53cb000 rw-p 002ee000 103:00 130472                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libSDL3.so.0
+2aa53cb000-2aa53d6000 rw-p 00000000 00:00 0 
+2aa53d6000-2aa53d7000 ---p 00000000 00:00 0 
+2aa53d7000-2aa53db000 rw-p 00000000 00:00 0 
+2aa53db000-2aa53dc000 ---p 00000000 00:00 0 
+2aa53dc000-2aa53e0000 rw-p 00000000 00:00 0                              [anon:tls-mmap-allocator]
+2aa53e0000-2aa777f000 r--p 00000000 103:00 145487                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libcef.so
+2aa777f000-2aa778f000 ---p 0239f000 103:00 145487                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libcef.so
+2aa778f000-2ab1a34000 r-xp 0239f000 103:00 145487                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libcef.so
+2ab1a34000-2ab1a43000 ---p 0c654000 103:00 145487                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libcef.so
+2ab1a43000-2ab232d000 r--p 0c643000 103:00 145487                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libcef.so
+2ab232d000-2ab233c000 ---p 0cf4d000 103:00 145487                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libcef.so
+2ab233c000-2ab2407000 rw-p 0cf2c000 103:00 145487                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libcef.so
+2ab2407000-2ab2628000 rw-p 00000000 00:00 0 
+2ab2628000-2ab262c000 rw-p 00000000 00:00 0                              [anon:tls-mmap-allocator]
+2ab2630000-2ab2698000 r-xp 00000000 103:00 268148                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgobject-2.0.so.0.8800.3
+2ab2698000-2ab26ac000 ---p 00068000 103:00 268148                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgobject-2.0.so.0.8800.3
+2ab26ac000-2ab26b0000 r--p 0006c000 103:00 268148                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgobject-2.0.so.0.8800.3
+2ab26b0000-2ab26b1000 rw-p 00070000 103:00 268148                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgobject-2.0.so.0.8800.3
+2ab26b1000-2ab26b2000 rw-p 00000000 00:00 0 
+2ab26b2000-2ab26b9000 r--s 00000000 103:00 279283                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/gconv/gconv-modules.cache
+2ab26c0000-2ab2831000 r-xp 00000000 103:00 271922                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libglib-2.0.so.0.8800.3
+2ab2831000-2ab284d000 ---p 00171000 103:00 271922                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libglib-2.0.so.0.8800.3
+2ab284d000-2ab2850000 r--p 0017d000 103:00 271922                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libglib-2.0.so.0.8800.3
+2ab2850000-2ab2851000 rw-p 00180000 103:00 271922                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libglib-2.0.so.0.8800.3
+2ab2851000-2ab2852000 rw-p 00000000 00:00 0 
+2ab2860000-2ab2a9a000 r-xp 00000000 103:00 271608                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgio-2.0.so.0.8800.3
+2ab2a9a000-2ab2aa5000 ---p 0023a000 103:00 271608                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgio-2.0.so.0.8800.3
+2ab2aa5000-2ab2ab0000 r--p 00245000 103:00 271608                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgio-2.0.so.0.8800.3
+2ab2ab0000-2ab2ab1000 rw-p 00250000 103:00 271608                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgio-2.0.so.0.8800.3
+2ab2ab1000-2ab2ab3000 rw-p 00000000 00:00 0 
+2ab2ac0000-2ab2c02000 r-xp 00000000 103:00 271449                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11.so.6.4.0
+2ab2c02000-2ab2c1d000 ---p 00142000 103:00 271449                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11.so.6.4.0
+2ab2c1d000-2ab2c20000 r--p 0014d000 103:00 271449                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11.so.6.4.0
+2ab2c20000-2ab2c23000 rw-p 00150000 103:00 271449                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11.so.6.4.0
+2ab2c23000-2ab2c24000 rw-p 00000000 00:00 0 
+2ab2c30000-2ab2c41000 r-xp 00000000 103:00 272951                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXi.so.6.1.0
+2ab2c41000-2ab2c5f000 ---p 00011000 103:00 272951                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXi.so.6.1.0
+2ab2c5f000-2ab2c60000 r--p 0001f000 103:00 272951                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXi.so.6.1.0
+2ab2c60000-2ab2c61000 rw-p 00020000 103:00 272951                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXi.so.6.1.0
+2ab2c70000-2ab2c82000 r-xp 00000000 103:00 272485                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXext.so.6.4.0
+2ab2c82000-2ab2c9f000 ---p 00012000 103:00 272485                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXext.so.6.4.0
+2ab2c9f000-2ab2ca0000 r--p 0001f000 103:00 272485                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXext.so.6.4.0
+2ab2ca0000-2ab2ca1000 rw-p 00020000 103:00 272485                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXext.so.6.4.0
+2ab2cb0000-2ab2cbb000 r-xp 00000000 103:00 272166                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrender.so.1.3.0
+2ab2cbb000-2ab2ccf000 ---p 0000b000 103:00 272166                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrender.so.1.3.0
+2ab2ccf000-2ab2cd0000 r--p 0000f000 103:00 272166                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrender.so.1.3.0
+2ab2cd0000-2ab2cd1000 rw-p 00010000 103:00 272166                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrender.so.1.3.0
+2ab2ce0000-2ab2ce5000 r-xp 00000000 103:00 268781                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXtst.so.6.1.0
+2ab2ce5000-2ab2cff000 ---p 00005000 103:00 268781                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXtst.so.6.1.0
+2ab2cff000-2ab2d00000 r--p 0000f000 103:00 268781                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXtst.so.6.1.0
+2ab2d00000-2ab2d01000 rw-p 00010000 103:00 268781                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXtst.so.6.1.0
+2ab2d10000-2ab2d1b000 r-xp 00000000 103:00 277730                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrandr.so.2.2.0
+2ab2d1b000-2ab2d2f000 ---p 0000b000 103:00 277730                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrandr.so.2.2.0
+2ab2d2f000-2ab2d30000 r--p 0000f000 103:00 277730                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrandr.so.2.2.0
+2ab2d30000-2ab2d31000 rw-p 00010000 103:00 277730                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXrandr.so.2.2.0
+2ab2d40000-2ab2d42000 r-xp 00000000 103:00 271998                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXcomposite.so.1.0.0
+2ab2d42000-2ab2d5f000 ---p 00002000 103:00 271998                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXcomposite.so.1.0.0
+2ab2d5f000-2ab2d60000 r--p 0000f000 103:00 271998                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXcomposite.so.1.0.0
+2ab2d60000-2ab2d61000 rw-p 00010000 103:00 271998                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXcomposite.so.1.0.0
+2ab2d70000-2ab2d72000 r-xp 00000000 103:00 268680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdamage.so.1.1.0
+2ab2d72000-2ab2d8f000 ---p 00002000 103:00 268680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdamage.so.1.1.0
+2ab2d8f000-2ab2d90000 r--p 0000f000 103:00 268680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdamage.so.1.1.0
+2ab2d90000-2ab2d91000 rw-p 00010000 103:00 268680                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdamage.so.1.1.0
+2ab2da0000-2ab2e77000 r-xp 00000000 103:00 268079                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGL.so.1.7.0
+2ab2e77000-2ab2e82000 ---p 000d7000 103:00 268079                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGL.so.1.7.0
+2ab2e82000-2ab2e90000 r--p 000e2000 103:00 268079                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGL.so.1.7.0
+2ab2e90000-2ab2e91000 rw-p 000f0000 103:00 268079                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGL.so.1.7.0
+2ab2e91000-2ab2e92000 rw-p 00000000 00:00 0 
+2ab2ea0000-2ab2f2b000 r-xp 00000000 103:00 271395                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libibus-1.0.so.5.0.534
+2ab2f2b000-2ab2f3d000 ---p 0008b000 103:00 271395                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libibus-1.0.so.5.0.534
+2ab2f3d000-2ab2f40000 r--p 0008d000 103:00 271395                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libibus-1.0.so.5.0.534
+2ab2f40000-2ab2f41000 rw-p 00090000 103:00 271395                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libibus-1.0.so.5.0.534
+2ab2f50000-2ab300c000 r-xp 00000000 103:00 271789                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libm.so.6
+2ab300c000-2ab301f000 ---p 000bc000 103:00 271789                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libm.so.6
+2ab301f000-2ab3020000 r--p 000bf000 103:00 271789                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libm.so.6
+2ab3020000-2ab3021000 rw-p 000c0000 103:00 271789                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libm.so.6
+2ab3030000-2ab3031000 r-xp 00000000 103:00 272007                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpthread.so.0
+2ab3031000-2ab304f000 ---p 00001000 103:00 272007                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpthread.so.0
+2ab304f000-2ab3050000 r--p 0000f000 103:00 272007                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpthread.so.0
+2ab3050000-2ab3051000 rw-p 00010000 103:00 272007                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpthread.so.0
+2ab3060000-2ab320f000 r-xp 00000000 103:00 271570                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libc.so.6
+2ab320f000-2ab321d000 ---p 001af000 103:00 271570                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libc.so.6
+2ab321d000-2ab3220000 r--p 001bd000 103:00 271570                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libc.so.6
+2ab3220000-2ab3222000 rw-p 001c0000 103:00 271570                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libc.so.6
+2ab3222000-2ab3229000 rw-p 00000000 00:00 0 
+2ab3230000-2ab3234000 r--p 00000000 103:00 690637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/libddcefgl.so.1.0.0
+2ab3234000-2ab3243000 ---p 00004000 103:00 690637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/libddcefgl.so.1.0.0
+2ab3243000-2ab3247000 r-xp 00003000 103:00 690637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/libddcefgl.so.1.0.0
+2ab3247000-2ab3256000 ---p 00017000 103:00 690637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/libddcefgl.so.1.0.0
+2ab3256000-2ab3257000 r--p 00006000 103:00 690637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/libddcefgl.so.1.0.0
+2ab3257000-2ab3266000 ---p 00027000 103:00 690637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/libddcefgl.so.1.0.0
+2ab3266000-2ab3267000 rw-p 00006000 103:00 690637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/libddcefgl.so.1.0.0
+2ab3267000-2ab3268000 rw-p 00000000 00:00 0 
+2ab3270000-2ab33bf000 r-xp 00000000 103:00 271441                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnss3.so
+2ab33bf000-2ab33c6000 ---p 0014f000 103:00 271441                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnss3.so
+2ab33c6000-2ab33d0000 r--p 00156000 103:00 271441                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnss3.so
+2ab33d0000-2ab33d1000 rw-p 00160000 103:00 271441                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnss3.so
+2ab33d1000-2ab33d3000 rw-p 00000000 00:00 0 
+2ab33e0000-2ab340f000 r-xp 00000000 103:00 272611                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnssutil3.so
+2ab340f000-2ab3418000 ---p 0002f000 103:00 272611                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnssutil3.so
+2ab3418000-2ab3420000 r--p 00038000 103:00 272611                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnssutil3.so
+2ab3420000-2ab3421000 rw-p 00040000 103:00 272611                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnssutil3.so
+2ab3430000-2ab3460000 r-xp 00000000 103:00 277818                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsmime3.so
+2ab3460000-2ab346c000 ---p 00030000 103:00 277818                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsmime3.so
+2ab346c000-2ab3470000 r--p 0003c000 103:00 277818                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsmime3.so
+2ab3470000-2ab3471000 rw-p 00040000 103:00 277818                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsmime3.so
+2ab3480000-2ab34c2000 r-xp 00000000 103:00 277843                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnspr4.so
+2ab34c2000-2ab34de000 ---p 00042000 103:00 277843                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnspr4.so
+2ab34de000-2ab34e0000 r--p 0004e000 103:00 277843                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnspr4.so
+2ab34e0000-2ab34e1000 rw-p 00050000 103:00 277843                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnspr4.so
+2ab34e1000-2ab34e4000 rw-p 00000000 00:00 0 
+2ab34f0000-2ab3551000 r-xp 00000000 103:00 271793                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdbus-1.so.3.38.3
+2ab3551000-2ab356e000 ---p 00061000 103:00 271793                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdbus-1.so.3.38.3
+2ab356e000-2ab3570000 r--p 0006e000 103:00 271793                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdbus-1.so.3.38.3
+2ab3570000-2ab3571000 rw-p 00070000 103:00 271793                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdbus-1.so.3.38.3
+2ab3580000-2ab35aa000 r-xp 00000000 103:00 272637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-1.0.so.0.26016.1
+2ab35aa000-2ab35bd000 ---p 0002a000 103:00 272637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-1.0.so.0.26016.1
+2ab35bd000-2ab35c0000 r--p 0002d000 103:00 272637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-1.0.so.0.26016.1
+2ab35c0000-2ab35c1000 rw-p 00030000 103:00 272637                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-1.0.so.0.26016.1
+2ab35d0000-2ab360f000 r-xp 00000000 103:00 277806                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-bridge-2.0.so.0.0.0
+2ab360f000-2ab361e000 ---p 0003f000 103:00 277806                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-bridge-2.0.so.0.0.0
+2ab361e000-2ab3620000 r--p 0003e000 103:00 277806                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-bridge-2.0.so.0.0.0
+2ab3620000-2ab3622000 rw-p 00040000 103:00 277806                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatk-bridge-2.0.so.0.0.0
+2ab3630000-2ab36ce000 r-xp 00000000 103:00 277725                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcups.so.2
+2ab36ce000-2ab36d6000 ---p 0009e000 103:00 277725                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcups.so.2
+2ab36d6000-2ab36e0000 r--p 000a6000 103:00 277725                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcups.so.2
+2ab36e0000-2ab36e1000 rw-p 000b0000 103:00 277725                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcups.so.2
+2ab36f0000-2ab36f6000 r-xp 00000000 103:00 271816                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXfixes.so.3.1.0
+2ab36f6000-2ab370f000 ---p 00006000 103:00 271816                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXfixes.so.3.1.0
+2ab370f000-2ab3710000 r--p 0000f000 103:00 271816                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXfixes.so.3.1.0
+2ab3710000-2ab3711000 rw-p 00010000 103:00 271816                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXfixes.so.3.1.0
+2ab3720000-2ab3723000 r-xp 00000000 103:00 271467                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgbm.so.1.0.0
+2ab3723000-2ab373f000 ---p 00003000 103:00 271467                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgbm.so.1.0.0
+2ab373f000-2ab3740000 r--p 0000f000 103:00 271467                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgbm.so.1.0.0
+2ab3740000-2ab3741000 rw-p 00010000 103:00 271467                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgbm.so.1.0.0
+2ab3750000-2ab3766000 r-xp 00000000 103:00 267981                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm.so.2.134.0
+2ab3766000-2ab377f000 ---p 00016000 103:00 267981                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm.so.2.134.0
+2ab377f000-2ab3780000 r--p 0001f000 103:00 267981                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm.so.2.134.0
+2ab3780000-2ab3781000 rw-p 00020000 103:00 267981                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm.so.2.134.0
+2ab3790000-2ab37b8000 r-xp 00000000 103:00 279444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libexpat.so.1.13.0
+2ab37b8000-2ab37ce000 ---p 00028000 103:00 279444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libexpat.so.1.13.0
+2ab37ce000-2ab37d0000 r--p 0002e000 103:00 279444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libexpat.so.1.13.0
+2ab37d0000-2ab37d1000 rw-p 00030000 103:00 279444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libexpat.so.1.13.0
+2ab37e0000-2ab3809000 r-xp 00000000 103:00 271850                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb.so.1.1.0
+2ab3809000-2ab3818000 ---p 00029000 103:00 271850                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb.so.1.1.0
+2ab3818000-2ab3819000 r--p 00028000 103:00 271850                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb.so.1.1.0
+2ab3819000-2ab381a000 rw-p 00029000 103:00 271850                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb.so.1.1.0
+2ab3820000-2ab387d000 r-xp 00000000 103:00 268858                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxkbcommon.so.0.13.2
+2ab387d000-2ab388e000 ---p 0005d000 103:00 268858                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxkbcommon.so.0.13.2
+2ab388e000-2ab3890000 r--p 0005e000 103:00 268858                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxkbcommon.so.0.13.2
+2ab3890000-2ab3891000 rw-p 00060000 103:00 268858                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxkbcommon.so.0.13.2
+2ab38a0000-2ab3914000 r-xp 00000000 103:00 271651                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpango-1.0.so.0.5800.2
+2ab3914000-2ab392c000 ---p 00074000 103:00 271651                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpango-1.0.so.0.5800.2
+2ab392c000-2ab3930000 r--p 0007c000 103:00 271651                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpango-1.0.so.0.5800.2
+2ab3930000-2ab3931000 rw-p 00080000 103:00 271651                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpango-1.0.so.0.5800.2
+2ab3940000-2ab3a74000 r-xp 00000000 103:00 265948                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcairo.so.2.11806.6
+2ab3a74000-2ab3a8c000 ---p 00134000 103:00 265948                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcairo.so.2.11806.6
+2ab3a8c000-2ab3a90000 r--p 0013c000 103:00 265948                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcairo.so.2.11806.6
+2ab3a90000-2ab3a92000 rw-p 00140000 103:00 265948                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libcairo.so.2.11806.6
+2ab3a92000-2ab3a93000 rw-p 00000000 00:00 0 
+2ab3aa0000-2ab3ba3000 r-xp 00000000 103:00 272037                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libasound.so.2.0.0
+2ab3ba3000-2ab3bb8000 ---p 00103000 103:00 272037                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libasound.so.2.0.0
+2ab3bb8000-2ab3bc0000 r--p 00108000 103:00 272037                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libasound.so.2.0.0
+2ab3bc0000-2ab3bc1000 rw-p 00110000 103:00 272037                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libasound.so.2.0.0
+2ab3bd0000-2ab3c10000 r-xp 00000000 103:00 268163                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatspi.so.0.0.1
+2ab3c10000-2ab3c1c000 ---p 00040000 103:00 268163                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatspi.so.0.0.1
+2ab3c1c000-2ab3c20000 r--p 0004c000 103:00 268163                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatspi.so.0.0.1
+2ab3c20000-2ab3c21000 rw-p 00050000 103:00 268163                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libatspi.so.0.0.1
+2ab3c30000-2ab3c4f000 r-xp 00000000 103:00 268729                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgcc_s.so.1
+2ab3c4f000-2ab3c5f000 ---p 0001f000 103:00 268729                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgcc_s.so.1
+2ab3c5f000-2ab3c60000 r--p 0001f000 103:00 268729                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgcc_s.so.1
+2ab3c60000-2ab3c61000 rw-p 00020000 103:00 268729                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgcc_s.so.1
+2ab3c70000-2ab3c7a000 r-xp 00000000 103:00 268073                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libffi.so.8.5.0
+2ab3c7a000-2ab3c8f000 ---p 0000a000 103:00 268073                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libffi.so.8.5.0
+2ab3c8f000-2ab3c90000 r--p 0000f000 103:00 268073                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libffi.so.8.5.0
+2ab3c90000-2ab3c91000 rw-p 00010000 103:00 268073                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libffi.so.8.5.0
+2ab3ca0000-2ab3d37000 r-xp 00000000 103:00 271610                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpcre2-8.so.0.16.0
+2ab3d37000-2ab3d4f000 ---p 00097000 103:00 271610                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpcre2-8.so.0.16.0
+2ab3d4f000-2ab3d50000 r--p 0009f000 103:00 271610                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpcre2-8.so.0.16.0
+2ab3d50000-2ab3d51000 rw-p 000a0000 103:00 271610                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpcre2-8.so.0.16.0
+2ab3d60000-2ab3d63000 r-xp 00000000 103:00 271738                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmodule-2.0.so.0.8800.3
+2ab3d63000-2ab3d7f000 ---p 00003000 103:00 271738                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmodule-2.0.so.0.8800.3
+2ab3d7f000-2ab3d80000 r--p 0000f000 103:00 271738                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmodule-2.0.so.0.8800.3
+2ab3d80000-2ab3d81000 rw-p 00010000 103:00 271738                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmodule-2.0.so.0.8800.3
+2ab3d90000-2ab3da6000 r-xp 00000000 103:00 268015                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libz.so.1.3.2
+2ab3da6000-2ab3dbf000 ---p 00016000 103:00 268015                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libz.so.1.3.2
+2ab3dbf000-2ab3dc0000 r--p 0001f000 103:00 268015                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libz.so.1.3.2
+2ab3dc0000-2ab3dc1000 rw-p 00020000 103:00 268015                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libz.so.1.3.2
+2ab3dd0000-2ab3e4d000 r-xp 00000000 103:00 271761                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libmount.so.1.1.0
+2ab3e4d000-2ab3e5d000 ---p 0007d000 103:00 271761                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libmount.so.1.1.0
+2ab3e5d000-2ab3e60000 r--p 0007d000 103:00 271761                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libmount.so.1.1.0
+2ab3e60000-2ab3e61000 rw-p 00080000 103:00 271761                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libmount.so.1.1.0
+2ab3e70000-2ab3fc6000 r-xp 00000000 103:00 271668                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLdispatch.so.0.0.0
+2ab3fc6000-2ab3fd4000 ---p 00156000 103:00 271668                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLdispatch.so.0.0.0
+2ab3fd4000-2ab3ff0000 r--p 00164000 103:00 271668                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLdispatch.so.0.0.0
+2ab3ff0000-2ab3ff1000 rw-p 00180000 103:00 271668                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLdispatch.so.0.0.0
+2ab3ff1000-2ab3ff9000 rw-p 00000000 00:00 0 
+2ab4000000-2ab4022000 r-xp 00000000 103:00 268716                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX.so.0.0.0
+2ab4022000-2ab403f000 ---p 00022000 103:00 268716                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX.so.0.0.0
+2ab403f000-2ab4040000 r--p 0002f000 103:00 268716                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX.so.0.0.0
+2ab4040000-2ab4041000 rw-p 00030000 103:00 268716                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX.so.0.0.0
+2ab4041000-2ab4051000 rw-p 00000000 00:00 0 
+2ab4060000-2ab4063000 r-xp 00000000 103:00 268056                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplds4.so
+2ab4063000-2ab407f000 ---p 00003000 103:00 268056                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplds4.so
+2ab407f000-2ab4080000 r--p 0000f000 103:00 268056                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplds4.so
+2ab4080000-2ab4081000 rw-p 00010000 103:00 268056                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplds4.so
+2ab4090000-2ab4094000 r-xp 00000000 103:00 272444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplc4.so
+2ab4094000-2ab40af000 ---p 00004000 103:00 272444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplc4.so
+2ab40af000-2ab40b0000 r--p 0000f000 103:00 272444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplc4.so
+2ab40b0000-2ab40b1000 rw-p 00010000 103:00 272444                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libplc4.so
+2ab40c0000-2ab424d000 r-xp 00000000 103:00 279639                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsystemd.so.0.45.0
+2ab424d000-2ab4254000 ---p 0018d000 103:00 279639                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsystemd.so.0.45.0
+2ab4254000-2ab4260000 r--p 00194000 103:00 279639                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsystemd.so.0.45.0
+2ab4260000-2ab4262000 rw-p 001a0000 103:00 279639                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsystemd.so.0.45.0
+2ab4270000-2ab427c000 r-xp 00000000 103:00 271484                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-common.so.3.5.4
+2ab427c000-2ab428f000 ---p 0000c000 103:00 271484                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-common.so.3.5.4
+2ab428f000-2ab4290000 r--p 0000f000 103:00 271484                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-common.so.3.5.4
+2ab4290000-2ab4291000 rw-p 00010000 103:00 271484                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-common.so.3.5.4
+2ab42a0000-2ab42b2000 r-xp 00000000 103:00 271835                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-client.so.3.2.9
+2ab42b2000-2ab42cf000 ---p 00012000 103:00 271835                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-client.so.3.2.9
+2ab42cf000-2ab42d0000 r--p 0001f000 103:00 271835                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-client.so.3.2.9
+2ab42d0000-2ab42d1000 rw-p 00020000 103:00 271835                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libavahi-client.so.3.2.9
+2ab42e0000-2ab452d000 r-xp 00000000 103:00 277760                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgnutls.so.30.42.0
+2ab452d000-2ab453c000 ---p 0024d000 103:00 277760                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgnutls.so.30.42.0
+2ab453c000-2ab4550000 r--p 0024c000 103:00 277760                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgnutls.so.30.42.0
+2ab4550000-2ab4553000 rw-p 00260000 103:00 277760                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgnutls.so.30.42.0
+2ab4553000-2ab4557000 rw-p 00000000 00:00 0 
+2ab4560000-2ab4563000 r-xp 00000000 103:00 268009                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXau.so.6.0.0
+2ab4563000-2ab457f000 ---p 00003000 103:00 268009                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXau.so.6.0.0
+2ab457f000-2ab4580000 r--p 0000f000 103:00 268009                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXau.so.6.0.0
+2ab4580000-2ab4581000 rw-p 00010000 103:00 268009                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXau.so.6.0.0
+2ab4590000-2ab4595000 r-xp 00000000 103:00 271751                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdmcp.so.6.0.0
+2ab4595000-2ab45af000 ---p 00005000 103:00 271751                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdmcp.so.6.0.0
+2ab45af000-2ab45b0000 r--p 0000f000 103:00 271751                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdmcp.so.6.0.0
+2ab45b0000-2ab45b1000 rw-p 00010000 103:00 271751                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXdmcp.so.6.0.0
+2ab45c0000-2ab45df000 r-xp 00000000 103:00 268833                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfribidi.so.0.4.0
+2ab45df000-2ab45ef000 ---p 0001f000 103:00 268833                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfribidi.so.0.4.0
+2ab45ef000-2ab45f0000 r--p 0001f000 103:00 268833                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfribidi.so.0.4.0
+2ab45f0000-2ab45f1000 rw-p 00020000 103:00 268833                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfribidi.so.0.4.0
+2ab4600000-2ab4609000 r-xp 00000000 103:00 268946                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libthai.so.0.3.2
+2ab4609000-2ab461f000 ---p 00009000 103:00 268946                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libthai.so.0.3.2
+2ab461f000-2ab4620000 r--p 0000f000 103:00 268946                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libthai.so.0.3.2
+2ab4620000-2ab4621000 rw-p 00010000 103:00 268946                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libthai.so.0.3.2
+2ab4630000-2ab478f000 r-xp 00000000 103:00 281250                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libharfbuzz.so.0.61460.0
+2ab478f000-2ab479e000 ---p 0015f000 103:00 281250                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libharfbuzz.so.0.61460.0
+2ab479e000-2ab47a0000 r--p 0015e000 103:00 281250                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libharfbuzz.so.0.61460.0
+2ab47a0000-2ab47a1000 rw-p 00160000 103:00 281250                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libharfbuzz.so.0.61460.0
+2ab47b0000-2ab47e6000 r-xp 00000000 103:00 280390                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpng16.so.16.59.0
+2ab47e6000-2ab47ff000 ---p 00036000 103:00 280390                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpng16.so.16.59.0
+2ab47ff000-2ab4800000 r--p 0003f000 103:00 280390                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpng16.so.16.59.0
+2ab4800000-2ab4801000 rw-p 00040000 103:00 280390                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpng16.so.16.59.0
+2ab4810000-2ab487f000 r-xp 00000000 103:00 271964                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfontconfig.so.1.17.0
+2ab487f000-2ab4887000 ---p 0006f000 103:00 271964                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfontconfig.so.1.17.0
+2ab4887000-2ab4890000 r--p 00077000 103:00 271964                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfontconfig.so.1.17.0
+2ab4890000-2ab4891000 rw-p 00080000 103:00 271964                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfontconfig.so.1.17.0
+2ab48a0000-2ab495e000 r-xp 00000000 103:00 277755                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfreetype.so.6.20.6
+2ab495e000-2ab4969000 ---p 000be000 103:00 277755                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfreetype.so.6.20.6
+2ab4969000-2ab4970000 r--p 000c9000 103:00 277755                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfreetype.so.6.20.6
+2ab4970000-2ab4971000 rw-p 000d0000 103:00 277755                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libfreetype.so.6.20.6
+2ab4980000-2ab498c000 r-xp 00000000 103:00 272188                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-render.so.0.0.0
+2ab498c000-2ab499c000 ---p 0000c000 103:00 272188                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-render.so.0.0.0
+2ab499c000-2ab499d000 r--p 0000c000 103:00 272188                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-render.so.0.0.0
+2ab499d000-2ab499e000 rw-p 0000d000 103:00 272188                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-render.so.0.0.0
+2ab49a0000-2ab49a2000 r-xp 00000000 103:00 268139                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-shm.so.0.0.0
+2ab49a2000-2ab49b2000 ---p 00002000 103:00 268139                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-shm.so.0.0.0
+2ab49b2000-2ab49b3000 r--p 00002000 103:00 268139                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-shm.so.0.0.0
+2ab49b3000-2ab49b4000 rw-p 00003000 103:00 268139                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-shm.so.0.0.0
+2ab49c0000-2ab4a57000 r-xp 00000000 103:00 268954                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpixman-1.so.0.46.4
+2ab4a57000-2ab4a69000 ---p 00097000 103:00 268954                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpixman-1.so.0.46.4
+2ab4a69000-2ab4a70000 r--p 00099000 103:00 268954                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpixman-1.so.0.46.4
+2ab4a70000-2ab4a71000 rw-p 000a0000 103:00 268954                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpixman-1.so.0.46.4
+2ab4a80000-2ab4adc000 r-xp 00000000 103:00 272048                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libblkid.so.1.1.0
+2ab4adc000-2ab4aea000 ---p 0005c000 103:00 272048                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libblkid.so.1.1.0
+2ab4aea000-2ab4af0000 r--p 0006a000 103:00 272048                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libblkid.so.1.1.0
+2ab4af0000-2ab4af1000 rw-p 00070000 103:00 272048                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libblkid.so.1.1.0
+2ab4b00000-2ab4d0c000 r-xp 00000000 103:00 271799                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libleancrypto.so.1.9.0
+2ab4d0c000-2ab4d10000 ---p 0020c000 103:00 271799                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libleancrypto.so.1.9.0
+2ab4d10000-2ab4d20000 r--p 00210000 103:00 271799                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libleancrypto.so.1.9.0
+2ab4d20000-2ab4d21000 rw-p 00220000 103:00 271799                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libleancrypto.so.1.9.0
+2ab4d30000-2ab4ef7000 r-xp 00000000 103:00 271578                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libp11-kit.so.0.4.11
+2ab4ef7000-2ab4f0f000 ---p 001c7000 103:00 271578                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libp11-kit.so.0.4.11
+2ab4f0f000-2ab4f20000 r--p 001cf000 103:00 271578                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libp11-kit.so.0.4.11
+2ab4f20000-2ab4f2f000 rw-p 001e0000 103:00 271578                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libp11-kit.so.0.4.11
+2ab4f30000-2ab4f60000 r-xp 00000000 103:00 271615                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libidn2.so.0.4.0
+2ab4f60000-2ab4f6f000 ---p 00030000 103:00 271615                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libidn2.so.0.4.0
+2ab4f6f000-2ab4f70000 r--p 0002f000 103:00 271615                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libidn2.so.0.4.0
+2ab4f70000-2ab4f71000 rw-p 00030000 103:00 271615                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libidn2.so.0.4.0
+2ab4f80000-2ab5167000 r-xp 00000000 103:00 277675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libunistring.so.5.2.1
+2ab5167000-2ab517c000 ---p 001e7000 103:00 277675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libunistring.so.5.2.1
+2ab517c000-2ab5180000 r--p 001ec000 103:00 277675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libunistring.so.5.2.1
+2ab5180000-2ab5181000 rw-p 001f0000 103:00 277675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libunistring.so.5.2.1
+2ab5190000-2ab51a4000 r-xp 00000000 103:00 277901                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libtasn1.so.6.6.5
+2ab51a4000-2ab51bf000 ---p 00014000 103:00 277901                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libtasn1.so.6.6.5
+2ab51bf000-2ab51c0000 r--p 0001f000 103:00 277901                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libtasn1.so.6.6.5
+2ab51c0000-2ab51c1000 rw-p 00020000 103:00 277901                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libtasn1.so.6.6.5
+2ab51d0000-2ab5217000 r-xp 00000000 103:00 272675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libhogweed.so.7.0
+2ab5217000-2ab522e000 ---p 00047000 103:00 272675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libhogweed.so.7.0
+2ab522e000-2ab5230000 r--p 0004e000 103:00 272675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libhogweed.so.7.0
+2ab5230000-2ab5231000 rw-p 00050000 103:00 272675                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libhogweed.so.7.0
+2ab5240000-2ab5291000 r-xp 00000000 103:00 268882                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnettle.so.9.0
+2ab5291000-2ab52ae000 ---p 00051000 103:00 268882                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnettle.so.9.0
+2ab52ae000-2ab52b0000 r--p 0005e000 103:00 268882                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnettle.so.9.0
+2ab52b0000-2ab52b1000 rw-p 00060000 103:00 268882                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libnettle.so.9.0
+2ab52c0000-2ab533a000 r-xp 00000000 103:00 272179                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmp.so.10.5.0
+2ab533a000-2ab534e000 ---p 0007a000 103:00 272179                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmp.so.10.5.0
+2ab534e000-2ab5350000 r--p 0007e000 103:00 272179                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmp.so.10.5.0
+2ab5350000-2ab5351000 rw-p 00080000 103:00 272179                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgmp.so.10.5.0
+2ab5360000-2ab5368000 r-xp 00000000 103:00 271384                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdatrie.so.1.4.1
+2ab5368000-2ab537f000 ---p 00008000 103:00 271384                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdatrie.so.1.4.1
+2ab537f000-2ab5380000 r--p 0000f000 103:00 271384                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdatrie.so.1.4.1
+2ab5380000-2ab5381000 rw-p 00010000 103:00 271384                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdatrie.so.1.4.1
+2ab5390000-2ab53b0000 r-xp 00000000 103:00 267999                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgraphite2.so.3.3.1
+2ab53b0000-2ab53be000 ---p 00020000 103:00 267999                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgraphite2.so.3.3.1
+2ab53be000-2ab53c0000 r--p 0002e000 103:00 267999                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgraphite2.so.3.3.1
+2ab53c0000-2ab53c1000 rw-p 00030000 103:00 267999                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgraphite2.so.3.3.1
+2ab53d0000-2ab53e0000 r-xp 00000000 103:00 277632                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbz2.so.1.0.8
+2ab53e0000-2ab53ef000 ---p 00010000 103:00 277632                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbz2.so.1.0.8
+2ab53ef000-2ab53f0000 r--p 0000f000 103:00 277632                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbz2.so.1.0.8
+2ab53f0000-2ab53f1000 rw-p 00010000 103:00 277632                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbz2.so.1.0.8
+2ab5400000-2ab540b000 r-xp 00000000 103:00 272989                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlidec.so.1.2.0
+2ab540b000-2ab541f000 ---p 0000b000 103:00 272989                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlidec.so.1.2.0
+2ab541f000-2ab5420000 r--p 0000f000 103:00 272989                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlidec.so.1.2.0
+2ab5420000-2ab5421000 rw-p 00010000 103:00 272989                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlidec.so.1.2.0
+2ab5430000-2ab5451000 r-xp 00000000 103:00 272676                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlicommon.so.1.2.0
+2ab5451000-2ab546f000 ---p 00021000 103:00 272676                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlicommon.so.1.2.0
+2ab546f000-2ab5470000 r--p 0002f000 103:00 272676                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlicommon.so.1.2.0
+2ab5470000-2ab5471000 rw-p 00030000 103:00 272676                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libbrotlicommon.so.1.2.0
+2ab5471000-2ab5481000 ---p 00000000 00:00 0 
+2ab5481000-2ab5c81000 rw-p 00000000 00:00 0 
+2ab5c81000-2ab5d9f000 r-xp 00000000 103:00 134694                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/crashhandler.so
+2ab5d9f000-2ab5da0000 ---p 0011e000 103:00 134694                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/crashhandler.so
+2ab5da0000-2ab5da8000 r--p 0011e000 103:00 134694                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/crashhandler.so
+2ab5da8000-2ab5da9000 rw-p 00126000 103:00 134694                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/crashhandler.so
+2ab5da9000-2ab5db4000 rw-p 00000000 00:00 0 
+2ab5db4000-2ab5e29000 r--p 00000000 103:00 400975                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/locale/locale-archive
+2ab5e29000-2ab6825000 r--s 00000000 103:00 134914                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/icudtl.dat
+2ab6825000-2ab6865000 r--s 00000000 103:00 266268                        /data/user/0/com.droiddeck.launcher/cache/shm/.com.valvesoftware.Steam.vPPXlF (deleted)
+2ab6865000-2ab6875000 ---p 00000000 00:00 0 
+2ab6875000-2ab7075000 rw-p 00000000 00:00 0 
+2ab7080000-2ab7388000 r--p 00000000 103:00 146969                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libGLESv2.so
+2ab7388000-2ab7397000 ---p 00308000 103:00 146969                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libGLESv2.so
+2ab7397000-2ab7ab1000 r-xp 00307000 103:00 146969                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libGLESv2.so
+2ab7ab1000-2ab7ac0000 ---p 00a31000 103:00 146969                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libGLESv2.so
+2ab7ac0000-2ab7b4a000 r--p 00a20000 103:00 146969                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libGLESv2.so
+2ab7b4a000-2ab7b59000 ---p 00aca000 103:00 146969                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libGLESv2.so
+2ab7b59000-2ab7b8a000 rw-p 00aa9000 103:00 146969                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libGLESv2.so
+2ab7b8a000-2ab7b8b000 rw-p 00000000 00:00 0 
+2ab7b90000-2ab7e54000 r-xp 00000000 103:00 271844                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libstdc++.so.6.0.35
+2ab7e54000-2ab7e6e000 ---p 002c4000 103:00 271844                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libstdc++.so.6.0.35
+2ab7e6e000-2ab7e80000 r--p 002ce000 103:00 271844                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libstdc++.so.6.0.35
+2ab7e80000-2ab7e81000 rw-p 002e0000 103:00 271844                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libstdc++.so.6.0.35
+2ab7e81000-2ab7e85000 rw-p 00000000 00:00 0 
+2ab7e90000-2ab7e95000 r--p 00000000 103:00 146968                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libEGL.so
+2ab7e95000-2ab7ea4000 ---p 00005000 103:00 146968                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libEGL.so
+2ab7ea4000-2ab7ea6000 r-xp 00004000 103:00 146968                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libEGL.so
+2ab7ea6000-2ab7eb5000 ---p 00016000 103:00 146968                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libEGL.so
+2ab7eb5000-2ab7eb6000 r--p 00005000 103:00 146968                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libEGL.so
+2ab7eb6000-2ab7ec5000 ---p 00026000 103:00 146968                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libEGL.so
+2ab7ec5000-2ab7ec7000 rw-p 00005000 103:00 146968                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/libEGL.so
+2ab7ed0000-2ab7ed6000 r--p 00000000 103:00 690403                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libEGL.so
+2ab7ed6000-2ab7ee5000 ---p 00006000 103:00 690403                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libEGL.so
+2ab7ee5000-2ab7eec000 r-xp 00005000 103:00 690403                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libEGL.so
+2ab7eec000-2ab7efb000 ---p 0001c000 103:00 690403                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libEGL.so
+2ab7efb000-2ab7efd000 r--p 0000b000 103:00 690403                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libEGL.so
+2ab7efd000-2ab7f0c000 ---p 0002d000 103:00 690403                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libEGL.so
+2ab7f0c000-2ab7f0d000 rw-p 0000c000 103:00 690403                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libEGL.so
+2ab7f10000-2ab7f61000 r-xp 00000000 103:00 268923                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX_mesa.so.0.0.0
+2ab7f61000-2ab7f7c000 ---p 00051000 103:00 268923                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX_mesa.so.0.0.0
+2ab7f7c000-2ab7f80000 r--p 0005c000 103:00 268923                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX_mesa.so.0.0.0
+2ab7f80000-2ab7f81000 rw-p 00060000 103:00 268923                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libGLX_mesa.so.0.0.0
+2ab7f90000-2ab7faa000 r-xp 00000000 103:00 277726                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-glx.so.0.0.0
+2ab7faa000-2ab7fb9000 ---p 0001a000 103:00 277726                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-glx.so.0.0.0
+2ab7fb9000-2ab7fbb000 r--p 00019000 103:00 277726                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-glx.so.0.0.0
+2ab7fbb000-2ab7fbc000 rw-p 0001b000 103:00 277726                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-glx.so.0.0.0
+2ab7fc0000-2ab7fcf000 r-xp 00000000 103:00 272052                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-randr.so.0.1.0
+2ab7fcf000-2ab7fdf000 ---p 0000f000 103:00 272052                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-randr.so.0.1.0
+2ab7fdf000-2ab7fe0000 r--p 0000f000 103:00 272052                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-randr.so.0.1.0
+2ab7fe0000-2ab7fe1000 rw-p 00010000 103:00 272052                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-randr.so.0.1.0
+2ab8000000-2ab9200000 rw-p 00000000 00:00 0 
+2ab9200000-2abc000000 ---p 00000000 00:00 0 
+2abc000000-2abc308000 r--p 00000000 103:00 690464                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libGLESv2.so
+2abc308000-2abc317000 ---p 00308000 103:00 690464                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libGLESv2.so
+2abc317000-2abca31000 r-xp 00307000 103:00 690464                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libGLESv2.so
+2abca31000-2abca40000 ---p 00a31000 103:00 690464                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libGLESv2.so
+2abca40000-2abcaca000 r--p 00a20000 103:00 690464                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libGLESv2.so
+2abcaca000-2abcad9000 ---p 00aca000 103:00 690464                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libGLESv2.so
+2abcad9000-2abcb0a000 rw-p 00aa9000 103:00 690464                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/local/hybris/usr/lib/angle/libGLESv2.so
+2abcb0a000-2abcb0b000 rw-p 00000000 00:00 0 
+2abcb10000-2abd8bd000 r-xp 00000000 103:00 266690                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libvulkan_lvp.so
+2abd8bd000-2abd8c7000 ---p 00dad000 103:00 266690                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libvulkan_lvp.so
+2abd8c7000-2abd920000 r--p 00db7000 103:00 266690                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libvulkan_lvp.so
+2abd920000-2abd926000 rw-p 00e10000 103:00 266690                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libvulkan_lvp.so
+2abd926000-2abd951000 rw-p 00000000 00:00 0 
+2abd960000-2ac77d6000 r-xp 00000000 103:00 268082                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.22.1
+2ac77d6000-2ac77e1000 ---p 09e76000 103:00 268082                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.22.1
+2ac77e1000-2ac7a20000 r--p 09e81000 103:00 268082                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.22.1
+2ac7a20000-2ac7a44000 rw-p 0a0c0000 103:00 268082                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.22.1
+2ac7a44000-2ac7b0d000 rw-p 00000000 00:00 0 
+2ac7b10000-2ac7bd3000 r-xp 00000000 103:00 272129                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libzstd.so.1.5.7
+2ac7bd3000-2ac7bef000 ---p 000c3000 103:00 272129                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libzstd.so.1.5.7
+2ac7bef000-2ac7bf0000 r--p 000cf000 103:00 272129                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libzstd.so.1.5.7
+2ac7bf0000-2ac7bf1000 rw-p 000d0000 103:00 272129                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libzstd.so.1.5.7
+2ac7c00000-2ac7c01000 r-xp 00000000 103:00 271810                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11-xcb.so.1.0.0
+2ac7c01000-2ac7c1f000 ---p 00001000 103:00 271810                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11-xcb.so.1.0.0
+2ac7c1f000-2ac7c20000 r--p 0000f000 103:00 271810                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11-xcb.so.1.0.0
+2ac7c20000-2ac7c21000 rw-p 00010000 103:00 271810                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libX11-xcb.so.1.0.0
+2ac7c30000-2ac7c34000 r-xp 00000000 103:00 271915                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-dri3.so.0.1.0
+2ac7c34000-2ac7c43000 ---p 00004000 103:00 271915                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-dri3.so.0.1.0
+2ac7c43000-2ac7c44000 r--p 00003000 103:00 271915                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-dri3.so.0.1.0
+2ac7c44000-2ac7c45000 rw-p 00004000 103:00 271915                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-dri3.so.0.1.0
+2ac7c50000-2ac7c52000 r-xp 00000000 103:00 268787                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-present.so.0.0.0
+2ac7c52000-2ac7c62000 ---p 00002000 103:00 268787                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-present.so.0.0.0
+2ac7c62000-2ac7c63000 r--p 00002000 103:00 268787                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-present.so.0.0.0
+2ac7c63000-2ac7c64000 rw-p 00003000 103:00 268787                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-present.so.0.0.0
+2ac7c70000-2ac7c77000 r-xp 00000000 103:00 272959                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-xfixes.so.0.0.0
+2ac7c77000-2ac7c87000 ---p 00007000 103:00 272959                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-xfixes.so.0.0.0
+2ac7c87000-2ac7c88000 r--p 00007000 103:00 272959                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-xfixes.so.0.0.0
+2ac7c88000-2ac7c89000 rw-p 00008000 103:00 272959                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-xfixes.so.0.0.0
+2ac7c90000-2ac7c96000 r-xp 00000000 103:00 271569                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-sync.so.1.0.0
+2ac7c96000-2ac7ca5000 ---p 00006000 103:00 271569                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-sync.so.1.0.0
+2ac7ca5000-2ac7ca6000 r--p 00005000 103:00 271569                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-sync.so.1.0.0
+2ac7ca6000-2ac7ca7000 rw-p 00006000 103:00 271569                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxcb-sync.so.1.0.0
+2ac7cb0000-2ac7cb2000 r-xp 00000000 103:00 268065                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxshmfence.so.1.0.0
+2ac7cb2000-2ac7ccf000 ---p 00002000 103:00 268065                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxshmfence.so.1.0.0
+2ac7ccf000-2ac7cd0000 r--p 0000f000 103:00 268065                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxshmfence.so.1.0.0
+2ac7cd0000-2ac7cd1000 rw-p 00010000 103:00 268065                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxshmfence.so.1.0.0
+2ac7ce0000-2ac7cf1000 r-xp 00000000 103:00 271830                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libwayland-client.so.0.26.0
+2ac7cf1000-2ac7d0e000 ---p 00011000 103:00 271830                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libwayland-client.so.0.26.0
+2ac7d0e000-2ac7d10000 r--p 0001e000 103:00 271830                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libwayland-client.so.0.26.0
+2ac7d10000-2ac7d11000 rw-p 00020000 103:00 271830                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libwayland-client.so.0.26.0
+2ac7d20000-2ac7d55000 r-xp 00000000 103:00 271734                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdisplay-info.so.0.3.0
+2ac7d55000-2ac7d6f000 ---p 00035000 103:00 271734                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdisplay-info.so.0.3.0
+2ac7d6f000-2ac7d70000 r--p 0003f000 103:00 271734                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdisplay-info.so.0.3.0
+2ac7d70000-2ac7d71000 rw-p 00040000 103:00 271734                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdisplay-info.so.0.3.0
+2ac7d80000-2ac7db8000 r-xp 00000000 103:00 268103                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libedit.so.0.0.78
+2ac7db8000-2ac7dce000 ---p 00038000 103:00 268103                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libedit.so.0.0.78
+2ac7dce000-2ac7dd0000 r--p 0003e000 103:00 268103                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libedit.so.0.0.78
+2ac7dd0000-2ac7dd1000 rw-p 00040000 103:00 268103                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libedit.so.0.0.78
+2ac7dd1000-2ac7dd4000 rw-p 00000000 00:00 0 
+2ac7de0000-2ac7f1d000 r-xp 00000000 103:00 271880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxml2.so.16.1.4
+2ac7f1d000-2ac7f27000 ---p 0013d000 103:00 271880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxml2.so.16.1.4
+2ac7f27000-2ac7f30000 r--p 00147000 103:00 271880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxml2.so.16.1.4
+2ac7f30000-2ac7f31000 rw-p 00150000 103:00 271880                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libxml2.so.16.1.4
+2ac7f31000-2ac7f32000 rw-p 00000000 00:00 0 
+2ac7f40000-2ac7fb3000 r-xp 00000000 103:00 272666                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libncursesw.so.6.6
+2ac7fb3000-2ac7fcb000 ---p 00073000 103:00 272666                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libncursesw.so.6.6
+2ac7fcb000-2ac7fd0000 r--p 0007b000 103:00 272666                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libncursesw.so.6.6
+2ac7fd0000-2ac7fd1000 rw-p 00080000 103:00 272666                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libncursesw.so.6.6
+2ac7fe0000-2ac820f000 r-xp 00000000 103:00 268672                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicuuc.so.78.3
+2ac820f000-2ac8219000 ---p 0022f000 103:00 268672                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicuuc.so.78.3
+2ac8219000-2ac8230000 r--p 00239000 103:00 268672                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicuuc.so.78.3
+2ac8230000-2ac8231000 rw-p 00250000 103:00 268672                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicuuc.so.78.3
+2ac8231000-2ac8233000 rw-p 00000000 00:00 0 
+2ac8240000-2aca1d4000 r-xp 00000000 103:00 272370                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicudata.so.78.3
+2aca1d4000-2aca1ef000 ---p 01f94000 103:00 272370                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicudata.so.78.3
+2aca1ef000-2aca1f0000 r--p 01f9f000 103:00 272370                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicudata.so.78.3
+2aca1f0000-2aca1f1000 rw-p 01fa0000 103:00 272370                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libicudata.so.78.3
+2aca200000-2acd345000 r-xp 00000000 103:00 279840                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgallium-26.2.4-arch1.1.so
+2acd345000-2acd352000 ---p 03145000 103:00 279840                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgallium-26.2.4-arch1.1.so
+2acd352000-2acd4e0000 r--p 03152000 103:00 279840                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgallium-26.2.4-arch1.1.so
+2acd4e0000-2acd51f000 rw-p 032e0000 103:00 279840                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libgallium-26.2.4-arch1.1.so
+2acd51f000-2acd6ec000 rw-p 00000000 00:00 0 
+2acd6f0000-2acd6f4000 r-xp 00000000 103:00 272332                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXxf86vm.so.1.0.0
+2acd6f4000-2acd70f000 ---p 00004000 103:00 272332                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXxf86vm.so.1.0.0
+2acd70f000-2acd710000 r--p 0000f000 103:00 272332                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXxf86vm.so.1.0.0
+2acd710000-2acd711000 rw-p 00010000 103:00 272332                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libXxf86vm.so.1.0.0
+2acd720000-2ad78e3000 r-xp 00000000 103:00 281193                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.23.1
+2ad78e3000-2ad78f9000 ---p 0a1c3000 103:00 281193                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.23.1
+2ad78f9000-2ad7a70000 r--p 0a1c9000 103:00 281193                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.23.1
+2ad7a70000-2ad7a7c000 rw-p 0a340000 103:00 281193                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libLLVM.so.23.1
+2ad7a7c000-2ad7b33000 rw-p 00000000 00:00 0 
+2ad7b40000-2ad7d3c000 r-xp 00000000 103:00 272677                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libSPIRV-Tools.so
+2ad7d3c000-2ad7d4d000 ---p 001fc000 103:00 272677                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libSPIRV-Tools.so
+2ad7d4d000-2ad7d50000 r--p 001fd000 103:00 272677                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libSPIRV-Tools.so
+2ad7d50000-2ad7d51000 rw-p 00200000 103:00 272677                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libSPIRV-Tools.so
+2ad7d60000-2ad7d6f000 r-xp 00000000 103:00 272329                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsensors.so.5.0.0
+2ad7d6f000-2ad7d7f000 ---p 0000f000 103:00 272329                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsensors.so.5.0.0
+2ad7d7f000-2ad7d80000 r--p 0000f000 103:00 272329                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsensors.so.5.0.0
+2ad7d80000-2ad7d81000 rw-p 00010000 103:00 272329                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libsensors.so.5.0.0
+2ad7d90000-2ad7dab000 r-xp 00000000 103:00 271895                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libelf-0.196.so
+2ad7dab000-2ad7dbf000 ---p 0001b000 103:00 271895                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libelf-0.196.so
+2ad7dbf000-2ad7dc0000 r--p 0001f000 103:00 271895                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libelf-0.196.so
+2ad7dc0000-2ad7dc1000 rw-p 00020000 103:00 271895                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libelf-0.196.so
+2ad7dd0000-2ad7ddb000 r-xp 00000000 103:00 272115                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_amdgpu.so.1.134.0
+2ad7ddb000-2ad7def000 ---p 0000b000 103:00 272115                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_amdgpu.so.1.134.0
+2ad7def000-2ad7df0000 r--p 0000f000 103:00 272115                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_amdgpu.so.1.134.0
+2ad7df0000-2ad7df1000 rw-p 00010000 103:00 272115                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_amdgpu.so.1.134.0
+2ad7e00000-2ad7e22000 r-xp 00000000 103:00 268047                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_intel.so.1.134.0
+2ad7e22000-2ad7e3f000 ---p 00022000 103:00 268047                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_intel.so.1.134.0
+2ad7e3f000-2ad7e40000 r--p 0002f000 103:00 268047                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_intel.so.1.134.0
+2ad7e40000-2ad7e41000 rw-p 00030000 103:00 268047                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libdrm_intel.so.1.134.0
+2ad7e50000-2ad7e59000 r-xp 00000000 103:00 272419                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpciaccess.so.0.11.1
+2ad7e59000-2ad7e6f000 ---p 00009000 103:00 272419                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpciaccess.so.0.11.1
+2ad7e6f000-2ad7e70000 r--p 0000f000 103:00 272419                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpciaccess.so.0.11.1
+2ad7e70000-2ad7e71000 rw-p 00010000 103:00 272419                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/libpciaccess.so.0.11.1
+2ad7e71000-2ad7e81000 ---p 00000000 00:00 0 
+2ad7e81000-2ad8681000 rw-p 00000000 00:00 0 
+2ad8681000-2ad8691000 ---p 00000000 00:00 0 
+2ad8691000-2ad8e91000 rw-p 00000000 00:00 0 
+2ad8e91000-2ad8ea1000 ---p 00000000 00:00 0 
+2ad8ea1000-2ad96a1000 rw-p 00000000 00:00 0 
+2ad96a1000-2ad96b1000 ---p 00000000 00:00 0 
+2ad96b1000-2ad9eb1000 rw-p 00000000 00:00 0 
+2ad9eb1000-2ada0b2000 rw-s 00000000 103:00 151919                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.cache/mesa_shader_cache_db/index
+2ada0b2000-2ada0c2000 ---p 00000000 00:00 0 
+2ada0c2000-2ada8c2000 rw-p 00000000 00:00 0 
+2adc000000-2add200000 rw-p 00000000 00:00 0 
+2add200000-2ae0000000 ---p 00000000 00:00 0 
+2ae0000000-2ae1200000 rw-p 00000000 00:00 0 
+2ae1200000-2ae4000000 ---p 00000000 00:00 0 
+2ae4000000-2ae5200000 rw-p 00000000 00:00 0 
+2ae5200000-2ae8000000 ---p 00000000 00:00 0 
+2ae8000000-2ae9200000 rw-p 00000000 00:00 0 
+2ae9200000-2aec000000 ---p 00000000 00:00 0 
+2aec000000-2aed200000 rw-p 00000000 00:00 0 
+2aed200000-2af0000000 ---p 00000000 00:00 0 
+3000000000-30009ae000 r-xp 00000000 103:00 132709                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/steamwebhelper
+30009af000-3000a1a000 r--p 009ae000 103:00 132709                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/steamwebhelper
+3000a1a000-3000a24000 rw-p 00a19000 103:00 132709                        /data/user/0/com.droiddeck.launcher/files/linuxfs/root/.local/share/Steam/steamrtarm64/steamwebhelper
+3000a24000-3000a95000 rw-p 00000000 00:00 0 
+3000a95000-3001c00000 rw-p 00000000 00:00 0 
+3f00000000-3f0002b000 r-xp 00000000 103:00 272380                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/ld-linux-aarch64.so.1
+3f0003e000-3f00040000 r--p 0002e000 103:00 272380                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/ld-linux-aarch64.so.1
+3f00040000-3f00041000 rw-p 00030000 103:00 272380                        /data/user/0/com.droiddeck.launcher/files/linuxfs/usr/lib/ld-linux-aarch64.so.1
+3f00041000-3f00042000 rw-p 00000000 00:00 0 
+7fdb6fc000-7fdb720000 rw-p 00000000 00:00 0                              [stack]
