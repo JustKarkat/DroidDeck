@@ -5,7 +5,9 @@
 # gles-egl — ANGLE's DisplayEGL requests EGL_OPENGL_ES3_BIT there and only
 # dlopens libEGL.so.1). Idempotent; safe to run on every launch.
 # Exit codes: 0 patched or already patched, 3 client layout changed
-# (neither string found), 4 unexpected layout (too many sites).
+# (neither string found), 4 unexpected layout (too many sites), 5 DT site
+# missing/ambiguous (session must NOT claim hardware), 6 post-write
+# verification failed.
 import hashlib, os, shutil, sys
 
 LIB = sys.argv[1] if len(sys.argv) > 1 else "/root/.local/share/Steam/steamrtarm64/libcef.so"
@@ -30,24 +32,31 @@ if not os.path.exists(bak):
 # patching the string alone still lands on SwiftShader. Valve's enum puts
 # ANGLE_OPENGLES_EGL at 16 (switch case at libcef+0x77dcc28: attribs
 # DEVICE_TYPE=0x3209 + EGL=0x348e, GetPlatformANGLEDisplay type 0x320e), so
-# rewrite the `mov w10, #14` at the string-match site (vaddr 0x7872bd0) to
-# `mov w10, #16`. Idempotent via the surrounding 12-byte pattern.
-DT_SITE = 0x7862bcc  # file offset of the 12-byte pattern (vaddr 0x7872bcc; file = vaddr - 0x10000)
+# rewrite the `mov w10, #14` at the string-match site to `mov w10, #16`.
+# The site is found by pattern search, not a hardcoded offset (this libcef
+# maps text file offset 0x239f000 -> vaddr 0x23af000, so file = vaddr -
+# 0x10000; the search makes that irrelevant). Exactly ONE site must exist —
+# a moved/ambiguous layout exits 5 so the session falls back to
+# -cef-disable-gpu instead of claiming hardware on a string-only patch.
 DT_OLD = bytes.fromhex("682640a9ca018052aac31fb8")   # ldp x8,x9,[x19]; mov w10,#14; stur w10,[x29,#-4]
 DT_NEW = bytes.fromhex("682640a90a028052aac31fb8")   # same, mov w10,#16
-if n_old:
-    data[n_old and 0:0] = b""  # no-op, keep bytearray type
-    data[:] = bytes(data).replace(OLD, NEW.ljust(len(OLD), b"\0"))
-    data = bytearray(data)
-if bytes(data[DT_SITE:DT_SITE + len(DT_OLD)]) == DT_OLD:
-    data[DT_SITE:DT_SITE + len(DT_OLD)] = DT_NEW
-    dt_msg = "dt14->dt16 patched"
-elif bytes(data[DT_SITE:DT_SITE + len(DT_OLD)]) == DT_NEW:
-    dt_msg = "dt14->dt16 already patched"
-else:
-    dt_msg = "dt site moved (client layout changed?); string-only patch"
+n_dt_old, n_dt_new = data.count(DT_OLD), data.count(DT_NEW)
+if n_dt_old + n_dt_new != 1:
+    print(f"dt site: old={n_dt_old} new={n_dt_new} (expected exactly one) — refusing a string-only patch", file=sys.stderr)
+    sys.exit(5)
+dt_off = data.find(DT_OLD if n_dt_old else DT_NEW)
+data[:] = bytes(data).replace(DT_OLD, DT_NEW)
+dt_msg = f"dt14->dt16 patched at file+{dt_off:#x}" if n_dt_old else f"dt14->dt16 already patched at file+{dt_off:#x}"
 
 open(LIB + ".tmp", "wb").write(bytes(data))
 shutil.copymode(LIB, LIB + ".tmp")
 os.replace(LIB + ".tmp", LIB)
+
+# Post-write verification: re-read from disk and confirm both patches stuck.
+chk = open(LIB, "rb").read()
+if chk.count(DT_NEW) != 1 or chk.count(DT_OLD) != 0 or (n_old and chk.count(NEW.ljust(len(OLD), b"\0")) == 0):
+    print("post-write verification FAILED", file=sys.stderr)
+    sys.exit(6)
 print("patched", n_old, "site(s) ->", NEW.decode().strip("\0") + ";" + dt_msg)
+print("verified sha256", hashlib.sha256(chk).hexdigest()[:16],
+      "dt bytes", chk[dt_off:dt_off + 12].hex())

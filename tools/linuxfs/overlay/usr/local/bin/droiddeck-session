@@ -740,24 +740,21 @@ BUSCONF
           done
         fi
         # Our ANGLE build (GL backend enabled — Valve's has it compiled out):
-        # replace steamrtarm64/libEGL.so + libGLESv2.so, keeping Valve's pair.
-        # libEGL.so gets the eglfront wrapper (not the raw ANGLE front): it
-        # forwards to angle/libEGL.so but answers eglQueryString(EGL_NO_DISPLAY,
-        # EGL_EXTENSIONS) itself — ANGLE 6478 rejects that query with
-        # EGL_BAD_DISPLAY, and without the client extension string Chromium
-        # silently drops every explicit --use-angle request to the DEFAULT
-        # display (GLX -> llvmpipe).
+        # replace steamrtarm64/libEGL.so + libGLESv2.so, keeping Valve's pair
+        # as .droiddeck-orig. NOTE (handoff §6): the raw ANGLE front answers
+        # eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS) CORRECTLY — the old
+        # "ANGLE 6478 rejects that query" comment was a probe bug (0x3053 vs
+        # 0x3055). eglfront is a stability experiment, not a correctness fix.
         if [ -f /usr/local/hybris/usr/lib/angle/libEGL.so ] && [ -d /root/.local/share/Steam/steamrtarm64 ]; then
-          for n in libGLESv2.so; do
+          for n in libEGL.so libGLESv2.so; do
             [ -f "/root/.local/share/Steam/steamrtarm64/$n.droiddeck-orig" ] || \
               cp -L "/root/.local/share/Steam/steamrtarm64/$n" "/root/.local/share/Steam/steamrtarm64/$n.droiddeck-orig"
+          done
+          for n in libGLESv2.so; do
             cp -L "/usr/local/hybris/usr/lib/angle/$n" "/root/.local/share/Steam/steamrtarm64/$n"
           done
-          # eglfront wrapper: serves the client-extension query that ANGLE 6478
-          # answers wrongly for EGL_NO_DISPLAY (see tools/angle/eglfront.c).
-          # With it the GPU child gets PAST display selection but contexts
-          # still fail (max_vertex_attribs=0) — ANGLE's display creation never
-          # reaches the shim. Off by default; BL_CEF_EGLFRONT=1 to A/B.
+          # eglfront wrapper: stability A/B only (see handoff §6 — it
+          # destabilizes the GPU process; the raw front is the default).
           if [ -f /usr/local/hybris/usr/lib/angle/eglfront.so ] && [ "${BL_CEF_EGLFRONT:-0}" = 1 ]; then
             cp -L /usr/local/hybris/usr/lib/angle/eglfront.so /root/.local/share/Steam/steamrtarm64/libEGL.so
           else

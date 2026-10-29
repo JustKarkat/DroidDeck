@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <link.h>
 
 #define NSIGS 8
 static int g_sig[NSIGS];                 /* the signals we watch */
@@ -213,6 +214,27 @@ int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact)
     return real(signum, act, oldact);
 }
 
+/* Runtime ground truth for the libcef DT16 patch: read the actual
+ * instruction word at the display-list builder's string-match site
+ * (vaddr 0x7872bd0) in whatever libcef THIS process mapped. Catches both
+ * "patch not applied on disk" and "child mapped a different libcef than
+ * the one patched". mov w10,#14 = 0x528001ca, mov w10,#16 = 0x5280020a. */
+#define CEF_DT_SITE_VADDR 0x7872bd0
+static int cef_dt_checked;
+static int cef_dt_cb(struct dl_phdr_info *info, size_t size, void *data) {
+    (void)size; (void)data;
+    if (!strstr(info->dlpi_name, "libcef.so")) return 0;
+    cef_dt_checked = 1;
+    uint32_t w = *(uint32_t *)(info->dlpi_addr + CEF_DT_SITE_VADDR);
+    if (w == 0x5280020a)
+        logline("cef DT insn=%08x (#16 PATCHED ok) base=%p", w, (void *)(uintptr_t)info->dlpi_addr);
+    else if (w == 0x528001ca)
+        logline("cef DT insn=%08x (#14 UNPATCHED) base=%p", w, (void *)(uintptr_t)info->dlpi_addr);
+    else
+        logline("cef DT insn=%08x (SITE MOVED?) base=%p", w, (void *)(uintptr_t)info->dlpi_addr);
+    return 1;
+}
+
 __attribute__((constructor)) static void init(void) {
     g_sig[0] = SIGSEGV; g_sig[1] = SIGBUS; g_sig[2] = SIGILL;
     g_sig[3] = SIGTRAP; g_sig[4] = SIGABRT;
@@ -223,6 +245,8 @@ __attribute__((constructor)) static void init(void) {
         if (r > 0) g_gpu = memmem(b, (size_t)r, "--type=gpu-process", 18) != NULL;
     }
     if (g_gpu) {
+        dl_iterate_phdr(cef_dt_cb, NULL);
+        if (!cef_dt_checked) logline("cef DT check: libcef.so not in link map");
         /* nobody installed anything yet: put our logger up front.
          * RTLD_NEXT returns NULL when the shim is the LAST object in the
          * link map (the GPU process loads it via SDL3's dependency chain) —

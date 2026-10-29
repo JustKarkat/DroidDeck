@@ -14,22 +14,21 @@ were later disproven**. Trust §8–12 (latest) over earlier text. Current facts
   Valve's fork silently maps its backend string to **DisplayType 14 =
   SwiftShader**; `droiddeck-cef-patch` now also rewrites that `mov w10,#14`
   to **#16 = ANGLE_OPENGLES_EGL** (verified fresh/patched/re-run states).
-- **STILL BROKEN (sharpened by session 62, §8–12):** the GPU child
-  crash-loops anyway (6× `exit_code=11`, then survivors on
-  `--use-gl=disabled`). Shim v4 instrumentation PROVED no shim EGL entry
-  point is ever called (88 armed children, zero entry lines) and the dying
-  child's maps show the **DEFAULT → Mesa GLX/llvmpipe** path fully loaded —
-  it crashes inside Mesa init, before ANGLE's DisplayEGL could ever dlopen
-  the shim. Prime suspect: the **DT16 patch did not take effect this
-  session** (unverified — the in-guest check timed out), or Valve's fork
-  gates the DT16 path upstream of the switch. NOT the WSI layer, NOT
-  crashpad, NOT the sandbox, NOT the shim's hybris dlopen (that theory is
-  dead).
-- **Your first moves (details in §12):** (1) verify the DT16 patch bytes at
-  libcef vaddr 0x7872bd0 in a quiet session; (2) if patched, reverse the
-  code between the string match and the `mov w10,#16` for an upstream gate;
-  (3) if not patched, fix the patcher ordering. `DDEGL_DLOPEN_LOCAL=1` is
-  wired into shim v4 (RTLD_LOCAL A/B) but is not the current blocker.
+- **STILL BROKEN (sharpened by sessions 62 + the review pass, §8–16):** the
+  GPU child crash-loops anyway (6× `exit_code=11`, then survivors on
+  `--use-gl=disabled`). Established: DT16 IS applied and stored (bytes
+  verified; the string-match gate disassembles as runtime strlen+memcmp —
+  no hardcoded length). The child dies in **Mesa/llvmpipe init** after
+  silently falling through to DEFAULT — meaning ANGLE's DT16 display
+  attempt fails before any shim call. Prime suspect: ANGLE front-end
+  attrib validation on Chromium's full DT16 attrib list
+  (`{0x3209,0x348e}`/`{0x3209,0x345e}`, workers `0x320e/0x320d/0x3489`).
+- **Your first move (details in §14.5/§16):** replay the exact DT16 attrib
+  list in the guest ctypes probe and read `eglGetError` — that names the
+  rejecting validation. Then per §16: LD_PRELOAD the crash logger, read
+  the minidump exception stream, consider Option A (DEFAULT=EGL in our
+  ANGLE build). Patcher + shim now self-verify (exit 5 + per-child
+  `cef DT insn=` lines in `/tmp/ddcef-egl.log`).
 - **Dead ends — do NOT re-derive:** client-extension query is fine (ANGLE
   answers correctly; earlier "ANGLE rejects it" was a probe bug —
   EGL_EXTENSIONS is 0x3055, not 0x3053); `--disable-gpu-sandbox` reaching the
@@ -509,3 +508,103 @@ switch for later), and NOT crashpad/sandbox/WSI.
 5. Consider catching the death path: add a `SIGSEGV`-blocked-state audit or
    a raw-syscall exit hook (ptrace/`prctl` SECCOMP on exit_group) if the
    no-crashlog mystery needs closing once the display-type fix lands.
+
+---
+
+# Update 5 (night): browser-Claude review processed — DT16 patch VERIFIED APPLIED, H2 ruled out, H1 stands; patcher + shim hardened
+
+The external review (repo access, no device; delivered as
+`~/Downloads/handoff-shielddeck-gpu-review-2026-10-28.md`) made four
+headline corrections and proposed a work order. Verified on device and
+implemented the same night:
+
+## 13. Review corrections — all four accepted
+
+1. **`exit_code=11` is the raw waitpid status → SIGSEGV, not `exit(11)`.**
+   (`exit(11)` would report 2816.) The §10 "raw exit_group(11)" theory is
+   withdrawn.
+2. **The shim's libc interposers can never fire in the GPU child** — libc
+   maps before the shim, so every libc-resolved call (`exit`, `sigaction`,
+   …) binds to libc, and Valve's `crashhandler.so` then replaces our
+   constructor-installed handler. "No crashlog.txt" says nothing about the
+   death. Review's fixes (LD_PRELOAD the logger; re-check sigaction in the
+   poller) are the right closure path — not yet implemented.
+3. **Both ANGLE pairs in the dead child's maps are OUR build** —
+   `droiddeck-session` `cp -L`s our `libEGL.so`/`libGLESv2.so` over the
+   `steamrtarm64/` ones. There is no "Valve's ANGLE + ours"; §9 bullet 4's
+   reading is corrected.
+4. **`hybris-cef` mappings = 0 is NOT evidence**: `libddcef.so` is a
+   symlink to the same inode as the already-mapped shim, so ANGLE's
+   `dlopen("libddcef.so")` returns the existing handle with no new
+   mapping. Corrected.
+
+Also confirmed from the dead child's `/proc/self/status`
+(`ddstat-15887.txt`): SIGSEGV was **not blocked** (SigBlk = SIGUSR1+SIGCHLD
+only) and was in SigCgt — the blocked-signal theory is dead too; the
+handler was overwritten (review §0.2 explains how).
+
+## 14. The decisive checks, executed on device (19:30–19:45)
+
+1. **DT16 patch IS applied in the session-62 libcef**: bytes at file offset
+   `0x7862bd0` are `0a 02 80 52` (`mov w10,#16`) followed by the intact
+   `stur` — file mtime 18:47, just before session 62. "Patch didn't apply"
+   is DEAD.
+2. **Session-62's real GPU children are pids 1647/1679/1726/1735/1748/1756
+   (dead) + 1765 (survivor)** — the earlier §8/§9 attribution to pids
+   15762+/15887 was wrong: guest `/tmp/ddcef-egl.log` is APPEND-ONLY across
+   sessions and mixes several boots (browsers at pid 1616, 15762, 16046).
+   All six dead children's maps contain the Mesa/GLX/LLVM stack, WITH DT16
+   applied.
+3. **H2 (length-gated match broken) is RULED OUT by disassembly** of
+   libcef 0x7872b60–0x7872bd8: the match gate is a runtime
+   `strlen`-compare + `memcmp` against the patched literal (no hardcoded
+   `cmp #17`), and on match it executes `mov w10,#16`. The string match
+   succeeds and DT16 IS stored.
+4. Therefore **H1 stands as the blocker**: DT16 is selected, ANGLE's
+   DisplayEGL attempt fails *silently* (front-end attrib validation or
+   display init — both happen before any shim call), and Chromium's
+   init-display loop falls through to DEFAULT → DisplayGLX → Mesa → dies
+   in llvmpipe init. The official build compiles VLOG out, so the absence
+   of `gl_*`/`gpu_init` child lines in steamwebhelper.log is expected, not
+   a signal.
+5. **DT16 case attribs enumerated** (disassembly at 0x77dcc28): repeated
+   `{DEVICE_TYPE=0x3209, X}` pairs with X ∈ {0x348e, 0x345e} and worker
+   types {0x320e, 0x320d, 0x3489} — several display attempts in sequence.
+   **Next experiment: replay this exact list in the guest ctypes probe and
+   read `eglGetError` after `eglGetPlatformDisplay` + `eglInitialize`** to
+   name the rejecting validation.
+
+## 15. Hardening implemented (from the review)
+
+- `droiddeck-cef-patch`: DT site now found by **pattern search** (no
+  hardcoded offset); exactly one site must exist or it **exits 5** (the
+  session then falls back to `-cef-disable-gpu` instead of claiming
+  hardware on a string-only patch); **post-write verification** re-reads
+  the file and prints sha256 + the 12 DT bytes; dead no-op removed.
+- Shim v5 (`crashlog_embed.c`): the GPU-child constructor now
+  `dl_iterate_phdr`s for libcef and logs the **live instruction word** at
+  vaddr 0x7872bd0 (`#16 PATCHED ok` / `#14 UNPATCHED` / `SITE MOVED?`) —
+  runtime ground truth per child, also catches a child mapping a different
+  libcef than the one patched.
+- `droiddeck-session`: Valve's original `libEGL.so` is now backed up as
+  `.droiddeck-orig` like `libGLESv2.so` was; the stale "ANGLE 6478 rejects
+  that query" comments are corrected (handoff §6 disproved it).
+- Shim v5 staged into the APK, rebuilt, installed.
+
+## 16. Review items still open (next session)
+
+1. Replay the DT16 attrib list in the guest probe (§14.5) — THE next move.
+2. Move the crash logger into `LD_PRELOAD` (first in the chain) so the
+   interposers are real; re-check `sigaction(SIGSEGV)` in the 20 ms poller
+   and reinstall if displaced.
+3. Read crashpad minidumps' **exception stream** (not the waiting main
+   thread) and resolve it against `ddmaps` to name the crashing module.
+4. `LD_DEBUG=libs` on one GPU child to learn who loads the second ANGLE
+   pair (`usr/local/hybris/usr/lib/angle/`).
+5. Review Option A (make DEFAULT = EGL in our own ANGLE build,
+   `angle_use_x11=false` or patch the default-platform path) — start the
+   ANGLE CI build if §16.1 shows the attrib validation is hostile and not
+   cheaply patchable in libcef.
+6. `readelf -d` on `libvulkan_lvp`/`libgallium` for the **two-LLVM
+   mismatch** (lvp links 22.1, gallium 23.1 — a stale-rootfs crash source
+   in its own right).
