@@ -18,6 +18,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -49,21 +50,38 @@ static int diag_init(void) {
     return diag_gpu;
 }
 
-/* --- dlopen tracer: the whole point is to catch ANGLE's dlopen("libddcef.so")
- * failing INSIDE the GPU sandbox, with the real dlerror. --- */
+/* --- dlopen tracer + GPU-child Vulkan starvation ---
+ * The GPU child MASKS SIGSEGV (Mesa LLVM JIT init) and dies inside
+ * lavapipe/Vulkan init before any GL work (handoff §17) — with SIGSEGV
+ * blocked, the fault is a silent exit_code=11 no handler can intercept.
+ * Tegra Vulkan is a renderless stub, so Chromium loses nothing: fail every
+ * libvulkan* dlopen in the GPU process ONLY (Steam bootstrap and gamescope
+ * are other processes and keep their Vulkan). DDEDIAG_NOVK=0 restores
+ * stock behavior for A/B without a rebuild. */
 void *dlopen(const char *filename, int flags) {
     static void *(*real)(const char *, int);
+    static int novk = -1;
     if (!real) real = (void *(*)(const char *, int))dlsym(RTLD_NEXT, "dlopen");
-    void *h = real(filename, flags);
     if (diag_init() && filename && *filename) {
+        if (novk < 0) {
+            const char *e = getenv("DDEDIAG_NOVK");
+            novk = !(e && *e == '0');
+        }
+        if (novk && strstr(filename, "libvulkan")) {
+            logline("dlopen(%s, %#x) -> BLOCKED (gpu-child vulkan starvation)", filename, flags);
+            return NULL;
+        }
+        if (flags & RTLD_NOLOAD) return real(filename, flags);   /* loader internals: skip logging */
+        void *h = real(filename, flags);
         if (h)
             logline("dlopen(%s, %#x) -> %p", filename, flags, h);
         else {
             const char *err = dlerror();
             logline("dlopen(%s, %#x) -> NULL: %s", filename, flags, err ?: "?");
         }
+        return h;
     }
-    return h;
+    return real(filename, flags);
 }
 
 /* --- SIGSEGV-mask tracer ---
