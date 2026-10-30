@@ -793,3 +793,65 @@ child on Mesa or dead.
   calling presentation perfect.
 - `DDANGLE_LOG` and `DDEDIAG_NOVK` are debug switches (unset by default).
 - Merge `fix/angle-force-egl-display` → `shield-tv` once accepted.
+
+---
+
+# Update 8 (2026-10-29 evening): the bursty/stuttering frames are NOT the renderer — measured as device memory exhaustion
+
+## 23. What the stutter actually is
+
+The symptom ("nothing, then a burst of frames, sporadically") reproduces with
+**and without** the Tegra path, which matches the report that it predates
+it. Measured, not guessed:
+
+- **Compositor is fast.** gamescope's own `wayland.log` reports
+  `render_scene 1.51/9.37 ms` (mean/max) while ticking at 60 Hz
+  (`599 ticks` per 10 s). Composition is not the bottleneck.
+- **The Steam window is the limiter**: the same log line pairs
+  `36 frames on screen (3.6 fps)` with `36 window redraws` — gamescope
+  draws exactly one frame per X11 client repaint. `0 GPU frames from games`
+  and `copy NN, zero-copy 0` (every scene is a copy).
+- **SurfaceFlinger confirms it end-to-end**: the session SurfaceView shows
+  ~1 frame/s under load (p50 ≈ 460 ms, p90 ≈ 2.2 s), i.e. what the user
+  sees is what is measured.
+- **The device is memory-starved**, which is why everything stalls and then
+  catches up: 25 MB free of 3 GB, **swap 100 % full (511/511 MB)**,
+  `pgmajfault` +172 in 3 s (~57 major faults/s), CPU ~300 % of 400 % in
+  **kernel** time with user time only ~90 %.
+- **gamescope-wl is the hog**: VmRSS 947 MB of which **RssAnon 908 MB**
+  (private, not shared buffers), VmData 1.18 GB. Sampled over a minute it
+  is flat (945 → 942 → 941 MB): a large baseline allocation, not a leak.
+- The pressure is so severe that `adb shell input keyevent` (a Java
+  process launch) took ~11 s per call, which also invalidated earlier
+  input-rate-based measurements.
+
+**Ruled out this round:** `--disable-gpu-vsync --disable-frame-rate-limit`
+(no change), `--renderer-process-limit=1 --js-flags=--max-old-space-size=192`
+(saved ~40 MB, no visible change), `BL_MANGOAPP=0` + `BL_XWAYLAND_COUNT=1`
+(no measurable change), force-stopping background Android apps (GMS
+restarts itself; net zero).
+
+## 24. Shim v6 (kept — correctness, not the stutter fix)
+
+While chasing this, `eglGetProcAddress` was found to hand back the **real**
+hybris symbols for most entry points, which bypassed the shim's window
+surface emulation entirely (`CreateWindowSurface`/`SwapBuffers` never
+logged; `MakeCurrent` was surfaceless: `rd=nil dr=nil`). v6 returns the
+shim's own wrappers for the surface/swap/query/context entry points and
+replaces the per-pixel RGBA→BGRA swizzle with a `GL_BGRA` readback plus
+row-wise flip (`memcpy` per row instead of `w*h` iterations). Behaviour is
+unchanged today because CEF still runs surfaceless, but the present path is
+now ours whenever a window surface is requested.
+
+## 25. Next moves for the stutter
+
+1. **Give the device headroom.** 3 GB with gamescope's ~900 MB baseline
+   leaves nothing for CEF + the guest. Options, cheapest first: run the
+   session without gamescope (direct X11 / `BL_STEAM_UI=desktop`) to
+   recover ~900 MB and confirm the theory in one session; or find the
+   gamescope allocation knob (`--expose-wayland` / output size / Vulkan
+   device) that brings 908 MB down.
+2. **Ask what the allocation is**: gamescope's RssAnon is Vulkan/lavapipe
+   side. Try `MESA_...`, or a gamescope build with its GL renderer.
+3. Only after memory is healthy does frame pacing mean anything — anything
+   measured while swap is full is measuring reclaim, not rendering.

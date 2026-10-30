@@ -40,6 +40,7 @@
 #define MAX_WND 16
 #define GL_BACK 0x0402
 #define GL_RGBA 0x1908
+#define GL_BGRA 0x80E1
 #define GL_UNSIGNED_BYTE 0x1401
 
 static int g_debug;
@@ -165,6 +166,8 @@ struct Wnd {
     XImage *img;
     unsigned char *buf;
     size_t bufsz;
+    unsigned char *rowbuf;   /* one row scratch for the vertical flip */
+    size_t rowsz;
 };
 static struct Wnd g_wnds[MAX_WND];
 static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -205,6 +208,7 @@ static void wnd_wipe(struct Wnd *wn) {
     if (wn->img) { wn->img->data = NULL; XDestroyImage(wn->img); }
     if (wn->gc && g_xdpy) XFreeGC(g_xdpy, wn->gc);
     free(wn->buf);
+    free(wn->rowbuf);
     memset(wn, 0, sizeof *wn);
 }
 
@@ -259,15 +263,19 @@ static void blit_to_x(struct Wnd *wn, int w, int h) {
     if (need > wn->bufsz) { free(wn->buf); wn->buf = malloc(need); wn->bufsz = need; }
     if (!wn->buf) return;
     if (p_glReadBuffer) p_glReadBuffer(GL_BACK);
-    p_glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, wn->buf);
-    /* RGBA bottom-up -> BGRA top-down for X ZPixmap (LSBFirst, 24/32bpp) */
-    for (int y = 0; y < h; y++) {
-        const unsigned char *src = wn->buf + (size_t)(h - 1 - y) * w * 4;
-        unsigned char *d = wn->buf + (size_t)y * w * 4;
-        for (int x = 0; x < w; x++) {
-            unsigned char r = src[0], g = src[1], b = src[2];
-            d[0] = b; d[1] = g; d[2] = r; d[3] = 0xff;
-            src += 4; d += 4;
+    /* GL_BGRA matches X ZPixmap (LSBFirst, 24/32bpp) byte-for-byte, so only
+     * the vertical flip is needed: swap rows with memcpy instead of the old
+     * per-pixel RGBA->BGRA swizzle (w*h*4 iterations per frame at 60 Hz). */
+    p_glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_BYTE, wn->buf);
+    size_t row = (size_t)w * 4;
+    if (wn->rowsz < row) { free(wn->rowbuf); wn->rowbuf = malloc(row); wn->rowsz = row; }
+    if (wn->rowbuf) {
+        for (int y = 0; y < h / 2; y++) {
+            unsigned char *a = wn->buf + (size_t)y * row;
+            unsigned char *b = wn->buf + (size_t)(h - 1 - y) * row;
+            memcpy(wn->rowbuf, a, row);
+            memcpy(a, b, row);
+            memcpy(b, wn->rowbuf, row);
         }
     }
     if (!wn->img || wn->img->width != w || wn->img->height != h) {
@@ -372,6 +380,25 @@ EGLBoolean eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attr, EGLi
     return r;
 }
 
+/* forward declarations: the pure forwarders are defined after this table */
+EGLBoolean eglInitialize(EGLDisplay, EGLint *, EGLint *);
+EGLBoolean eglChooseConfig(EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *);
+EGLContext eglCreateContext(EGLDisplay, EGLConfig, EGLContext, const EGLint *);
+EGLBoolean eglDestroyContext(EGLDisplay, EGLContext);
+EGLBoolean eglMakeCurrent(EGLDisplay, EGLSurface, EGLSurface, EGLContext);
+EGLBoolean eglGetConfigAttrib(EGLDisplay, EGLConfig, EGLint, EGLint *);
+EGLBoolean eglGetConfigs(EGLDisplay, EGLConfig *, EGLint, EGLint *);
+const char *eglQueryString(EGLDisplay, EGLint);
+EGLBoolean eglSwapInterval(EGLDisplay, EGLint);
+EGLBoolean eglBindAPI(EGLenum);
+EGLenum eglQueryAPI(void);
+EGLDisplay eglGetCurrentDisplay(void);
+EGLSurface eglGetCurrentSurface(EGLint);
+EGLContext eglGetCurrentContext(void);
+EGLint eglGetError(void);
+EGLBoolean eglTerminate(EGLDisplay);
+EGLSurface eglCreatePbufferSurface(EGLDisplay, EGLConfig, const EGLint *);
+
 __eglMustCastToProperFunctionPointerType eglGetProcAddress(const char *name) {
     static int first_call = 1;
     if (first_call) {
@@ -380,12 +407,44 @@ __eglMustCastToProperFunctionPointerType eglGetProcAddress(const char *name) {
     }
     pthread_once(&real_once, load_real);
     if (!name) return NULL;
-    if (!strcmp(name, "eglGetPlatformDisplayEXT")) return (__eglMustCastToProperFunctionPointerType)eglGetPlatformDisplayEXT;
-    if (!strcmp(name, "eglGetPlatformDisplay")) return (__eglMustCastToProperFunctionPointerType)eglGetPlatformDisplay;
-    if (!strcmp(name, "eglCreatePlatformWindowSurfaceEXT")) return (__eglMustCastToProperFunctionPointerType)eglCreatePlatformWindowSurfaceEXT;
-    if (!strcmp(name, "eglSwapBuffersWithDamageKHR")) return (__eglMustCastToProperFunctionPointerType)swap_with_damage;
-    if (!strcmp(name, "eglSwapBuffersWithDamageEXT")) return (__eglMustCastToProperFunctionPointerType)swap_with_damage;
-    if (!strcmp(name, "eglSwapBuffersWithDamageClientRectKHR")) return (__eglMustCastToProperFunctionPointerType)swap_with_damage;
+    /* Return OUR entry points for everything we implement. ANGLE resolves its
+     * EGL entry points through here; handing back the real hybris symbols
+     * bypassed the shim's window-surface emulation entirely — surfaces were
+     * never created and swaps never presented (frames arrived only in
+     * sporadic bursts). Everything below forwards to the real lib itself. */
+    static const struct { const char *n; void *p; } own[] = {
+        { "eglGetPlatformDisplayEXT", (void *)eglGetPlatformDisplayEXT },
+        { "eglGetPlatformDisplay", (void *)eglGetPlatformDisplay },
+        { "eglGetDisplay", (void *)eglGetDisplay },
+        { "eglCreateWindowSurface", (void *)eglCreateWindowSurface },
+        { "eglCreatePlatformWindowSurface", (void *)eglCreatePlatformWindowSurface },
+        { "eglCreatePlatformWindowSurfaceEXT", (void *)eglCreatePlatformWindowSurfaceEXT },
+        { "eglDestroySurface", (void *)eglDestroySurface },
+        { "eglSwapBuffers", (void *)eglSwapBuffers },
+        { "eglSwapBuffersWithDamageKHR", (void *)swap_with_damage },
+        { "eglSwapBuffersWithDamageEXT", (void *)swap_with_damage },
+        { "eglSwapBuffersWithDamageClientRectKHR", (void *)swap_with_damage },
+        { "eglQuerySurface", (void *)eglQuerySurface },
+        { "eglInitialize", (void *)eglInitialize },
+        { "eglChooseConfig", (void *)eglChooseConfig },
+        { "eglCreateContext", (void *)eglCreateContext },
+        { "eglDestroyContext", (void *)eglDestroyContext },
+        { "eglMakeCurrent", (void *)eglMakeCurrent },
+        { "eglGetConfigAttrib", (void *)eglGetConfigAttrib },
+        { "eglGetConfigs", (void *)eglGetConfigs },
+        { "eglQueryString", (void *)eglQueryString },
+        { "eglSwapInterval", (void *)eglSwapInterval },
+        { "eglBindAPI", (void *)eglBindAPI },
+        { "eglQueryAPI", (void *)eglQueryAPI },
+        { "eglGetCurrentDisplay", (void *)eglGetCurrentDisplay },
+        { "eglGetCurrentSurface", (void *)eglGetCurrentSurface },
+        { "eglGetCurrentContext", (void *)eglGetCurrentContext },
+        { "eglGetError", (void *)eglGetError },
+        { "eglTerminate", (void *)eglTerminate },
+        { "eglCreatePbufferSurface", (void *)eglCreatePbufferSurface },
+    };
+    for (unsigned i = 0; i < sizeof own / sizeof own[0]; i++)
+        if (!strcmp(name, own[i].n)) return (__eglMustCastToProperFunctionPointerType)own[i].p;
     void *p = dlsym(real_lib, name);
     if (!p && p_eglGetProcAddressReal) p = (void *)p_eglGetProcAddressReal(name);
     return (__eglMustCastToProperFunctionPointerType)p;
