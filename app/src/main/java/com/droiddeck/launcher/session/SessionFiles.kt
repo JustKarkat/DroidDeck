@@ -149,6 +149,7 @@ object SessionFiles {
             "usr/lib/libhybris-common.so.1.0.0",
             "usr/lib/libddcefgl.so.1.0.0",
             "usr/lib/ddcefdiag.so",
+            "usr/lib/ddcefmem.so",
             "usr/lib/angle/libEGL.so",
             "usr/lib/angle/libGLESv2.so",
             "usr/lib/angle/eglfront.so",
