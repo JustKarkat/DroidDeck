@@ -912,3 +912,39 @@ ring. This is the surgical fix and it lives entirely in code we own.
 production builds`), a real Vulkan driver for Tegra (renderless stub;
 `libsysvk` was the dead end), and shrinking the pool by resolution or
 Mesa knobs (all tested above, no effect).
+
+## 28. Attribution pass (external review #3, executed)
+
+Taken from `smaps` of the live gamescope (pid 19230) plus a `/proc/<pid>/mem`
+read:
+
+- Each big block is a **pair**: a 46 MiB `---p` (PROT_NONE) reservation
+  immediately followed by a 46 MiB `rw-p` region. That is a guard-page
+  arena pattern, not a framebuffer allocation; 38 `rw-p` blocks ≥ 15 MiB,
+  1 045 MiB virtual / **828 MiB resident** / 51 MiB swapped.
+- **The contents are heap data, not pixels**: offset +16 MiB is
+  `0x3f800000` repeated (1.0f floats), +32 MiB is packed `01`/`02` bytes,
+  the first words are pointers into the same arena. So the hypothesis
+  "these are Steam window framebuffers" does not survive the read.
+- `/proc/<gs>/clear_refs` is **denied** (even as the owning uid, under
+  proot), so the 12 s working-set measurement the review asked for cannot
+  be taken in-guest. Reported `Referenced` values are lifetime, not recent:
+  a few blocks are fully referenced, most are ~0 while still resident.
+- Memory budget at the same moment: `MemFree 36 MB`, `MemAvailable 339 MB`,
+  `Cached 370 MB`, `SwapCached 55 MB`, `Shmem 46 MB`, `Slab 127 MB`
+  (`SUnreclaim 85 MB`).
+- The guest agent **times out under this pressure** (70 s), so in-guest
+  tools (`xwininfo`, `dd guest`) are not usable while a session is running;
+  everything above was read through `run-as` + `cat`, which stays reliable.
+
+**Conclusion:** the blocks are allocator arenas (guard-paged, mixed heap
+contents) inside gamescope's address space, and the next attribution step
+must name the allocator. Cheapest route, no CI rebuild: an
+`LD_PRELOAD` `mmap`/`mremap` tracer in `/etc/ld.so.preload` (same pattern
+as `ddcefdiag`) that logs mappings ≥ 8 MiB with a return address resolved
+against `/proc/self/maps`, active only in the `gamescope` process. That
+distinguishes gamescope's own allocations from lavapipe's internal ones —
+which is the decision the pool-bounding patch depends on. The alternative
+(one `build-gamescope.yml` cycle adding a `>8 MiB` log to
+`CVulkanTexture::BInit`) only covers textures and would answer the same
+question more narrowly.
