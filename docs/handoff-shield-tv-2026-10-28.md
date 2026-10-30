@@ -1068,3 +1068,49 @@ we want to host: `Xwayland :0 -rootless -core -terminate -listenfd … -displayf
 
 This ordering answers "does it actually free memory" and "does input work"
 with a trivial client *before* committing the Steam UI to it.
+
+## 31. Option A landed: Steam UI runs with NO gamescope
+
+`BL_NO_GAMESCOPE=1` in `droiddeck-session` hosts Xwayland directly on
+`waylandcomp`. Shipped default is still `0` (gamescope).
+
+**No new Wayland protocol was needed.** Xwayland in fullscreen (non-rootless)
+mode maps its root window through the plain `xdg-shell` path the compositor
+already implements, so the `xwayland-shell-v1` work §30 budgeted is not on the
+critical path.
+
+Two blockers, both solved:
+
+1. Xwayland could not create `/tmp/.X<n>-lock`: `link()` is **denied** in the
+   guest's `/data`-backed `/tmp` (`ln: … Permission denied`), and `-nolock` is
+   honoured only for root (the guest runs as uid 10018).
+2. Fix: `tools/x11/xwayland-host.py` binds `/tmp/.X11-unix/X<n>` itself and
+   passes it with `-listenfd` — the same trick gamescope uses — so Xwayland
+   never touches the lock.
+
+**Scale bug found and fixed.** With a 960x540 output the OOBE rendered but the
+language list was missing. `tools/x11/xprobe.c` (new, `tree` mode) showed why:
+the X screen is 960x540 while **Steam opens a 1280x800 window** (its Deck
+default — with no window manager nothing clamps it), so the right 320 px were
+cropped. `-geometry` does not help: Xwayland in fullscreen mode follows the
+compositor's `wl_output`. Fixed by setting the session resolution pref
+`displayResolution.steam=1280x800` (`dd prefs set session …`), so output, X
+screen and window all agree — full UI, correct scale
+(`docs/evidence/nogamescope-oobe-1280x800.png`).
+
+**Measured (same device):**
+
+| | gamescope | no-gamescope 960x540 | no-gamescope 1280x800 |
+|---|---|---|---|
+| `gamescope-wl` | 917 MB | — | — |
+| major faults/s | ~57 | **0** | ~25 |
+| swap used | 511/511 | 413/511 | 493/511 |
+| CPU idle | 6% | **150%** | 31% |
+| UI complete | yes | **no (cropped)** | **yes** |
+
+So: removing gamescope fixes the thrash (that was the bursty frame pacing),
+and 1280x800 fixes the scale; the larger output costs back part of the memory
+headroom. Remaining work: get the headroom of 960x540 *and* the correctness of
+1280x800 (compositor-side scale of a 1280x800 surface into a 960x540 output),
+plus focus/overlay behaviour that gamescope used to provide.
+

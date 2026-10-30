@@ -37,6 +37,7 @@ static void say(const char *fmt, ...) {
 int main(int argc, char **argv) {
     const char *dpy_name = argc > 1 ? argv[1] : NULL;
     int seconds = argc > 2 ? atoi(argv[2]) : 20;
+    int tree = argc > 3 && !strcmp(argv[3], "tree");
 
     Display *d = XOpenDisplay(dpy_name);
     if (!d) {
@@ -44,6 +45,30 @@ int main(int argc, char **argv) {
         return 1;
     }
     int scr = DefaultScreen(d);
+
+    /* tree mode: every top-level X window with geometry — shows what size the
+     * Steam client thinks its window is versus the X screen. */
+    if (tree) {
+        Window root = RootWindow(d, scr), parent, *kids = NULL;
+        unsigned n = 0;
+        say("screen %dx%d", DisplayWidth(d, scr), DisplayHeight(d, scr));
+        if (XQueryTree(d, root, &root, &parent, &kids, &n)) {
+            for (unsigned i = 0; i < n; i++) {
+                XWindowAttributes a;
+                if (!XGetWindowAttributes(d, kids[i], &a)) continue;
+                char *name = NULL;
+                XFetchName(d, kids[i], &name);
+                say("win %#lx %dx%d+%d+%d mapped=%d override=%d name=%s",
+                    kids[i], a.width, a.height, a.x, a.y, a.map_state == IsViewable,
+                    a.override_redirect, name ? name : "-");
+                if (name) XFree(name);
+            }
+            if (kids) XFree(kids);
+        }
+        XCloseDisplay(d);
+        return 0;
+    }
+
     int W = 480, H = 270;
     Window root = RootWindow(d, scr);
     Window w = XCreateSimpleWindow(d, root, 40, 40, W, H, 0,
