@@ -753,3 +753,43 @@ Success signals, in order: `[ddangle] CreateDisplay ... impl!=0` in
 steamwebhelper.log → shim `eglGetDisplay/eglGetPlatformDisplay entry` in
 `/tmp/ddcef-egl.log` → `real lib loaded` → `EGL_VENDOR = "Google Inc.
 (NVIDIA Corporation)"`.
+
+## 22. RESULT — CEF renders on the Tegra GPU (2026-10-29)
+
+CI run `40982345640` green (45m36s), artifact verified to contain the
+patch (`DDANGLE_NO_FORCE_EGL` + `[ddangle]` strings in `libGLESv2.so`),
+staged via `tools/angle/stage-libs.sh`, APK rebuilt and installed.
+Two consecutive sessions (2026-10-29-01 and the follow-up) verified:
+
+- `[ddangle] CreateDisplay type=0x320d device=0x320a platform=0x31d5`
+  → `impl=non-null`: the DEFAULT request (OPENGL + HARDWARE + X11) now
+  builds **DisplayEGL** instead of GLX.
+- The shim's `load_real: dlopen /usr/local/hybris/usr/lib/libEGL.so.1`
+  returned a valid handle and `real lib loaded` — the hybris/bionic EGL
+  stack loads **inside the sandboxed GPU child**.
+- GPU-child maps: `gralloc.tegra`, `libnvrm_gpu`, `libnvos`,
+  `libnvrm_*`, `libddcefgl` present; **`libgallium` = 0, `libLLVM` = 0,
+  `libGLX_mesa` = 0, `swiftshader` = 0**. The Mesa/llvmpipe path is gone
+  from the CEF process entirely.
+- `exit_code=11` count for the session: **0** (GPU-child Vulkan
+  starvation from §20 holds it).
+- The Steam OOBE renders and responds to gamepad input (screenshot:
+  `docs/evidence/steam-oobe-tegra-gpu-2026-10-29.png`), text crisp.
+
+**Both halves of the fix are required:** §20 (stop the child dying in
+lavapipe) and §21 (make ANGLE pick DisplayEGL). Either alone leaves the
+child on Mesa or dead.
+
+### Notes / remaining work
+
+- Presentation does not go through the shim's pbuffer+readback path (no
+  `CreateWindowSurface`/`SwapBuffers` lines): ANGLE resolves most entry
+  points through `eglGetProcAddress`, which our shim forwards to the real
+  hybris lib. CEF presents via its own Ozone path. If we later want swap
+  timing/damage control, make `eglGetProcAddress` return OUR wrappers for
+  the surface/swap/query entry points too.
+- One transient ghost-text artifact was seen on the first OOBE frame,
+  gone afterwards — worth re-checking under motion (scrolling) before
+  calling presentation perfect.
+- `DDANGLE_LOG` and `DDEDIAG_NOVK` are debug switches (unset by default).
+- Merge `fix/angle-force-egl-display` → `shield-tv` once accepted.
