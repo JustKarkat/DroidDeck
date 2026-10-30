@@ -12,6 +12,7 @@ Run from the gamescope source root (the PKGBUILD prepare step does this
 after the patch series). Idempotent; exits non-zero if the anchors move so
 the build fails loudly instead of shipping a silent binary.
 """
+import re
 import sys
 
 PATH = "src/rendervulkan.cpp"
@@ -25,36 +26,39 @@ if MARK in src:
     sys.exit(0)
 
 
-def insert_after(anchor, block):
-    """Insert `block` after the line containing `anchor`."""
+def insert_after(pattern, block, what):
+    """Insert `block` after the first line matching `pattern` (regex)."""
     global src
-    idx = src.find(anchor)
-    if idx < 0:
-        sys.exit(f"alloc-log: anchor not found: {anchor!r}")
-    end = src.find("\n", idx)
-    if end < 0:
-        sys.exit("alloc-log: anchor at EOF")
-    src = src[: end + 1] + block + src[end + 1 :]
+    rx = re.compile(pattern)
+    for m in rx.finditer(src):
+        end = src.find("\n", m.start())
+        if end < 0:
+            break
+        src = src[: end + 1] + block + src[end + 1 :]
+        return
+    sys.exit(f"alloc-log: anchor not found for {what}: {pattern!r}")
 
 
 # 1) Texture memory: which dimensions/format produce the big allocations.
 insert_after(
-    "GetImageMemoryRequirements( g_device.device(), m_vkImage, &memRequirements )",
+    r"GetImageMemoryRequirements\s*\(\s*g_device\.device\(\)\s*,\s*m_vkImage",
     '\tif ( memRequirements.size > ( 8u << 20 ) )\n'
-    '\t\tvk_log.infof( "0130-diag: tex %ux%ux%u size=%lluMB align=%llu typeBits=%#x",\n'
-    "\t\t\twidth, height, depth,\n"
+    '\t\tvk_log.infof( "0130-diag: tex %ux%ux%u fmt=%#x size=%lluMB align=%llu typeBits=%#x",\n'
+    "\t\t\twidth, height, depth, (uint32_t)m_format,\n"
     "\t\t\t(unsigned long long)( memRequirements.size >> 20 ),\n"
     "\t\t\t(unsigned long long)memRequirements.alignment,\n"
     "\t\t\t(uint32_t)memRequirements.memoryTypeBits );\n",
+    "texture memory",
 )
 
 # 2) The raw Vulkan allocation, in case it is not texture-driven.
 insert_after(
-    "res = g_device.vk.AllocateMemory( g_device.device(), &allocInfo, nullptr, &memoryHandle )",
+    r"vk\.AllocateMemory\(\s*g_device\.device\(\)\s*,\s*&allocInfo\s*,\s*nullptr\s*,\s*&memoryHandle",
     '\tif ( allocInfo.allocationSize > ( 8u << 20 ) )\n'
     '\t\tvk_log.infof( "0130-diag: vkAllocateMemory size=%lluMB type=%u",\n'
     "\t\t\t(unsigned long long)( allocInfo.allocationSize >> 20 ),\n"
     "\t\t\t(uint32_t)allocInfo.memoryTypeIndex );\n",
+    "vkAllocateMemory",
 )
 
 with open(PATH, "w") as f:
