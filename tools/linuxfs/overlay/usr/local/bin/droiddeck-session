@@ -205,7 +205,12 @@ if [ -z "${BL_INSIDE:-}" ]; then
   if [ "$mode" = steam ]; then
     export gamescope_cursor_composite=2
   fi
-  args=(--backend wayland --expose-wayland -f -W "$width" -H "$height" -w "$nested" -h "$height")
+  args=(--backend wayland -f -W "$width" -H "$height" -w "$nested" -h "$height")
+  # --expose-wayland hands nested clients a Wayland socket. It is not needed
+  # for the Steam client itself (CEF runs --ozone-platform=x11) and it makes
+  # gamescope materialise Wayland/shm buffers up front; on this 3 GB device
+  # that memory is scarce. BL_EXPOSE_WAYLAND=0 turns it off.
+  [ "${BL_EXPOSE_WAYLAND:-1}" = 1 ] && args+=(--expose-wayland)
   [ "$nested" != "$width" ] && args+=(-S stretch) && export BL_STRETCHED=1
   if [ "${BL_FPS:-0}" -gt 0 ]; then
     args+=(-r "$BL_FPS")

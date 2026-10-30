@@ -855,3 +855,60 @@ now ours whenever a window surface is requested.
    side. Try `MESA_...`, or a gamescope build with its GL renderer.
 3. Only after memory is healthy does frame pacing mean anything — anything
    measured while swap is full is measuring reclaim, not rendering.
+
+---
+
+# Update 9: where gamescope's ~950 MB actually goes (measured), and the two real ways out
+
+## 26. The allocation, characterized
+
+Sampling gamescope's RSS from session start (`ps -A -o rss,comm`):
+
+```
+ 243 → 338 → 465 → 598 → 714 → 851 → 936 MB  (≈60 s), then flat at ~930 MB
+```
+
+It is **not** preallocated, **not** a per-frame leak (it plateaus), and
+**not** affected by any of: output/nested resolution (640×540…960×540),
+`--expose-wayland` (now switchable: `BL_EXPOSE_WAYLAND=0`), `LP_NUM_THREADS=1`,
+`MESA_SHADER_CACHE_DISABLE=true`, `--xwayland-count 1`, mangoapp off.
+`/proc/<pid>/status` shows `RssAnon 908 MB`, `RssShmem 35 MB`,
+`VmData 1.18 GB` — private, not shared buffers.
+
+The address space is 13 × 46.0 MB + 23 × 18.0 MB `rw-p` anonymous blocks
+(~1.0 GB). The 0123 shm output path is **not** it: its buffers are
+960×540 (`size=2073600`), and all `memfd:gamescope-shm` maps together are
+~14 MB. What remains ís lavapipe's Vulkan image memory, which the device
+reports as a single 2 GB heap (`memoryHeap[0] size=2147483648`,
+`memoryTypes=1` from the 0117 diag line), i.e. plain anonymous mmap.
+
+So: **gamescope's software-Vulkan compositor settles on a ~950 MB working
+set on this device, and a 3 GB SHIELD cannot hold that plus the Steam
+client + CEF + the guest's tooling.** Everything else measured (frame
+bursts, 1 fps present cadence, 11 s `input keyevent`) is downstream of the
+resulting reclaim thrash.
+
+## 27. The two real ways out
+
+**A. Don't run gamescope for the UI (≈950 MB reclaimed).** The app's own
+compositor (`app/src/main/cpp/waylandcomp`) implements `xdg-shell` but
+**not** `xwayland_shell`, so Steam's X11 CEF cannot attach to it directly
+today; gamescope is what supplies Xwayland. Making this real means either
+(a) implementing `xwayland_shell` in waylandcomp and dropping gamescope, or
+(b) running CEF with `--ozone-platform=wayland`, which makes the Deck UI a
+native Wayland client and needs no Xwayland at all. (b) is a one-session
+experiment with the existing compositor. Cost: loses gamescope's
+scaling/focus/frame-limiter behaviour, which the app reimplements.
+
+**B. Bound gamescope's Vulkan pool (target ≈700–800 MB back).** We already
+carry 20+ patches on gamescope 3.16.29 (`tools/gamescope/patches`, built by
+`.github/workflows/build-gamescope.yml`), including 0116/0117–0121 from the
+earlier lavapipe allocation bisect and 0123's shm output fallback. The
+remaining work is to find which object is allocated 13 × 46 MB + 23 × 18 MB
+during startup and either free it after the first composite or reuse one
+ring. This is the surgical fix and it lives entirely in code we own.
+
+**Not available:** growing zram (no root — `adbd cannot run as root in
+production builds`), a real Vulkan driver for Tegra (renderless stub;
+`libsysvk` was the dead end), and shrinking the pool by resolution or
+Mesa knobs (all tested above, no effect).
