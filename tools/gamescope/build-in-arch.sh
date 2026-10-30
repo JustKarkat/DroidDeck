@@ -30,6 +30,9 @@ _droiddeck_prepare() {
     echo \"applying \$(basename \"\$p\")\"
     patch -p1 --no-backup-if-mismatch < \"\$p\"
   done
+  # 0130-diag: log every >8 MiB texture / Vulkan allocation with its dimensions.
+  # Names the objects behind gamescope's ~830 MB working set on this device.
+  python3 /work/tools/gamescope/alloc-log.py
 }
 if declare -f prepare >/dev/null; then
   eval \"\$(declare -f prepare | sed 's/^prepare ()/_arch_prepare ()/')\"

@@ -72,3 +72,10 @@ library list, before anything is published.
 
 Sixteen more of Armada's patches are DRM/lease/HDR-on-KMS work for a native display, which this
 app's Wayland-hosted gamescope never reaches, or need a newer gamescope than the runtime has.
+
+- **Build-time diag `alloc-log.py`** (temporary, not a source patch): after the
+  patch series, `build-in-arch.sh` runs it to insert two `0130-diag` log lines —
+  every texture whose `VkMemoryRequirements` exceed 8 MiB (dimensions, size,
+  alignment, typeBits) and every `vkAllocateMemory` above 8 MiB. Purpose: name
+  the objects behind gamescope's ~830 MB steady-state footprint on the Shield TV
+  (handoff §26-29). Remove this step once the attribution is done.
