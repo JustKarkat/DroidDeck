@@ -994,3 +994,77 @@ Either
 
 Not attempted: `--enable-low-end-device-mode` is in place for CEF; it does
 not affect gamescope.
+
+## 30. Option A validated before committing
+
+The two questions were "will removing gamescope actually free the memory"
+and "will input still work". Both answered from the live session:
+
+**Memory — measured, not projected.** In the running session:
+
+| process | RSS |
+|---|---|
+| `gamescope-wl` | **917 MB** |
+| `Xwayland` :0 (1st) | 24 MB |
+| `Xwayland` :1 (2nd) | 10 MB |
+| `gamescopereaper` | 1.2 MB |
+
+Gamescope launches two Xwaylands (`--xwayland-count 2`); a gamescope-free
+session needs one. Removing gamescope therefore frees ~917 MB and costs
+~24 MB of Xwayland — **net ≈ 890 MB**, taking the device from 22 MB free to
+roughly 900 MB free. This is the same process tree we have been measuring all
+along, so the number is an observation, not an estimate.
+
+**Input — the plumbing already exists, twice over.**
+
+1. `app/src/main/cpp/waylandcomp/src/compositor.c` implements
+   `wl_seat` with `wl_pointer_impl`, `wl_keyboard_impl` (sends an XKB keymap
+   from `/usr/share/X11/xkb`, plus repeat info) and `wl_touch_impl`, and it
+   actively drives them (`wl_pointer_send_enter/motion/button/frame`,
+   `wl_pointer_send_leave`). That is the channel Xwayland uses in rootless
+   mode.
+2. Independently, the guest runs with `FAKE_EVDEV_UINPUT=1`
+   (`SessionService.kt:634`): pointer/keyboard/gamepad arrive as virtual
+   evdev devices (`app/src/main/cpp/fakeinput_steam.cpp`, `UI_DEV_CREATE`,
+   `EV_KEY`/`EV_ABS`). Steam and games read those devices directly, so
+   gamepad input never depended on gamescope.
+
+**What is actually missing — one protocol.** There are no `xwayland`
+references anywhere in `app/src/main/cpp/waylandcomp`, and the protocol list
+(`waylandcomp/protocols/`) has `xdg-shell` but no `xwayland-shell-v1`. The
+compositor already has everything else Xwayland needs: `wl_compositor`,
+`wl_output` (with mode/geometry), `wl_shm` buffers (used for cursors today),
+`linux-dmabuf`, `presentation-time`, `pointer-constraints`, `wl_seat`, and
+clipboard. Protocols are generated from XML into `generated/` and listed in
+`waylandcomp/CMakeLists.txt`, so adding one is a known-shaped change.
+
+Xwayland's live invocation (from `/proc/<pid>/cmdline`) is already the mode
+we want to host: `Xwayland :0 -rootless -core -terminate -listenfd … -displayfd …
+-noTouchPointerEmulation -force-xrandr-emulation`.
+
+**Residual risks, stated plainly**
+
+1. `xwayland-shell-v1` implementation in `compositor.c` (role for X windows,
+   serial/associate, map/unmap, geometry) is real C work — the largest part
+   of the job.
+2. Steam's Deck UI reads gamescope X atoms for focus/overlay behaviour.
+   Without them Steam runs as a plain X client — usually fine, but focus and
+   the overlay need checking.
+3. Frame limiting / scaling / focus logic that gamescope performs must be
+   replaced by `waylandcomp`'s own (it already composites, scales and
+   presents, since gamescope is its client today).
+
+**Staged plan with a hard checkpoint before Steam is involved**
+
+1. Add `xwayland-shell-v1.xml`, wire it into the CMake protocol list, and
+   implement the role + single-fullscreen layout behind `BL_NO_GAMESCOPE=1`.
+2. Session mode that launches `Xwayland` directly against the compositor and
+   a trivial X client (we build a tiny one: we have X11 headers/sysroot, and
+   the rootfs has no xterm/xclock).
+3. **Checkpoint:** window appears, pointer motion/button and key events
+   arrive, and `free -m` shows the ~890 MB. Only then point the Steam session
+   at it.
+4. If step 3 fails, nothing in the default path changes — gamescope stays.
+
+This ordering answers "does it actually free memory" and "does input work"
+with a trivial client *before* committing the Steam UI to it.
