@@ -948,3 +948,49 @@ which is the decision the pool-bounding patch depends on. The alternative
 (one `build-gamescope.yml` cycle adding a `>8 MiB` log to
 `CVulkanTexture::BInit`) only covers textures and would answer the same
 question more narrowly.
+
+## 29. Attribution, second pass — four negatives and the state of the question
+
+Instrumentation deployed and read:
+
+1. **`ddcefmem.so` (LD_PRELOAD, mmap/mremap/malloc/calloc/realloc ≥ 8 MiB,
+   gamescope only).** Confirmed mapped into gamescope (`grep ddcefmem
+   /proc/<pid>/maps` → 7). **Zero log lines.** So the 46 MiB regions are not
+   made by an interposable `mmap` or a large `malloc`.
+2. **`0130-diag` inside gamescope** (`alloc-log.py`, applied by
+   `build-in-arch.sh`; five sites). Build `41100860237`; the *instrumented*
+   binary ran (sha256 verified in the guest, 295 gamescope log lines) and
+   logged **nothing** above 8 MiB from: `CVulkanTexture::BInit` image memory,
+   `vkAllocateMemory(&memoryHandle)`, `CVulkanBuffer::BInit` buffer memory,
+   the device-init upload buffer, or any `vkCreateImage` ≥ 2048×1152.
+   The earlier 2-minute build `41095762692` covered only the first two and
+   was equally silent.
+3. **Thread stacks ruled out**: `VmFlags` for a 46 MiB block is
+   `rd wr mr mw me ac` — no `ms` (MAP_STACK), no guard flag, and `ac` means
+   account/commit, so not `MAP_NORESERVE` either. `startstack` for every
+   thread falls outside all big blocks.
+4. **glibc arenas ruled out**: `MALLOC_ARENA_MAX=2` left RSS unchanged
+   (948 MiB) with the same 13 threads.
+
+Residency detail: the blocks are **fully resident** (46 MiB `size` = 46 MiB
+`Rss`) and counted as committed, i.e. the pages are written, not reserved.
+Contents sampled through `/proc/<pid>/mem` are heap-like (1.0f float
+arrays, pointers into the same arena).
+
+**Where that leaves it:** the memory is gamescope's process heap, allocated
+in sub-8 MiB units through a path that neither symbol interposition nor
+gamescope's own Vulkan call sites see — most plausibly inside
+lavapipe/Mesa (shader compilation, driver bookkeeping) reached through
+internal (non-PLT) allocation calls. Confirming *that* needs a heap
+profiler inside the guest (heaptrack/massif), which this image does not
+carry; every cheap lever is now spent.
+
+**Decision this forces:** stop trying to reclaim the ~830 MB from outside.
+Either
+(A) take gamescope out of the UI path — implement `xwayland_shell` in
+`app/src/main/cpp/waylandcomp` so Xwayland attaches to the app compositor
+(fixes UI *and* game headroom), or
+(B) accept the ceiling on a 3 GB device and tune everything else around it.
+
+Not attempted: `--enable-low-end-device-mode` is in place for CEF; it does
+not affect gamescope.

@@ -91,3 +91,43 @@ void *mremap(void *old, size_t oldlen, size_t newlen, int flags, ...) {
         say("mremap", newlen, 0, flags, __builtin_return_address(0));
     return r;
 }
+
+/* --- large CPU-side allocations ---
+ * gamescope holds ~830 MB of committed, fully-resident anonymous memory in
+ * 46/18 MiB blocks that no Vulkan API call in its source accounts for and
+ * that the mmap tracer never sees. glibc maps big malloc requests through an
+ * internal __mmap, invisible to symbol interposition at the mmap level — but
+ * the malloc call itself comes through the PLT, so it can be traced here.
+ * ddcefmem.dladdr() may itself allocate: `busy` keeps that from recursing. */
+static __thread int busy;
+
+static void trace_alloc(const char *what, size_t n, void *ra) {
+    if (n < BIG || busy || !tracing()) return;
+    busy = 1;
+    say(what, n, 0, 0, ra);
+    busy = 0;
+}
+
+void *malloc(size_t n) {
+    static void *(*real)(size_t);
+    if (!real) real = (void *(*)(size_t))dlsym(RTLD_NEXT, "malloc");
+    void *p = real(n);
+    trace_alloc("malloc", n, __builtin_return_address(0));
+    return p;
+}
+
+void *calloc(size_t a, size_t b) {
+    static void *(*real)(size_t, size_t);
+    if (!real) real = (void *(*)(size_t, size_t))dlsym(RTLD_NEXT, "calloc");
+    void *p = real(a, b);
+    trace_alloc("calloc", a * b, __builtin_return_address(0));
+    return p;
+}
+
+void *realloc(void *old, size_t n) {
+    static void *(*real)(void *, size_t);
+    if (!real) real = (void *(*)(void *, size_t))dlsym(RTLD_NEXT, "realloc");
+    void *p = real(old, n);
+    trace_alloc("realloc", n, __builtin_return_address(0));
+    return p;
+}
