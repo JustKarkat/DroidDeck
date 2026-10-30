@@ -252,7 +252,37 @@ if [ -z "${BL_INSIDE:-}" ]; then
     grep -qs '/usr/local/hybris/usr/lib/ddcefmem.so' /etc/ld.so.preload || \
       echo /usr/local/hybris/usr/lib/ddcefmem.so >> /etc/ld.so.preload
   fi
-  gamescope "${args[@]}" -- "$0" "$mode" "$@"; bl_rc=$?
+  # BL_NO_GAMESCOPE=1: host Xwayland directly on the app compositor instead of
+  # running gamescope (~917 MB of software-Vulkan heap on this 3 GB device, vs
+  # ~24 MB for Xwayland). Input still arrives: the compositor implements
+  # wl_seat and the guest injects virtual evdev devices (FAKE_EVDEV_UINPUT).
+  # Explored in handoff §30; BL_NO_GAMESCOPE=0 is the shipping default.
+  if [ "${BL_NO_GAMESCOPE:-0}" = 1 ]; then
+    xdisp=${BL_XWAYLAND_DISPLAY:-9}
+    step "no-gamescope mode: Xwayland :$xdisp on ${WAYLAND_DISPLAY:-?}"
+    # The socket is created here and passed in with -listenfd: Xwayland's own
+    # lock step needs hard links, which the guest's /data-backed /tmp denies,
+    # and -nolock is root-only (see tools/x11/xwayland-host.py).
+    xwait=/tmp/.X11-unix/X$xdisp
+    rm -f "$xwait" 2>/dev/null
+    python3 /usr/local/bin/xwayland-host.py "$xdisp" \
+      ${BL_XWAYLAND_ROOTLESS:+-rootless} ${BL_XWAYLAND_GEOMETRY:+-geometry "$BL_XWAYLAND_GEOMETRY"} \
+      >/tmp/xwayland.log 2>&1 &
+    xw_pid=$!
+    for _ in $(seq 1 100); do [ -S "$xwait" ] && break; kill -0 "$xw_pid" 2>/dev/null || break; sleep 0.1; done
+    if [ ! -S "$xwait" ]; then
+      echo "== xwayland: no display socket; log follows"; cat /tmp/xwayland.log 2>&1 | tail -20
+      start_agent --no-focus; sleep 900; exit 67
+    fi
+    echo "== xwayland: :$xdisp ready (pid $xw_pid)"
+    export DISPLAY=":$xdisp"
+    # Gamescope normally supplies these; keep the client's expectations intact.
+    export STEAM_MULTIPLE_XWAYLANDS=0
+    "$0" "$mode" "$@"; bl_rc=$?
+    kill "$xw_pid" 2>/dev/null
+  else
+    gamescope "${args[@]}" -- "$0" "$mode" "$@"; bl_rc=$?
+  fi
   if [ "$bl_rc" = 0 ]; then exit 0; fi
   echo "== gamescope exited rc=$bl_rc; session kept alive for probing"
   start_agent --no-focus

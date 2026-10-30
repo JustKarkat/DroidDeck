@@ -176,6 +176,8 @@ object SessionFiles {
         ).map { "usr/local/hybris/$it" to "usr/local/hybris/$it" }
         val optional = (arrayOf(
             "usr/local/bin/gamescope" to "usr/local/bin/gamescope",
+            "usr/local/bin/xprobe" to "usr/local/bin/xprobe",
+            "usr/local/bin/xwayland-host.py" to "usr/local/bin/xwayland-host.py",
             "usr/local/lib/droiddeck/uruntime" to "usr/local/lib/droiddeck/uruntime",
             "usr/local/share/licenses/uruntime/LICENSE" to "usr/local/share/licenses/uruntime/LICENSE",
         ) + mangoapp + listOf("comet", "GalaxyCommunication.exe", "update-permissions.exe", "LICENSE", "version").map { "usr/local/lib/droiddeck-comet/$it" to "usr/local/lib/droiddeck-comet/$it" } + msitools.map { it to it } + vr + fexPreloads + hybrisPayload).filter { (asset, _) ->
