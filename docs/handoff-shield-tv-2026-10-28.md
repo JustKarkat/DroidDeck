@@ -706,3 +706,90 @@ handler was overwritten (review §0.2 explains how).
   `BL_WEBHELPER_ARGS=--disable-gpu-sandbox --disable-vulkan
   --disable-crash-reporter`, `VK_ICD_FILENAMES=`/`VK_DRIVER_FILES=` →
   `/usr/local/hybris/empty-icd.json`.
+
+---
+
+# Update 7 (external review #2): GPU-child Vulkan starvation FIXED the crash loop; force-DisplayEGL ANGLE build is in CI
+
+## 20. Crash loop: fixed
+
+`ddcefdiag` v3 (`tools/hybris/preload/ddcefdiag.c`, commit `af30ba61`)
+refuses every `libvulkan*` `dlopen` **in `--type=gpu-process` children
+only** (`DDEDIAG_NOVK=0` restores stock behavior). Session 72 verified:
+both `libvulkan.so` and `libvulkan.so.1` were blocked, the child survived
+the lvp/LLVM phase that used to kill it, produced **zero
+`exit_code=11`** lines, proceeded into GL init and exited cleanly. Steam's
+bootstrap and gamescope are separate processes and kept their Vulkan — no
+wedge (the earlier global ICD starvation, §18, did wedge
+`steam.starting`; that env was reverted).
+
+## 21. Remaining gap and the force-DisplayEGL fix (in CI)
+
+With the crash gone the child still takes the DEFAULT display:
+`{OPENGL, HARDWARE, X11}` → `CreateGLXDisplay` → Mesa. Only
+`DEVICE_TYPE_EGL` reaches `DisplayEGL`, so even a correct
+`ANGLE_OPENGLES_EGL` request without that device type goes to GLX — and
+the child's DT16 request demonstrably never reaches ANGLE's platform
+display path.
+
+**Patch:** `tools/angle/patches/force-egl-display.py`, run from
+`tools/angle/build-in-arch.sh` right after the AstcDecompressor fixup.
+It edits `src/libANGLE/Display.cpp` (chromium/6478) so both the OPENGL and
+OPENGLES cases construct `rx::DisplayEGL` on Linux **before** the
+GBM/device-type/GLX branches — Valve's display-type selection stops
+mattering, and the DEFAULT display itself routes to our shim → hybris →
+Tegra. Verified against the real chromium/6478 source: all four anchors
+match with the expected counts (1/2/1/1) and the script is idempotent.
+Runtime switches: `DDANGLE_NO_FORCE_EGL=1` (stock selection) and
+`DDANGLE_LOG=1` (prints requested display/device/platform type and whether
+an impl was built, to the child's stderr → steamwebhelper.log).
+
+Branch `fix/angle-force-egl-display`, commit `32a24440`; CI run
+`40982345640` (push on `tools/angle/**`). Next: download `angle-libs`,
+`tools/angle/stage-libs.sh`, `runtime_inputs.py record`, rebuild install,
+then one session with both `DDANGLE_LOG=1` and `DDEDIAG_NOVK` defaults.
+
+Success signals, in order: `[ddangle] CreateDisplay ... impl!=0` in
+steamwebhelper.log → shim `eglGetDisplay/eglGetPlatformDisplay entry` in
+`/tmp/ddcef-egl.log` → `real lib loaded` → `EGL_VENDOR = "Google Inc.
+(NVIDIA Corporation)"`.
+
+## 22. RESULT — CEF renders on the Tegra GPU (2026-10-29)
+
+CI run `40982345640` green (45m36s), artifact verified to contain the
+patch (`DDANGLE_NO_FORCE_EGL` + `[ddangle]` strings in `libGLESv2.so`),
+staged via `tools/angle/stage-libs.sh`, APK rebuilt and installed.
+Two consecutive sessions (2026-10-29-01 and the follow-up) verified:
+
+- `[ddangle] CreateDisplay type=0x320d device=0x320a platform=0x31d5`
+  → `impl=non-null`: the DEFAULT request (OPENGL + HARDWARE + X11) now
+  builds **DisplayEGL** instead of GLX.
+- The shim's `load_real: dlopen /usr/local/hybris/usr/lib/libEGL.so.1`
+  returned a valid handle and `real lib loaded` — the hybris/bionic EGL
+  stack loads **inside the sandboxed GPU child**.
+- GPU-child maps: `gralloc.tegra`, `libnvrm_gpu`, `libnvos`,
+  `libnvrm_*`, `libddcefgl` present; **`libgallium` = 0, `libLLVM` = 0,
+  `libGLX_mesa` = 0, `swiftshader` = 0**. The Mesa/llvmpipe path is gone
+  from the CEF process entirely.
+- `exit_code=11` count for the session: **0** (GPU-child Vulkan
+  starvation from §20 holds it).
+- The Steam OOBE renders and responds to gamepad input (screenshot:
+  `docs/evidence/steam-oobe-tegra-gpu-2026-10-29.png`), text crisp.
+
+**Both halves of the fix are required:** §20 (stop the child dying in
+lavapipe) and §21 (make ANGLE pick DisplayEGL). Either alone leaves the
+child on Mesa or dead.
+
+### Notes / remaining work
+
+- Presentation does not go through the shim's pbuffer+readback path (no
+  `CreateWindowSurface`/`SwapBuffers` lines): ANGLE resolves most entry
+  points through `eglGetProcAddress`, which our shim forwards to the real
+  hybris lib. CEF presents via its own Ozone path. If we later want swap
+  timing/damage control, make `eglGetProcAddress` return OUR wrappers for
+  the surface/swap/query entry points too.
+- One transient ghost-text artifact was seen on the first OOBE frame,
+  gone afterwards — worth re-checking under motion (scrolling) before
+  calling presentation perfect.
+- `DDANGLE_LOG` and `DDEDIAG_NOVK` are debug switches (unset by default).
+- Merge `fix/angle-force-egl-display` → `shield-tv` once accepted.

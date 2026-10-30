@@ -49,6 +49,12 @@ gclient sync --no-history --shallow 2>&1 | tail -15
 cd /work/angle/angle
 # standalone-build fixes: hermetic-clang headers mask missing includes
 grep -q "include <stdint.h>" src/image_util/AstcDecompressor.h ||   sed -i '1i #include <stdint.h>' src/image_util/AstcDecompressor.h
+# Force DisplayEGL for the GL/GLES ANGLE display types on Linux. Valve's CEF
+# falls through to the DEFAULT display type (OPENGL+HARDWARE+X11 -> GLX ->
+# Mesa), which has no path to the Tegra driver; only DisplayEGL dlopens our
+# shim. DDANGLE_NO_FORCE_EGL=1 restores stock selection at runtime.
+python3 /work/tools/angle/patches/force-egl-display.py src/libANGLE/Display.cpp
+grep -c DDANGLE_NO_FORCE_EGL src/libANGLE/Display.cpp
 echo "== gn (hermetic depot_tools gn, aarch64 host)"
 gn --version || { ls /work/depot_tools | head; exit 1; }
 
