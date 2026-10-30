@@ -61,6 +61,38 @@ insert_after(
     "vkAllocateMemory",
 )
 
+# 3) Buffer memory (CVulkanBuffer::BInit) — the texture path logged nothing, so
+#    the steady-state footprint may be buffers rather than images.
+insert_after(
+    r"vk\.AllocateMemory\(\s*g_device\.device\(\)\s*,\s*&allocInfo\s*,\s*nullptr\s*,\s*&bufferMemory",
+    '\tif ( allocInfo.allocationSize > ( 8u << 20 ) )\n'
+    '\t\tvk_log.infof( "0130-diag: buffer size=%lluMB type=%u",\n'
+    "\t\t\t(unsigned long long)( allocInfo.allocationSize >> 20 ),\n"
+    "\t\t\t(uint32_t)allocInfo.memoryTypeIndex );\n",
+    "buffer memory",
+)
+
+# 4) Upload/transfer buffer, allocated once at device init.
+insert_after(
+    r"vk\.AllocateMemory\(\s*device\(\)\s*,\s*&allocInfo\s*,\s*nullptr\s*,\s*&m_uploadBufferMemory",
+    '\tif ( allocInfo.allocationSize > ( 8u << 20 ) )\n'
+    '\t\tvk_log.infof( "0130-diag: upload buffer size=%lluMB type=%u",\n'
+    "\t\t\t(unsigned long long)( allocInfo.allocationSize >> 20 ),\n"
+    "\t\t\t(uint32_t)allocInfo.memoryTypeIndex );\n",
+    "upload buffer",
+)
+
+# 5) Every image created, regardless of memory: names the geometry even when
+#    the allocation itself comes from a cached/pooled path.
+insert_after(
+    r"vk\.CreateImage\(\s*g_device\.device\(\)\s*,\s*&imageInfo\s*,\s*nullptr\s*,\s*&m_vkImage",
+    '\tif ( imageInfo.extent.width * imageInfo.extent.height >= ( 2048u * 1152u ) )\n'
+    '\t\tvk_log.infof( "0130-diag: createImage %ux%u fmt=%#x mips=%u layers=%u samples=%#x",\n'
+    "\t\t\timageInfo.extent.width, imageInfo.extent.height, (uint32_t)imageInfo.format,\n"
+    "\t\t\timageInfo.mipLevels, imageInfo.arrayLayers, (uint32_t)imageInfo.samples );\n",
+    "vkCreateImage",
+)
+
 with open(PATH, "w") as f:
     f.write(src)
 
